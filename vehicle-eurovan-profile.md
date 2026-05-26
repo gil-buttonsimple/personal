@@ -50,6 +50,11 @@
 - [ ] Clean up bypass wires once relay installed (two wires through antenna hole in firewall)
 - [x] Reassemble shifter housing -- done
 - [ ] Trace mystery wires under passenger dash (black + green, likely old amp -- may connect to door locks; do not remove until traced)
+- [x] Shifter illumination bulb holder: identified and verified against correct part specifications
+
+**SRS / Airbag -- status: fault active**
+- [x] Clock spring / spiral cable identified: yellow ribbon cable assembly at base of steering wheel
+- [ ] Clear SRS fault: airbag light active (latching fault caused by unplugging SRS with battery connected); requires VCDS Lite or VW-proprietary handheld to clear "Open Circuit" fault from SRS module; system likely disabled by ECU until reset
 
 **Engine**
 - [ ] Cyl 6 misfire on acceleration (VR6); swap coil pack/wire to another cylinder first to diagnose
@@ -63,10 +68,12 @@
 - [ ] Set up tire rotation schedule (check recommended interval for VR6 Automatic)
 
 **Audio**
-- [ ] Evaluate Kenwood KMM-X705 digital media receiver
+- [x] Boston Acoustics crossover: passenger side amplified crossover identified and bypassed (May 2026)
+- [x] Interim audio: door woofer wired direct to Alpine (4-ohm stable load); tweeter bypassed pending speaker upgrade
+- [ ] 6x9 speaker upgrade: requires mounting depth spacers to clear window tracks; coaxial 6x9 eliminates need for external crossover blocks
 - [ ] Research compact self-powered subwoofer for T4 cabin (8" or 10"; see what others have built)
 - [ ] Door panel modifications for upgraded speakers
-- [ ] Boston Acoustics crossover: discovered above fan area during blower repair; trace wires before removing -- determine if in front speaker signal chain or orphaned since amp removal
+- [ ] Evaluate Kenwood KMM-X705 as future head unit upgrade
 
 **Exterior / systems**
 - [ ] Starlink: fix roof mount rattle, add cable strain relief
@@ -99,7 +106,7 @@
 | Fuel / EVAP       | Unstable      | Vent routing / mounting issue |
 | Electrical        | Built         | 12V system installed pre-trip; documentation to be recovered |
 | Network (Starlink)| Planned       | Direct 12V integration |
-| Audio / Antenna   | Degraded      | Poor reception |
+| Audio / Antenna   | Interim       | Direct-drive via Alpine; 6x9 upgrade pending |
 | Interior Structure| Cleared       | Ready for rebuild |
 | Mechanical        | Minor issues  | Ignition interlock |
 
@@ -236,10 +243,11 @@
 - Power: 12V DC barrel input
 
 ## Audio / Head Unit
-- Brand: Kenwood
-- Model: TBD
+- Brand: Alpine (current, direct-drive)
+- Interim config: door woofer direct (4-ohm); tweeter bypassed pending 6x9 upgrade
 - Current antenna: passive aftermarket (low quality)
 - Issue: poor FM reception (fading, limited stations)
+- Future candidate: Kenwood KMM-X705 digital media receiver
 
 ## Seat Base
 - Bolt pattern:

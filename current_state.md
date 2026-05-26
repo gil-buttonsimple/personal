@@ -1,7 +1,16 @@
 # Personal -- Current State
 
-Last Updated: 2026-05-26 (session 4)
+Last Updated: 2026-05-26 (session 5)
 Status: Active
+
+---
+
+## Session 5 Notes (2026-05-26)
+
+vehicle-eurovan-profile.md updated with road trip findings:
+- Audio: Alpine head unit confirmed current; passenger side crossover identified and bypassed; door woofer wired direct (4-ohm interim); 6x9 upgrade path documented (depth spacers needed)
+- SRS: airbag light active (latching fault from unplugging SRS with battery live); VCDS Lite or VW handheld required to clear "Open Circuit" fault; clock spring / spiral cable identified
+- Interior electrical: shifter illumination bulb holder identified and verified against spec
 
 ---
 
