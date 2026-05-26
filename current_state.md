@@ -1,6 +1,6 @@
 # Personal -- Current State
 
-Last Updated: 2026-05-26
+Last Updated: 2026-05-26 (session 2)
 Status: Active
 
 ---
@@ -10,8 +10,12 @@ Status: Active
 - **Audit AI conversations from the past 12 days (by 2026-06-07):** Parse ChatGPT,
   Claude, and Gemini conversations from the bus trip for meaningful learning. Extract
   repair topics discussed, document what worked and what didn't for voice-command
-  use while driving, and build a consolidated to-do list. Source conversations are
-  on the phone from the road trip period.
+  use while driving, and build a consolidated to-do list.
+  - Claude Code sessions: done (voice/mobile setup, May 16-18)
+  - Claude.ai export: done (Eurovan repair, voice findings -- see vehicle-eurovan-profile.md)
+  - Gemini: done via in-app self-summary (shifter fix, audio shop, voice workflow)
+  - ChatGPT: pending export -- at least 2 threads about getting ChatGPT working
+    with GitHub repo (worth finding); also likely has voice/hands-free content
 
 ---
 
@@ -27,15 +31,25 @@ Files converted from Drive ZIP and committed locally:
 - `finance-canon.md` -- from Drive doc
 - `finance-balances.csv` -- converted from Drive XLSX (187 rows)
 
-Drive folder (`_personal_gk`) is now superseded locally. Originals can be deleted from Drive once GitHub repo is live.
+Drive folder (`_personal_gk`) deleted 2026-05-26. Local ZIP export also deleted. GitHub is sole source of truth.
 
 ---
 
 ## Open Items
 
-- **Delete Drive originals (_personal_gk folder):** GitHub repo is live and all
-  files are committed. Safe to delete Drive originals. Delete list (with IDs)
-  is in the `_current-state.docx` from the Drive ZIP export.
+- **Mobile operating profile for Claude:** Deferred from May 14 session. Claude
+  Android voice mode not ready for true hands-free driving use. Build a profile
+  documenting workarounds and preferred AI per context. See workflow-multi-ai-audit.md.
+
+- **Spotify taste session:** Started May 14 (Claude.ai), not completed. Export
+  Spotify data and finish the discovery/rating session.
+
+- **Vision correction:** Research prescription clip-on sunglasses ($15-90) for
+  driving. Confirm Xtreme goggle model for swim lens compatibility.
+
+- **Suggestions for business canon:** Personal boot never writes to business canon
+  directly. Items identified this session with work application: multi-AI workflow
+  method (workflow-multi-ai-audit.md). Raise in a gov session.
 
 - **Google clean-up:** Migrating `web@gkasparek.com` off Google Workspace to reduce cost.
 

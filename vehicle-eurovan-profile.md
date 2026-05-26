@@ -36,7 +36,45 @@
 - [ ] Electrical system build-out (battery + distribution)
 - [ ] Antenna upgrade (FM reception fix)
 - [ ] Interior electrical panel (flush mount)
-- [ ] Confirm ignition key retention resolved
+- [ ] Ignition / key retention -- see Bus trip finds below, status unresolved
+
+## Bus trip finds (May 2026)
+
+**Ignition / electrical -- status: unresolved, multiple open questions**
+- Key lockout: removed shifter housing during trip; key started working (cause unclear -- broken piece of thin plastic sheeting inside shifter was found and not replaced on reassembly)
+- Shifter housing is currently disassembled and not reassembled; deferred after starting issue below
+- Starting failure: solenoid relay failed; guy in New Orleans helped wire starter directly to positive battery terminal; currently starting by touching two wires together
+- [ ] Test relay before replacing -- may still be good
+- [ ] Decide on permanent starting solution: button wired to bypass, or remove key ignition and replace with a switch
+- [ ] Reassemble shifter housing (or decide to eliminate it as part of switch conversion)
+- [ ] Trace mystery wires under passenger dash (black + green, likely old amp -- may connect to door locks; do not remove until traced)
+
+**Engine**
+- [ ] Cyl 6 misfire on acceleration (VR6); swap coil pack/wire to another cylinder first to diagnose
+
+**HVAC / blower**
+- [ ] Blower fan clicking: remove motor via lower passenger dash panel, inspect for debris, check bearing
+- [ ] Clean windshield cowl intake -- debris likely entering and reaching blower
+
+**Tires**
+- [ ] Rear tires: get longer valve stems at next service
+- [ ] Set up tire rotation schedule (check recommended interval for VR6 Automatic)
+
+**Audio**
+- [ ] Evaluate Kenwood KMM-X705 digital media receiver
+- [ ] Research compact self-powered subwoofer for T4 cabin (8" or 10"; see what others have built)
+- [ ] Door panel modifications for upgraded speakers
+
+**Exterior / systems**
+- [ ] Starlink: fix roof mount rattle, add cable strain relief
+- [ ] Mosquito barrier for back opening (velcro or snaps OK)
+
+**Interior**
+- [ ] Secure cooler -- add tie-down solution
+- [ ] Loft: investigate board attachment + table conversion (removable legs)
+- [ ] Look into swivel base plate for car seat adaptation
+- [ ] Rattle diagnosis: find riding companion for half-day detection session
+- [ ] Create vehicle cheat sheet: tire pressure (45 psi), oil type, rotation interval, fluids
 
 ## Loft Bed sub-project (see vehicle-eurovan-loft-bed for design spec)
 - [ ] Decide final material (hardwood vs plywood)
