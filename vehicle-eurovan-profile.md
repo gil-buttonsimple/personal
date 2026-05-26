@@ -2,7 +2,7 @@
 
 **Vehicle:** 1999 Volkswagen Eurovan (T4) — VR6 Automatic
 
-**Last Updated:** 2026-05-13
+**Last Updated:** 2026-05-26
 
 ---
 
@@ -40,20 +40,22 @@
 
 ## Bus trip finds (May 2026)
 
-**Ignition / electrical -- status: unresolved, multiple open questions**
+**Ignition / electrical -- status: in progress**
 - Key lockout: removed shifter housing during trip; key started working (cause unclear -- broken piece of thin plastic sheeting inside shifter was found and not replaced on reassembly)
 - Shifter housing is currently disassembled and not reassembled; deferred after starting issue below
-- Starting failure: solenoid relay failed; guy in New Orleans helped wire starter directly to positive battery terminal; currently starting by touching two wires together
-- [ ] Test relay before replacing -- may still be good
-- [ ] Decide on permanent starting solution: button wired to bypass, or remove key ignition and replace with a switch
-- [ ] Reassemble shifter housing (or decide to eliminate it as part of switch conversion)
+- Starting failure: relay 175 (shift lock / neutral safety relay, part 3A0 927 181, 9-pin, located under dash below stereo) identified as likely fault; guy in New Orleans helped wire starter directly to positive battery terminal; currently starting by touching two wires through firewall (antenna hole)
+- [x] Identify relay -- relay 175, 3A0 927 181, shift lock / neutral safety relay
+- [x] Decide on permanent starting solution: replacing relay (chosen over push button bypass)
+- [ ] Install replacement relay -- ÜRO PARTS 3A0 927 181 ordered 2026-05-26 from RockAuto, $23.04
+- [ ] Clean up bypass wires once relay installed (two wires through antenna hole in firewall)
+- [x] Reassemble shifter housing -- done
 - [ ] Trace mystery wires under passenger dash (black + green, likely old amp -- may connect to door locks; do not remove until traced)
 
 **Engine**
 - [ ] Cyl 6 misfire on acceleration (VR6); swap coil pack/wire to another cylinder first to diagnose
 
 **HVAC / blower**
-- [ ] Blower fan clicking: remove motor via lower passenger dash panel, inspect for debris, check bearing
+- [x] Blower fan clicking: resolved -- zip tie in squirrel cage. Accessed via cabin air filter from engine bay (not passenger dash). Rats nest wiring above fan partially cleared during same repair.
 - [ ] Clean windshield cowl intake -- debris likely entering and reaching blower
 
 **Tires**
@@ -64,12 +66,14 @@
 - [ ] Evaluate Kenwood KMM-X705 digital media receiver
 - [ ] Research compact self-powered subwoofer for T4 cabin (8" or 10"; see what others have built)
 - [ ] Door panel modifications for upgraded speakers
+- [ ] Boston Acoustics crossover: discovered above fan area during blower repair; trace wires before removing -- determine if in front speaker signal chain or orphaned since amp removal
 
 **Exterior / systems**
 - [ ] Starlink: fix roof mount rattle, add cable strain relief
 - [ ] Mosquito barrier for back opening (velcro or snaps OK)
 
 **Interior**
+- [x] Knee panels (driver + passenger, below dash): removed, staying off -- reduces mass, improves access, frees volume for woofer project
 - [ ] Secure cooler -- add tie-down solution
 - [ ] Loft: investigate board attachment + table conversion (removable legs)
 - [ ] Look into swivel base plate for car seat adaptation
@@ -93,7 +97,7 @@
 | System            | Status        | Notes |
 |-------------------|---------------|-------|
 | Fuel / EVAP       | Unstable      | Vent routing / mounting issue |
-| Electrical        | Not built     | New architecture defined |
+| Electrical        | Built         | 12V system installed pre-trip; documentation to be recovered |
 | Network (Starlink)| Planned       | Direct 12V integration |
 | Audio / Antenna   | Degraded      | Poor reception |
 | Interior Structure| Cleared       | Ready for rebuild |
@@ -113,9 +117,9 @@
 - Full hose replacement
 - Routing verification (no kinks, correct orientation)
 
-## 5.2 Electrical System (Blocking)
-- No installed system
-- Required for all downstream systems
+## 5.2 Electrical System
+- System built pre-trip; documentation not yet recovered
+- Check ChatGPT export and phone photos for design notes
 
 ## 5.3 Antenna / Radio (Quality Issue)
 - Poor FM reception
