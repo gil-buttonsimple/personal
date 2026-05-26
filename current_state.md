@@ -5,6 +5,16 @@ Status: Active
 
 ---
 
+## Top Priority
+
+- **Audit AI conversations from the past 12 days (by 2026-06-07):** Parse ChatGPT,
+  Claude, and Gemini conversations from the bus trip for meaningful learning. Extract
+  repair topics discussed, document what worked and what didn't for voice-command
+  use while driving, and build a consolidated to-do list. Source conversations are
+  on the phone from the road trip period.
+
+---
+
 ## Migration Status
 
 Migrated from Google Drive (`_personal_gk` folder) to local repo on 2026-05-14.
@@ -12,6 +22,7 @@ Migrated from Google Drive (`_personal_gk` folder) to local repo on 2026-05-14.
 Files converted from Drive ZIP and committed locally:
 - `vehicle-eurovan-profile.md` -- from Drive doc
 - `vehicle-eurovan-loft-bed.md` -- from Drive doc
+- `vehicle-eurovan-bus-trip-notes.md` -- from Drive doc (added 2026-05-26)
 - `health-cholesterol-plan.md` -- from Drive doc
 - `finance-canon.md` -- from Drive doc
 - `finance-balances.csv` -- converted from Drive XLSX (187 rows)
