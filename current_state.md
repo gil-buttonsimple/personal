@@ -1,6 +1,6 @@
 # Personal -- Current State
 
-Last Updated: 2026-05-14 (updated Google cleanup detail)
+Last Updated: 2026-05-26
 Status: Active
 
 ---
@@ -22,15 +22,9 @@ Drive folder (`_personal_gk`) is now superseded locally. Originals can be delete
 
 ## Open Items
 
-- **Fix personal GitHub repo (https://github.com/gil-buttonsimple/personal):**
-  Repo exists but is not accessible from Claude Code. Investigate: repo visibility
-  (public/private), Claude Code git credentials, SSH vs HTTPS configuration for
-  the gil-buttonsimple account. Until fixed, files live locally at
-  /home/gil/Documents/Personal/. Needed to back the `boot personal` mode.
-
-- **Delete Drive originals (_personal_gk folder):** Once GitHub repo is accessible
-  and files are confirmed committed, delete the superseded Drive docs. Delete list
-  (with IDs) is in the `_current-state.docx` from the Drive ZIP export.
+- **Delete Drive originals (_personal_gk folder):** GitHub repo is live and all
+  files are committed. Safe to delete Drive originals. Delete list (with IDs)
+  is in the `_current-state.docx` from the Drive ZIP export.
 
 - **Google clean-up:** Migrating `web@gkasparek.com` off Google Workspace to reduce cost.
 
