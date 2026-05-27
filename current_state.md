@@ -1,7 +1,13 @@
 # Personal -- Current State
 
-Last Updated: 2026-05-26 (session 5)
+Last Updated: 2026-05-27 (session 6)
 Status: Active
+
+---
+
+## Session 6 Notes (2026-05-27)
+
+vehicle-eurovan-profile.md restructured: replaced subsystem todo groups and Open Decisions section with a flat priority table (P1/P2/Deferred/Decision tags). Ignition/key retention archived as resolved. Misfire added as P1. Task tracking for the bus now lives entirely in vehicle-eurovan-profile.md.
 
 ---
 

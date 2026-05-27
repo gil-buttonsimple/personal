@@ -2,7 +2,7 @@
 
 **Vehicle:** 1999 Volkswagen Eurovan (T4) — VR6 Automatic
 
-**Last Updated:** 2026-05-26
+**Last Updated:** 2026-05-27
 
 ---
 
@@ -31,128 +31,70 @@
 
 # 3. Active Todos
 
-## Eurovan (main)
-- [ ] EVAP system rebuild (mounting + hose replacement)
-- [ ] Electrical system build-out (battery + distribution)
-- [ ] Antenna upgrade (FM reception fix)
-- [ ] Interior electrical panel (flush mount)
-- [ ] Ignition / key retention -- see Bus trip finds below, status unresolved
-
-## Bus trip finds (May 2026)
-
-**Ignition / electrical -- status: in progress**
-- Key lockout: removed shifter housing during trip; key started working (cause unclear -- broken piece of thin plastic sheeting inside shifter was found and not replaced on reassembly)
-- Shifter housing is currently disassembled and not reassembled; deferred after starting issue below
-- Starting failure: relay 175 (shift lock / neutral safety relay, part 3A0 927 181, 9-pin, located under dash below stereo) identified as likely fault; guy in New Orleans helped wire starter directly to positive battery terminal; currently starting by touching two wires through firewall (antenna hole)
-- [x] Identify relay -- relay 175, 3A0 927 181, shift lock / neutral safety relay
-- [x] Decide on permanent starting solution: replacing relay (chosen over push button bypass)
-- [ ] Install replacement relay -- ÜRO PARTS 3A0 927 181 ordered 2026-05-26 from RockAuto, $23.04
-- [ ] Clean up bypass wires once relay installed (two wires through antenna hole in firewall)
-- [x] Reassemble shifter housing -- done
-- [ ] Trace mystery wires under passenger dash (black + green, likely old amp -- may connect to door locks; do not remove until traced)
-- [x] Shifter illumination bulb holder: identified and verified against correct part specifications
-
-**SRS / Airbag -- status: fault active**
-- [x] Clock spring / spiral cable identified: yellow ribbon cable assembly at base of steering wheel
-- [ ] Clear SRS fault: airbag light active (latching fault caused by unplugging SRS with battery connected); requires VCDS Lite or VW-proprietary handheld to clear "Open Circuit" fault from SRS module; system likely disabled by ECU until reset
-
-**Engine**
-- [ ] Cyl 6 misfire on acceleration (VR6); swap coil pack/wire to another cylinder first to diagnose
-
-**HVAC / blower**
-- [x] Blower fan clicking: resolved -- zip tie in squirrel cage. Accessed via cabin air filter from engine bay (not passenger dash). Rats nest wiring above fan partially cleared during same repair.
-- [ ] Clean windshield cowl intake -- debris likely entering and reaching blower
-
-**Tires**
-- [ ] Rear tires: get longer valve stems at next service
-- [ ] Set up tire rotation schedule (check recommended interval for VR6 Automatic)
-
-**Audio**
-- [x] Boston Acoustics crossover: passenger side amplified crossover identified and bypassed (May 2026)
-- [x] Interim audio: door woofer wired direct to Alpine (4-ohm stable load); tweeter bypassed pending speaker upgrade
-- [ ] 6x9 speaker upgrade: requires mounting depth spacers to clear window tracks; coaxial 6x9 eliminates need for external crossover blocks
-- [ ] Research compact self-powered subwoofer for T4 cabin (8" or 10"; see what others have built)
-- [ ] Door panel modifications for upgraded speakers
-- [ ] Evaluate Kenwood KMM-X705 as future head unit upgrade
-
-**Exterior / systems**
-- [ ] Starlink: fix roof mount rattle, add cable strain relief
-- [ ] Mosquito barrier for back opening (velcro or snaps OK)
-
-**Interior**
-- [x] Knee panels (driver + passenger, below dash): removed, staying off -- reduces mass, improves access, frees volume for woofer project
-- [ ] Secure cooler -- add tie-down solution
-- [ ] Loft: investigate board attachment + table conversion (removable legs)
-- [ ] Look into swivel base plate for car seat adaptation
-- [ ] Rattle diagnosis: find riding companion for half-day detection session
-- [ ] Create vehicle cheat sheet: tire pressure (45 psi), oil type, rotation interval, fluids
-
-## Loft Bed sub-project (see vehicle-eurovan-loft-bed for design spec)
-- [ ] Decide final material (hardwood vs plywood)
-- [ ] Pick hardwood species if going that route (poplar / maple / oak / teak)
-- [ ] Confirm final slat count / bed length
-- [ ] Source materials
-- [ ] Cut to spec (length 42 13/16", width 2.5–3")
-- [ ] Sand edges
-- [ ] Build webbing/hinge system for accordion panels
-- [ ] Test fit in pop-top
+| Task | Priority | Tags |
+|------|----------|------|
+| Trace mystery wires under passenger dash (black + green) | P1 | |
+| Interior electrical panel (flush mount) | P1 | |
+| Simplify interior wiring -- lighting + stereo | P1 | |
+| Replace head unit | P1 | Decision |
+| ↳ Evaluate Kenwood KMM-X705 | P1 | |
+| 6x9 speaker upgrade (need depth spacers) | P1 | |
+| ↳ Door panel modifications for upgraded speakers | P1 | |
+| Starlink roof mount: fix rattle, add cable strain relief | P1 | |
+| ↳ Add GPS antenna to roof mount | P1 | |
+| ↳ Plan camera mount (roof) | | |
+| Install replacement relay 175 (ordered) | P2 | |
+| ↳ Clean up bypass wires through firewall | P2 | |
+| Electrical system build-out (battery + distribution) | P2 | |
+| ↳ Recover documentation (ChatGPT export + phone photos) | P2 | |
+| EVAP system rebuild (mounting + hose replacement) | P2 | |
+| ↳ Final EVAP mounting design | | Decision |
+| Research compact self-powered subwoofer | | Decision |
+| Clear SRS airbag fault (VCDS Lite or VW handheld) | | |
+| Diagnose cyl 6 misfire (swap coil pack/wire first) | P1 | |
+| Clean windshield cowl intake | | |
+| Rear tires: longer valve stems | | |
+| Set tire rotation schedule | | |
+| Create vehicle cheat sheet | | |
+| Secure cooler | | |
+| Loft: investigate board + table conversion (removable legs) | | |
+| Rattle diagnosis | | |
+| Mosquito barrier for back opening | | |
+| Build and install loft bed webbing/hinge system | | |
+| Antenna upgrade (FM reception) | | Deferred |
+| Swivel base plate for car seat | | Deferred |
+| New seats | | Deferred |
+| Cab roof air deflector -- keep, modify, or remove? | | Decision |
 
 ---
 
 # 4. System Overview
 
-| System            | Status        | Notes |
-|-------------------|---------------|-------|
-| Fuel / EVAP       | Unstable      | Vent routing / mounting issue |
-| Electrical        | Built         | 12V system installed pre-trip; documentation to be recovered |
-| Network (Starlink)| Planned       | Direct 12V integration |
-| Audio / Antenna   | Interim       | Direct-drive via Alpine; 6x9 upgrade pending |
-| Interior Structure| Cleared       | Ready for rebuild |
-| Mechanical        | Minor issues  | Ignition interlock |
+| System             | Status       | Notes |
+|--------------------|--------------|-------|
+| Fuel / EVAP        | Unstable     | Vent routing / mounting issue |
+| Electrical         | Built        | 12V system installed pre-trip; documentation to be recovered |
+| Network (Starlink) | Planned      | Direct 12V integration |
+| Audio / Antenna    | Interim      | Direct-drive via Alpine; 6x9 upgrade pending |
+| Interior Structure | Cleared      | Ready for rebuild |
+| Mechanical         | Minor issues | Ignition interlock |
 
 ---
 
-# 5. Active Problems (Priority Order)
+# 5. System Designs (High-Level)
 
-## 5.1 EVAP System (Critical)
-- Tank overpressure (fuel spray when opening cap)
-- Exhaust pulsing ("whomping")
-- Likely cause: vent restriction due to routing / unstable mounting
-- Status: temporarily stabilized
-- Required:
-- Permanent mounting solution
-- Full hose replacement
-- Routing verification (no kinks, correct orientation)
+## 5.1 EVAP System
+- Replace hoses:
+  - 5/8" tank vent
+  - 1/2" fresh air
+  - 1/4" purge
+- Ensure:
+  - Smooth routing
+  - No kinks
+  - Upright canister orientation
+  - Stable mounting
 
 ## 5.2 Electrical System
-- System built pre-trip; documentation not yet recovered
-- Check ChatGPT export and phone photos for design notes
-
-## 5.3 Antenna / Radio (Quality Issue)
-- Poor FM reception
-- Likely due to low-quality passive antenna
-
-## 5.4 Ignition Key Retention (Mechanical)
-- Key stuck in ignition
-- Related to automatic shifter interlock cable
-- Status not yet confirmed resolved
-
----
-
-# 6. System Designs (High-Level)
-
-## 6.1 EVAP System
-- Replace hoses:
-- 5/8" tank vent
-- 1/2" fresh air
-- 1/4" purge
-- Ensure:
-- Smooth routing
-- No kinks
-- Upright canister orientation
-- Stable mounting
-
-## 6.2 Electrical System
 
 **Architecture**
 - Battery → main fuse → disconnect → fuse block
@@ -170,23 +112,23 @@
 - Flush-mounted 12V panel (wood)
 - No AC dependency
 
-## 6.3 Starlink Integration
+## 5.3 Starlink Integration
 - Direct 12V wiring from fuse block
 - Panel-mounted barrel socket
-- 10–15A fused circuit
+- 10-15A fused circuit
 - No USB-C conversion
 
-## 6.4 Antenna System
+## 5.4 Antenna System
 - Roof-mounted amplified antenna
 - Mast-style preferred (not shark fin)
 - Requirements:
-- Powered via head unit antenna wire
-- Proper metal ground plane
-- Clean roof installation
+  - Powered via head unit antenna wire
+  - Proper metal ground plane
+  - Clean roof installation
 
 ---
 
-# 7. Completed Work
+# 6. Completed Work
 
 - Full removal of Winnebago camper components (except pop-top)
 - Rear heater removed
@@ -195,19 +137,20 @@
 - Water pooling issue resolved
 - Seatbelt repaired
 - EVAP canister temporarily stabilized
+- Boston Acoustics crossover: passenger side amplified crossover identified and bypassed
+- Interim audio: door woofer wired direct to Alpine (4-ohm stable load); tweeter bypassed
+- Blower fan clicking resolved (zip tie in squirrel cage)
+- Knee panels removed (staying off)
+- Relay 175 identified (3A0 927 181, shift lock / neutral safety relay)
+- Starting solution decided: replace relay (over push button bypass)
+- Shifter housing reassembled
+- Shifter illumination bulb holder identified and verified against spec
+- Clock spring / spiral cable identified
+- Ignition / key retention: resolved
 
 ---
 
-# 8. Open Decisions
-
-- Final EVAP mounting design
-- Antenna model and placement
-- Seat base correction approach
-- Roof fairing modification decision
-
----
-
-# 9. Constraints & Dependencies
+# 7. Constraints & Dependencies
 
 ## Structural
 - Removal of Winnebago mounting points affects multiple systems
@@ -216,11 +159,11 @@
 - All systems depend on new 12V architecture
 
 ## Roof
-- Antenna and fairing decisions interact
+- Antenna and cab roof air deflector decisions interact
 
 ---
 
-# 10. System Inventory (Concrete Data — No Design Discussion)
+# 8. System Inventory (Concrete Data — No Design Discussion)
 
 ## Vehicle
 - Platform: T4
@@ -230,12 +173,12 @@
 ## Fuel / EVAP
 - Charcoal canister: present, temporarily secured
 - Hose sizes:
-- 5/8" (tank vent)
-- 1/2" (fresh air)
-- 1/4" (purge)
+  - 5/8" (tank vent)
+  - 1/2" (fresh air)
+  - 1/4" (purge)
 
 ## Electrical (Planned)
-- Battery type: LiFePO₄ (model TBD)
+- Battery type: LiFePO4 (model TBD)
 - System type: custom 12V distribution
 
 ## Starlink
@@ -251,34 +194,21 @@
 
 ## Seat Base
 - Bolt pattern:
-- Width: 13 1/8"
-- Depth: 11 1/4"
+  - Width: 13 1/8"
+  - Depth: 11 1/4"
 - Issue: seat tilts backward (bucket effect)
 
-## Interior — Bed Platform Components
+## Interior -- Bed Platform Components
 - Slat length: 42 13/16" (42.8125")
 - Slat width: 2 1/2" (2.5")
 - Slat thickness: 3/4" (0.75")
-- Notes:
-- Existing slats confirmed comfortable
-- Dimensions to be reused as baseline
+- Existing slats confirmed comfortable; dimensions to be reused as baseline
 
 ## Roof / Exterior
 - Pop-up roof: retained
-- Front fairing: present (Winnebago)
-- Status: modification under consideration
+- Cab roof air deflector: present (Winnebago); keep/modify/remove decision open
 
 ## Exterior Openings
 - Former camper ports removed (water, shore power)
 - Sealing complete
 - No water intrusion observed
-
----
-
-# 11. Deferred Work (Do Not Expand Here)
-
-- Interior layout and storage
-- Cosmetic work
-- Non-critical comfort features
-
-> Move detailed exploration of these items to separate documents when needed
