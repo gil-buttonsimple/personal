@@ -1,7 +1,13 @@
 # Personal -- Current State
 
-Last Updated: 2026-05-27 (session 6)
+Last Updated: 2026-05-28 (session 7)
 Status: Active
+
+---
+
+## Session 7 Notes (2026-05-28)
+
+vehicle-eurovan-profile.md task list audited and restructured: redundant tasks merged, completed tasks archived (head unit replacement done), 6x9/door panel audio path dropped in favor of subwoofer approach, rattle tasks consolidated under Starlink mount. Final list: 4 P1, 4 P2, 2 Decisions, 8 unprioritized.
 
 ---
 
@@ -51,6 +57,8 @@ Drive folder (`_personal_gk`) deleted 2026-05-26. Local ZIP export also deleted.
 ---
 
 ## Open Items
+
+- **Starlink Mini -- wired vs WiFi findings (2026-05-28):** Wired ethernet is significantly better than WiFi through an exterior wall. Test results: download +57% (59 to 93 Mbps), ping -74% (138 to 37 ms), jitter -74% (68 to 18 ms). Upload flat. Implications: (1) House: run wired ethernet from Mini to dev machine; use outdoor CAT6 for any exposed section. (2) Vehicle (VW bus): metal body blocks WiFi nearly entirely -- wired is the only reliable option for any permanent bus install. Any in-vehicle Starlink setup requires a physical ethernet run. Expense as business cost once Starlink is used for work.
 
 - **Eurovan GPS + OBD2 data logger plan:** Stratux VK-162 G-Mouse (u-blox 7)
   confirmed working on /dev/ttyACM0. Gil added to `dialout` group. Plan:

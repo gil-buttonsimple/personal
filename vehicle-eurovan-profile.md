@@ -2,7 +2,7 @@
 
 **Vehicle:** 1999 Volkswagen Eurovan (T4) — VR6 Automatic
 
-**Last Updated:** 2026-05-27
+**Last Updated:** 2026-05-28
 
 ---
 
@@ -33,38 +33,24 @@
 
 | Task | Priority | Tags |
 |------|----------|------|
-| Trace mystery wires under passenger dash (black + green) | P1 | |
-| Interior electrical panel (flush mount) | P1 | |
-| Simplify interior wiring -- lighting + stereo | P1 | |
-| Replace head unit | P1 | Decision |
-| ↳ Evaluate Kenwood KMM-X705 | P1 | |
-| 6x9 speaker upgrade (need depth spacers) | P1 | |
-| ↳ Door panel modifications for upgraded speakers | P1 | |
-| Starlink roof mount: fix rattle, add cable strain relief | P1 | |
-| ↳ Add GPS antenna to roof mount | P1 | |
-| ↳ Plan camera mount (roof) | | |
-| Install replacement relay 175 (ordered) | P2 | |
-| ↳ Clean up bypass wires through firewall | P2 | |
-| Electrical system build-out (battery + distribution) | P2 | |
-| ↳ Recover documentation (ChatGPT export + phone photos) | P2 | |
-| EVAP system rebuild (mounting + hose replacement) | P2 | |
-| ↳ Final EVAP mounting design | | Decision |
-| Research compact self-powered subwoofer | | Decision |
-| Clear SRS airbag fault (VCDS Lite or VW handheld) | | |
+| Starlink roof mount: rattle fix + cable strain relief | P1 | |
+| Wiring cleanup (mystery wires, interior, bypass) | P1 | |
+| Add GPS antenna to roof mount + cables | P1 | |
 | Diagnose cyl 6 misfire (swap coil pack/wire first) | P1 | |
-| Clean windshield cowl intake | | |
+| Install replacement relay 175 (ordered) | P2 | |
+| Electrical system build-out (battery + distribution + panel) | P2 | |
+| EVAP system rebuild (mounting + hose replacement) | P2 | |
+| Tire rotation schedule | P2 | |
+| Research compact self-powered subwoofer | | Decision |
+| Cab roof air deflector (keep/modify/remove?) | | Decision |
+| Clear SRS airbag fault | | |
 | Rear tires: longer valve stems | | |
-| Set tire rotation schedule | | |
 | Create vehicle cheat sheet | | |
 | Secure cooler | | |
-| Loft: investigate board + table conversion (removable legs) | | |
-| Rattle diagnosis | | |
-| Mosquito barrier for back opening | | |
-| Build and install loft bed webbing/hinge system | | |
-| Antenna upgrade (FM reception) | | Deferred |
-| Swivel base plate for car seat | | Deferred |
-| New seats | | Deferred |
-| Cab roof air deflector -- keep, modify, or remove? | | Decision |
+| Table conversion (loft boards) | | |
+| Loft improvements: connect boards with webbing | | |
+| Antenna upgrade (FM reception) | | |
+| New seats | | |
 
 ---
 
@@ -147,6 +133,7 @@
 - Shifter illumination bulb holder identified and verified against spec
 - Clock spring / spiral cable identified
 - Ignition / key retention: resolved
+- Head unit replaced: Kenwood KMM-X705 installed
 
 ---
 
@@ -186,11 +173,10 @@
 - Power: 12V DC barrel input
 
 ## Audio / Head Unit
-- Brand: Alpine (current, direct-drive)
-- Interim config: door woofer direct (4-ohm); tweeter bypassed pending 6x9 upgrade
+- Brand: Kenwood KMM-X705 (installed)
+- Interim config: door woofer direct (4-ohm); tweeter bypassed
 - Current antenna: passive aftermarket (low quality)
 - Issue: poor FM reception (fading, limited stations)
-- Future candidate: Kenwood KMM-X705 digital media receiver
 
 ## Seat Base
 - Bolt pattern:
