@@ -104,7 +104,7 @@ After collecting from all sources:
    information about the same event -- treat as complementary, not authoritative)
 2. Write vehicle / project findings to their respective files
 3. Write to-do items to the relevant doc's Active Todos section
-4. Update current_state.md with any new open items
+4. Update personal_state.md with any new open items
 5. Note which sources have been processed and which are still pending
 
 ---
@@ -138,5 +138,5 @@ After collecting from all sources:
 ## Future: Suggestions Route to Business Canon
 
 When a personal workflow or finding has clear business application, the method
-for surfacing it to business canon is TBD. For now: note it in current_state.md
+for surfacing it to business canon is TBD. For now: note it in personal_state.md
 under a "Suggestions for canon" section and handle in a gov session.

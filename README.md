@@ -13,7 +13,7 @@ Last Updated: 2026-05-14
 | [health-cholesterol-plan.md](health-cholesterol-plan.md) | Health | Cholesterol and diet plan, active todos |
 | [finance-canon.md](finance-canon.md) | Finance | Financial principles, accounts, strategy |
 | [finance-balances.csv](finance-balances.csv) | Finance | Account balances time series |
-| [current_state.md](current_state.md) | System | Current state, open items, migration status |
+| [personal_state.md](personal_state.md) | System | Current state, open items, migration status |
 | [_inbox.md](_inbox.md) | System | Cross-context captures (business items surfacing in personal chats) |
 
 ---
