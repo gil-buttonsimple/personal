@@ -1,7 +1,19 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-01 (session 8)
+Last Updated: 2026-06-01 (session 9)
 Status: Active
+
+---
+
+## Session 9 Notes (2026-06-01)
+
+The personal/business line was redrawn in a gov session: infrastructure
+(machines, network, connectivity, mobility) is now a governance/business domain.
+The VW Eurovan is business. The three vehicle files (rebuild profile, loft bed,
+trip notes) were merged into the gov repo at architecture/vehicle_eurovan.md and
+removed from here. Personal now holds only finance, health, friends, and side
+businesses. The fleet model (Baobab reference node, Cedar mirror + vehicle
+overlay) and the new infrastructure.md live in gov.
 
 ---
 
@@ -103,9 +115,9 @@ vehicle-eurovan-profile.md updated with road trip findings:
 Migrated from Google Drive (`_personal_gk` folder) to local repo on 2026-05-14.
 
 Files converted from Drive ZIP and committed locally:
-- `vehicle-eurovan-profile.md` -- from Drive doc
-- `vehicle-eurovan-loft-bed.md` -- from Drive doc
-- `vehicle-eurovan-bus-trip-notes.md` -- from Drive doc (added 2026-05-26)
+- `vehicle-eurovan-profile.md` -- moved to gov (architecture/vehicle_eurovan.md) 2026-06-01
+- `vehicle-eurovan-loft-bed.md` -- moved to gov (architecture/vehicle_eurovan.md) 2026-06-01
+- `vehicle-eurovan-bus-trip-notes.md` -- moved to gov (architecture/vehicle_eurovan.md) 2026-06-01
 - `health-cholesterol-plan.md` -- from Drive doc
 - `finance-canon.md` -- from Drive doc
 - `finance-balances.csv` -- converted from Drive XLSX (187 rows)

@@ -1,6 +1,6 @@
 # Personal -- GK
 
-Last Updated: 2026-05-14
+Last Updated: 2026-06-01
 
 ---
 
@@ -8,8 +8,6 @@ Last Updated: 2026-05-14
 
 | File | Domain | Description |
 |---|---|---|
-| [vehicle-eurovan-profile.md](vehicle-eurovan-profile.md) | Vehicle | 1999 VW Eurovan -- build intent, current phase, active todos |
-| [vehicle-eurovan-loft-bed.md](vehicle-eurovan-loft-bed.md) | Vehicle | Loft bed sub-project spec and todos |
 | [health-cholesterol-plan.md](health-cholesterol-plan.md) | Health | Cholesterol and diet plan, active todos |
 | [finance-canon.md](finance-canon.md) | Finance | Financial principles, accounts, strategy |
 | [finance-balances.csv](finance-balances.csv) | Finance | Account balances time series |
@@ -20,12 +18,16 @@ Last Updated: 2026-05-14
 
 ## Conventions
 
+**Scope:** Genuinely personal content only -- finance, health, friends, side
+businesses. Infrastructure (machines, network, mobility, the VW Eurovan) is a
+business domain and lives in the governance repo (architecture/). The VW files
+moved to gov on 2026-06-01.
+
 **Naming:** Domain prefix, kebab-case.
-- `vehicle-` -- vehicle-related
 - `health-` -- health, diet, medical
 - `finance-` -- money, accounts
-- Sub-projects extend the prefix: `vehicle-eurovan-loft-bed`
-- Additional domains as they emerge: `home-`, `work-`, `family-`
+- Sub-projects extend the prefix
+- Additional domains as they emerge: `friends-`, `side-`
 
 **Todos:** Each project doc owns its own `## Active Todos` section near the top. No central todo list. Sub-projects without their own todos section roll up to the parent's Active Todos.
 
@@ -37,6 +39,5 @@ Last Updated: 2026-05-14
 
 ## Relationship Map
 
-- `vehicle-eurovan-loft-bed` -- sub-project of `vehicle-eurovan-profile` (todos roll up to the profile)
 - `finance-balances` <-> `finance-canon` (always paired)
 - `health-cholesterol-plan` -- stands alone
