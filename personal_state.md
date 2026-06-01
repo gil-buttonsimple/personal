@@ -1,7 +1,65 @@
 # Personal -- Current State
 
-Last Updated: 2026-05-28 (session 7)
+Last Updated: 2026-06-01 (session 8)
 Status: Active
+
+---
+
+## Session 8 Notes (2026-06-01)
+
+Baobab is the new desktop replacing the old Bosgame box (now "Cedar", destined
+for permanent VW onboard install -- see vehicle-eurovan-profile.md + the Starlink
+wired-in-bus finding in Open Items). Built the Cedar -> Baobab migration plan
+below. Scope deliberately narrow per Gil: Cedar = move projects off only (not a
+wipe; personal data + destination still TBD); Baobab = apps (set TBD) + Claude
+settings. Dev-tooling side is parked for a gov session.
+
+---
+
+## Baobab / Cedar Migration (session 8)
+
+Executable plan. Run when Cedar is in front of you. Unknowns are flagged as
+decision points, not blockers.
+
+### Part A -- Move projects off Cedar
+
+A1. **Reach Cedar.** Power on, confirm on LAN (`ip addr` on Cedar). From Baobab:
+    `ping <cedar-ip>` and `ssh gil@<cedar-ip>` (or work at Cedar directly).
+
+A2. **Inventory projects.** On Cedar: `ls -la ~/dev` (and anywhere else code
+    lived). Sort each into repo vs. non-repo.
+
+A3. **Repos -- find anything not on GitHub.** Per repo:
+    - `git status` (uncommitted changes?)
+    - `git stash list` (stashed work?)
+    - `git log --branches --not --remotes --oneline` (local commits never pushed)
+    Unpushed commits -> `git push`. Uncommitted/stashed work worth keeping ->
+    commit & push or copy the working tree out. Nothing local-only -> already safe.
+
+A4. **Non-repo projects -> pull to Baobab.** From Baobab:
+    `rsync -av gil@<cedar-ip>:~/dev/<project>/ ~/dev/<project>/`
+    (Destination is a parked decision; `~/dev/` is the default.)
+
+A5. **Verify, then clear.** Confirm each project opens/builds on Baobab or is
+    safely on GitHub. Only then is Cedar "projects-clear." Personal data stays
+    on Cedar -- out of scope.
+
+### Part B -- Baobab desktop
+
+B1. **Claude settings -- diff before clobbering** (Baobab already has a live
+    `~/.claude/settings.json`):
+    `scp gil@<cedar-ip>:~/.claude/settings.json /tmp/cedar-claude.json`
+    `diff /tmp/cedar-claude.json ~/.claude/settings.json`
+    Merge anything missing (permissions, paplay completion-sound Stop hook) into
+    Baobab's file. Do not overwrite.
+
+B2. **Apps.** Maintain a running list as they surface. Install apt-first (matches
+    the dev-machine convention: no snap/fnm/bun). Add each app here as needed.
+
+### Parked -- needs a gov session (personal mode can't touch the gov repo)
+
+- tech_stack v1.5 edits: Bosgame -> Cedar rename; machines/network tables.
+- Gov "Extract from Cedar" In-Flight item (dev settings.json, config notes).
 
 ---
 
