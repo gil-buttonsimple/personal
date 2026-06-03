@@ -105,8 +105,11 @@ vehicle-eurovan-profile.md updated with road trip findings:
   - Claude Code sessions: done (voice/mobile setup, May 16-18)
   - Claude.ai export: done (Eurovan repair, voice findings -- see vehicle-eurovan-profile.md)
   - Gemini: done via in-app self-summary (shifter fix, audio shop, voice workflow)
-  - ChatGPT: pending export -- at least 2 threads about getting ChatGPT working
-    with GitHub repo (worth finding); also likely has voice/hands-free content
+  - ChatGPT: partial -- a mobile-notes batch ingested 2026-06-03. Routed: product
+    ideas -> gov roadmap.md Backlog; farm/property project -> property-mapping.md;
+    VW tire leak -> gov vehicle_eurovan.md; Don Baldwin client task -> Open Items
+    below. Still pending: the GitHub-repo-access threads and any remaining
+    voice/hands-free content.
 
 ---
 
@@ -127,6 +130,13 @@ Drive folder (`_personal_gk`) deleted 2026-05-26. Local ZIP export also deleted.
 ---
 
 ## Open Items
+
+- **Don Baldwin (private client, not Button) -- TIME-SENSITIVE (2026-06-03):**
+  check in with Don, and coordinate an email blast with him within the next few days.
+
+- **Farm / property mapping project:** full scope captured in property-mapping.md
+  (mapping foundation, data layers, outputs, voice-first field data collection,
+  recreation + ecology layers, property logistics / Amazon drop). Active side project.
 
 - **Starlink Mini -- wired vs WiFi findings (2026-05-28):** Wired ethernet is significantly better than WiFi through an exterior wall. Test results: download +57% (59 to 93 Mbps), ping -74% (138 to 37 ms), jitter -74% (68 to 18 ms). Upload flat. Implications: (1) House: run wired ethernet from Mini to dev machine; use outdoor CAT6 for any exposed section. (2) Vehicle (VW bus): metal body blocks WiFi nearly entirely -- wired is the only reliable option for any permanent bus install. Any in-vehicle Starlink setup requires a physical ethernet run. Expense as business cost once Starlink is used for work.
 
