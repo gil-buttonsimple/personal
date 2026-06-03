@@ -134,7 +134,7 @@ Drive folder (`_personal_gk`) deleted 2026-05-26. Local ZIP export also deleted.
   confirmed working on /dev/ttyACM0. Gil added to `dialout` group. Plan:
   1. Install gpsd (`sudo apt install gpsd gpsd-clients; sudo systemctl enable gpsd`)
   2. Add udev rule for persistent /dev/gps0 symlink (vendor 1546, product 01a7)
-  3. When OBD2 adapter arrives, add `python-obd`
+  3. OBD2 adapter purchased; add `python-obd`
   4. Build MCP server exposing `get_location` and `get_vehicle_data` tools
      so Claude Code has live GPS/OBD2 context during drive diagnostics.
   AI chat apps (Claude Android, ChatGPT, Gemini) cannot consume GPS directly --
