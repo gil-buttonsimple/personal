@@ -1,7 +1,21 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-04 (session 10)
+Last Updated: 2026-06-04 (session 11)
 Status: Active
+
+---
+
+## Session 11 Notes (2026-06-04)
+
+Split the Google cleanup out of personal_state into its own project file and
+established a `data-` domain for digital-data consolidation. Two sibling projects:
+`data-google-cleanup.md` (web@ Workspace teardown -- 13 steps reorganized into
+preserve/teardown phases; live step is preserving web@ email) and
+`data-drives-consolidation.md` (3-5 hard drives to review/dedup/consolidate; stub).
+They share a cloud + offline-backup end-state, decision owned by the drives doc.
+Reconciled the 2026-06-02 inbox conflict: web@ is a real mailbox, preserve-then-
+shut-down (not keep, not skip-copy); marked converted. README indexed + relationship
+map updated.
 
 ---
 
@@ -178,29 +192,10 @@ Drive folder (`_personal_gk`) deleted 2026-05-26. Local ZIP export also deleted.
   directly. Items identified this session with work application: multi-AI workflow
   method (workflow-multi-ai-audit.md). Raise in a gov session.
 
-- **Google clean-up:** Migrating `web@gkasparek.com` off Google Workspace to reduce cost.
+- **Google account cleanup** -- see [data-google-cleanup.md](data-google-cleanup.md).
+  Retiring `web@gkasparek.com` off Workspace (preserve data, shut down; keep
+  `gil@b`, land on `tgk@`). Next: preserve web@ email (step 7), then tear down.
 
-  Accounts: `gil@buttonsimple.com` (Workspace, keeping), `web@gkasparek.com` (Workspace,
-  migrating out), `tgkasparek@gmail.com` (free Gmail, destination)
-
-  | # | Task | Status |
-  |---|---|---|
-  | 1 | Redirect email: Namecheap DNS forward web@ to tgk@ | Done |
-  | 1.5 | Phone: add tgkasparek@gmail.com | Done |
-  | 2 | Copy Google Drive contents | Done |
-  | 3 | Copy Google Photos | Done -- verify with grsync comparison |
-  | 4 | Expand Drive docs | Done |
-  | 5 | Clean up files (remove largest, pull out photos/videos) | Done |
-  | 5.5 | JSON fix | Done |
-  | 6 | Merge + deduplicate photos | Done |
-  | 7 | Copy emails | Next -- method TBD |
-  | 8 | Change default domain on G-Workspace (and remove?) | Open |
-  | 9 | Delete email attachments (various accounts) | Open |
-  | 10 | Contacts | Test |
-  | 10.5 | Calendar | Test |
-  | 11 | Phone: remove web@ and gil@b (bug test first) | Open |
-  | 12 | Delete Drive and Photos from web@ | Open |
-  | 13 | Remove from all devices (phone, Chromebook) | Open |
-
-  Open question (step 1): send-from `web@gkasparek.com` is working but custom domain
-  email likely cannot stay on free Gmail -- may need Workspace or alternative provider.
+- **Hard drive consolidation** -- see [data-drives-consolidation.md](data-drives-consolidation.md).
+  3-5 drives of mixed content to review, catalog, dedup, consolidate into cloud +
+  offline backup. Stub; content review not yet started.

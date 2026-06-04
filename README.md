@@ -11,6 +11,9 @@ Last Updated: 2026-06-01
 | [health-cholesterol-plan.md](health-cholesterol-plan.md) | Health | Cholesterol and diet plan, active todos |
 | [finance-canon.md](finance-canon.md) | Finance | Financial principles, accounts, strategy |
 | [finance-balances.csv](finance-balances.csv) | Finance | Account balances time series |
+| [data-google-cleanup.md](data-google-cleanup.md) | Data | Retire web@ off Google Workspace; preserve data, shut down |
+| [data-drives-consolidation.md](data-drives-consolidation.md) | Data | 3-5 hard drives → review, dedup, consolidate to cloud + offline backup |
+| [property-mapping.md](property-mapping.md) | Side | Farm / property mapping project |
 | [personal_state.md](personal_state.md) | System | Current state, open items, migration status |
 | [_inbox.md](_inbox.md) | System | Cross-context captures (business items surfacing in personal chats) |
 
@@ -26,6 +29,7 @@ moved to gov on 2026-06-01.
 **Naming:** Domain prefix, kebab-case.
 - `health-` -- health, diet, medical
 - `finance-` -- money, accounts
+- `data-` -- digital data consolidation: storage, migration, backup
 - Sub-projects extend the prefix
 - Additional domains as they emerge: `friends-`, `side-`
 
@@ -41,3 +45,4 @@ moved to gov on 2026-06-01.
 
 - `finance-balances` <-> `finance-canon` (always paired)
 - `health-cholesterol-plan` -- stands alone
+- `data-google-cleanup` <-> `data-drives-consolidation` (share the cloud + offline backup end-state; target storage decision lives in the drives doc)

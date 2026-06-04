@@ -35,10 +35,15 @@ Holding pen for business-flavored items that surface during personal chats. Appe
 ## Entries
 
 ### 2026-06-02 -- Salvaged email-migration edits from stale Documents/Personal clone
-- **Status:** captured
+- **Status:** converted
 - **Context:** A second, stale clone of the personal repo at ~/Documents/Personal (stuck at session 7, on the old current_state.md) had uncommitted edits dated 2026-05-30 that never reached origin. The clone was deleted during the Baobab Documents cleanup. Its VW cellular spec was salvaged to gov (architecture/vehicle_eurovan.md). These Google clean-up table edits CONFLICT with the newer mainline personal_state.md (session 9) and need manual reconciliation -- do not assume either is current.
 - **Captured (clone's version of the Google clean-up table deltas):**
   - Step 1: "Redirect email: web@gkasparek.com forward to tgk@ -- set up at mailserver" -- status **Needs redo** (mainline says "Namecheap DNS forward web@ to tgk@" / Done).
   - Step 7: "Emails -- start fresh, skip copy. tgkasparek@gmail.com is new primary" -- status Next (mainline says "Copy emails / Next -- method TBD").
   - Open-question rewrite: "web@gkasparek.com is a Google login identity only -- not a Gmail inbox. Forward-only via mailserver. No send-from needed." (replaces mainline's "custom domain email likely cannot stay on free Gmail" note).
 - **Destination:** personal_state.md -- Google clean-up section (reconcile against session 9 mainline).
+- **Converted:** 2026-06-04 -> data-google-cleanup.md. Reconciliation outcome (confirmed
+  with Gil): web@ IS a live Gmail mailbox (mainline was right), but the action is
+  preserve-then-shut-down, not keep. Forwarding to tgk@ already works, so no send-from
+  is needed once web@ is retired. The "start fresh, skip copy" clone variant was rejected --
+  email history is being preserved (Takeout MBOX + optional import to tgk@).
