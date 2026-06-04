@@ -1,7 +1,17 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-01 (session 9)
+Last Updated: 2026-06-04 (session 10)
 Status: Active
+
+---
+
+## Session 10 Notes (2026-06-04)
+
+Started a single consolidated meds tracker: `health/health-medications.md`
+(no per-drug files). Active course recorded: terbinafine 250mg once daily,
+June 4 -> July 3, day 1 taken. Daily-meds section stubbed pending the
+Fadem med list. Watching scalp flaking as a possible fungal side benefit
+(check-in ~Jun 17).
 
 ---
 
@@ -130,6 +140,10 @@ Drive folder (`_personal_gk`) deleted 2026-05-26. Local ZIP export also deleted.
 ---
 
 ## Open Items
+
+- **Terbinafine course -- ACTIVE (June 4 -> July 3, 2026):** 250mg once daily ~11am
+  for toenail fungus. Daily tracking grid in `health/health-medications.md`.
+  Last dose July 3. Confirm with prescriber whether a 4-6 week LFT check is needed.
 
 - **Don Baldwin (private client, not Button) -- TIME-SENSITIVE (2026-06-03):**
   check in with Don, and coordinate an email blast with him within the next few days.
