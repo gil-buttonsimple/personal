@@ -1,20 +1,39 @@
 # Farm / Property Mapping Project
 
-Last Updated: 2026-06-03
+Last Updated: 2026-06-04
 Status: Active (personal side project)
 
 Captured from mobile/ChatGPT notes 2026-06-03. The goal is a clean, layered,
 interactive map of the property plus a voice-first field workflow that builds a
 searchable property knowledge base over time.
 
+The property is the **Kasparek family farm** ("K-Farm"), ~409.258 acres SE of
+Chester, S.C. Surveyed by Ashview/Ashmark Land Surveyors, Aug 1995 (rev. Oct 1996).
+
 ---
+
+## Source Art (ingested 2026-06-04)
+
+Seven photographed survey plats now archived in `farm-map/source-art/` and
+cataloged in [source-art.md](farm-map/source-art.md). Originals retained untouched
+in `~/Documents/farm-map/`. Key sheets:
+
+- **Sheet 07** (deed survey, Gene A. Kasparek): the georeference anchor --
+  S.C. Grid North, NAD 1983. Start alignment here.
+- **Sheet 06** (master legend, 1995): annotation rosetta stone (roads, stands,
+  food plots, water, boundary) and **shows the lake** that modern topo maps miss.
+- **Sheets 02-05**: field annotations -- trails, deer stands, food plots, named
+  creeks (Flake's Branch, Crane's Branch) -- the layers to digitize.
 
 ## Mapping Foundation
 
-- Align and scale property maps / photos.
-- Extract vector data from source maps.
+- Align and scale property maps / photos. → Anchor on sheet 07 (NAD 1983, S.C.
+  State Plane); rotate magnetic-north sheets to grid north before overlay.
+- Extract vector data from source maps. → Boundary first (sheets 01/07), then
+  trails / stands / food plots / water from the annotated copies.
 - Merge with existing GeoJSON property boundaries.
 - Produce a clean, layered property map.
+- Digitize the **lake** (sheet 06) and **dam** (sheet 07) to fill the topo gap.
 
 ## Data Layers
 
