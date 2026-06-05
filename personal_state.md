@@ -1,7 +1,21 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-04 (session 12)
+Last Updated: 2026-06-04 (session 13)
 Status: Active
+
+---
+
+## Session 13 Notes (2026-06-04)
+
+Filed Chester County's digitized parcel boundary into the farm project. Two Downloads
+files (`Chester.kml`, `Chester.kmz`) were the same polygon -- county parcel
+091-00-00-073-000, folder named "Farm." Kept the full-precision KML at
+`farm-map/source-data/chester-county-parcel-073.kml`; discarded the lossy 6-decimal
+KMZ. **Finding:** the county parcel computes to ~611 acres vs the 1995 deed survey's
+409.258 (verified, not rounding). Two boundaries, different extent -- likely land
+added since 1995. Logged in property-mapping.md as the georeference control layer plus
+an open reconciliation task. Next: georeference sheet 07 against the county boundary,
+then locate the extra ~200 acres.
 
 ---
 
@@ -179,7 +193,10 @@ Drive folder (`_personal_gk`) deleted 2026-05-26. Local ZIP export also deleted.
   (mapping foundation, data layers, outputs, voice-first field data collection,
   recreation + ecology layers, property logistics / Amazon drop). Active side project.
   Source art ingested (session 12): 7 survey plats archived in farm-map/source-art/,
-  cataloged in farm-map/source-art.md. Next: georeference sheet 07.
+  cataloged in farm-map/source-art.md. County GIS parcel boundary filed (session 13)
+  at farm-map/source-data/chester-county-parcel-073.kml -- but it computes to ~611
+  acres vs the survey's 409.258 (likely land added since 1995; needs reconciliation).
+  Next: georeference sheet 07 against the county boundary.
 
 - **Starlink Mini -- wired vs WiFi findings (2026-05-28):** Wired ethernet is significantly better than WiFi through an exterior wall. Test results: download +57% (59 to 93 Mbps), ping -74% (138 to 37 ms), jitter -74% (68 to 18 ms). Upload flat. Implications: (1) House: run wired ethernet from Mini to dev machine; use outdoor CAT6 for any exposed section. (2) Vehicle (VW bus): metal body blocks WiFi nearly entirely -- wired is the only reliable option for any permanent bus install. Any in-vehicle Starlink setup requires a physical ethernet run. Expense as business cost once Starlink is used for work.
 

@@ -25,6 +25,23 @@ in `~/Documents/farm-map/`. Key sheets:
 - **Sheets 02-05**: field annotations -- trails, deer stands, food plots, named
   creeks (Flake's Branch, Crane's Branch) -- the layers to digitize.
 
+## County GIS Data (ingested 2026-06-04)
+
+Chester County's digitized parcel boundary for the farm, pulled as KML and filed
+at `farm-map/source-data/chester-county-parcel-073.kml` (parcel **091-00-00-073-000**,
+WGS84 lat/lon, ~100 vertices, full precision). A lossy 6-decimal KMZ copy of the same
+polygon was discarded.
+
+This is the **georeference control layer**: a real-world-coordinate boundary to align
+sheet 07 against, rather than tracing the boundary by hand.
+
+**Open discrepancy — county parcel is ~611 acres vs the 1995 survey's 409.258.** Not a
+rounding error (verified against the bounding box). The two boundaries are *not* the same
+extent. Most likely **land was added since 1995** (adjacent parcels acquired and merged
+under one parcel ID); could also be that the survey covered one of several deed tracts.
+Do not substitute the county boundary for the survey blindly — reconcile them: overlay
+survey on parcel, locate the extra ~200 acres, and confirm the current true extent.
+
 ## Mapping Foundation
 
 - Align and scale property maps / photos. → Anchor on sheet 07 (NAD 1983, S.C.
