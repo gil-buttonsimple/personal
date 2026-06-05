@@ -1,7 +1,20 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-04 (session 11)
+Last Updated: 2026-06-04 (session 12)
 Status: Active
+
+---
+
+## Session 12 Notes (2026-06-04)
+
+Ingested the farm-map source art. Seven photographed survey plats of the Kasparek
+family farm (~409 acres, Chester SC; Ashview/Ashmark survey, Aug 1995 rev Oct 1996)
+copied from `~/Documents/farm-map/` into the repo at `farm-map/source-art/` with
+descriptive names, checksum-verified against the untouched originals. Wrote
+`farm-map/source-art.md` (property facts, per-sheet contents, annotation key,
+digitization notes) and pointed property-mapping.md's Mapping Foundation at sheet 07
+(deed survey, NAD 1983 / S.C. Grid North -- the georeference anchor) and sheet 06
+(master legend + the lake missing from modern topo). Next: georeference sheet 07.
 
 ---
 
@@ -165,6 +178,8 @@ Drive folder (`_personal_gk`) deleted 2026-05-26. Local ZIP export also deleted.
 - **Farm / property mapping project:** full scope captured in property-mapping.md
   (mapping foundation, data layers, outputs, voice-first field data collection,
   recreation + ecology layers, property logistics / Amazon drop). Active side project.
+  Source art ingested (session 12): 7 survey plats archived in farm-map/source-art/,
+  cataloged in farm-map/source-art.md. Next: georeference sheet 07.
 
 - **Starlink Mini -- wired vs WiFi findings (2026-05-28):** Wired ethernet is significantly better than WiFi through an exterior wall. Test results: download +57% (59 to 93 Mbps), ping -74% (138 to 37 ms), jitter -74% (68 to 18 ms). Upload flat. Implications: (1) House: run wired ethernet from Mini to dev machine; use outdoor CAT6 for any exposed section. (2) Vehicle (VW bus): metal body blocks WiFi nearly entirely -- wired is the only reliable option for any permanent bus install. Any in-vehicle Starlink setup requires a physical ethernet run. Expense as business cost once Starlink is used for work.
 
