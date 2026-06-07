@@ -1,7 +1,32 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-07 (session 14)
+Last Updated: 2026-06-07 (session 15)
 Status: Active
+
+---
+
+## Session 15 Notes (2026-06-07)
+
+Personal issue-board triage (all changes live in GitHub Issues, not files):
+- Closed #1 (trip AI audit) and #3 (Don/Mailchimp -- resolved pay-per-use; list
+  trimmed under 250, downgraded to free, billing pointed at Don, no Jun 13 recharge).
+- Priorities reset: #8 Google cleanup + #9 drive consolidation -> now (this week);
+  #10 security audit -> someday (~3mo); #2 terbinafine -> someday, self-managed,
+  revisit ~Jul 7.
+- Farm is now a standing category (type: farm): #4 stays the mapping project; new
+  farm items get their own issues. Created #11 Starlink residential dish install.
+- Mobile: #5 reframed as the "Mobile OS for Gil" umbrella; #6 broadened to "control
+  Spotify from AI on mobile" as a child of #5.
+- VR (NEW, app repo #94): portable VR work environment for travel/van (code + run
+  the business), NOT an app feature; app<->VR interaction parked as secondary.
+  priority: now / type: infra. Dedicated thread to pressure-test the rationale
+  (~30 min VR may beat the burdensome monitor/kbd/mouse rig; may supersede the
+  deferred van display/input item), then procure (leaning Quest).
+
+Open meta-decision (acute): business tasks are scattered across buttonsimple-app
+issues, button-simple-governance issues (stale), and the stale org project board
+(s204). Gov repo lacks the type:/priority: label scheme. Pick ONE home before
+moving VR #94 to gov.
 
 ---
 
