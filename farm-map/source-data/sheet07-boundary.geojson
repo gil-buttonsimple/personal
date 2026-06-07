@@ -1,0 +1,440 @@
+{
+ "type": "FeatureCollection",
+ "name": "K-Farm boundary (1995 deed survey, sheet 07)",
+ "properties": {
+  "source": "farm-map/source-art/07-deed-survey-kasparek.jpg",
+  "owner": "Gene A. Kasparek",
+  "survey": "Ashview/Ashmark Land Surveyors, 1995 rev.1996",
+  "datum_drawn": "SC Grid North, NAD83",
+  "scale": "1 in = 400 ft",
+  "area_acres": 409.258,
+  "closure": "0.00 ft (balanced traverse)",
+  "placement": "shape exact from traverse; absolute position anchored to county parcel 073 centroid (~tens of m); north-up, grid\u2248true north (<0.1\u00b0)",
+  "courses": [
+   {
+    "course": 1,
+    "bearing": "N 42\u00b016'04\" W",
+    "distance_ft": 2001.78
+   },
+   {
+    "course": 2,
+    "bearing": "N 42\u00b017'55\" W",
+    "distance_ft": 3225.7
+   },
+   {
+    "course": 3,
+    "bearing": "N 47\u00b042'45\" E",
+    "distance_ft": 37.5
+   },
+   {
+    "course": 4,
+    "bearing": "N 47\u00b042'45\" E",
+    "distance_ft": 662.41
+   },
+   {
+    "course": 5,
+    "bearing": "N 42\u00b017'41\" W",
+    "distance_ft": 630.09
+   },
+   {
+    "course": 6,
+    "bearing": "N 47\u00b042'19\" E",
+    "distance_ft": 2740.74
+   },
+   {
+    "course": 7,
+    "bearing": "N 30\u00b042'23\" E",
+    "distance_ft": 2081.72
+   },
+   {
+    "course": 8,
+    "bearing": "S 33\u00b045'43\" E",
+    "distance_ft": 1135.0
+   },
+   {
+    "course": 9,
+    "bearing": "S 65\u00b045'43\" E",
+    "distance_ft": 314.0
+   },
+   {
+    "course": 10,
+    "bearing": "S 09\u00b014'17\" W",
+    "distance_ft": 660.0
+   },
+   {
+    "course": 11,
+    "bearing": "S 74\u00b045'43\" E",
+    "distance_ft": 396.0
+   },
+   {
+    "course": 12,
+    "bearing": "S 03\u00b007'38\" E",
+    "distance_ft": 264.36
+   },
+   {
+    "course": 13,
+    "bearing": "S 09\u00b007'24\" W",
+    "distance_ft": 266.0
+   },
+   {
+    "course": 14,
+    "bearing": "S 32\u00b022'01\" E",
+    "distance_ft": 27.59
+   },
+   {
+    "course": 15,
+    "bearing": "S 52\u00b057'11\" E",
+    "distance_ft": 31.6
+   },
+   {
+    "course": 16,
+    "bearing": "S 15\u00b008'37\" W",
+    "distance_ft": 46.68
+   },
+   {
+    "course": 17,
+    "bearing": "S 02\u00b042'13\" E",
+    "distance_ft": 100.12
+   },
+   {
+    "course": 18,
+    "bearing": "S 17\u00b000'59\" W",
+    "distance_ft": 32.35
+   },
+   {
+    "course": 19,
+    "bearing": "S 07\u00b009'06\" E",
+    "distance_ft": 45.68
+   },
+   {
+    "course": 20,
+    "bearing": "S 29\u00b015'50\" W",
+    "distance_ft": 29.01
+   },
+   {
+    "course": 21,
+    "bearing": "S 10\u00b013'37\" W",
+    "distance_ft": 44.3
+   },
+   {
+    "course": 22,
+    "bearing": "S 33\u00b054'55\" E",
+    "distance_ft": 66.94
+   },
+   {
+    "course": 23,
+    "bearing": "S 35\u00b019'10\" E",
+    "distance_ft": 92.4
+   },
+   {
+    "course": 24,
+    "bearing": "S 87\u00b039'04\" E",
+    "distance_ft": 23.11
+   },
+   {
+    "course": 25,
+    "bearing": "S 05\u00b020'42\" W",
+    "distance_ft": 587.5
+   },
+   {
+    "course": 26,
+    "bearing": "S 07\u00b007'48\" E",
+    "distance_ft": 164.6
+   },
+   {
+    "course": 27,
+    "bearing": "S 14\u00b009'58\" E",
+    "distance_ft": 388.95
+   },
+   {
+    "course": 28,
+    "bearing": "N 72\u00b042'06\" W",
+    "distance_ft": 299.96
+   },
+   {
+    "course": 29,
+    "bearing": "N 72\u00b043'23\" W",
+    "distance_ft": 518.75
+   },
+   {
+    "course": 30,
+    "bearing": "S 18\u00b037'32\" W",
+    "distance_ft": 582.49
+   },
+   {
+    "course": 31,
+    "bearing": "S 18\u00b032'51\" W",
+    "distance_ft": 1181.35
+   },
+   {
+    "course": 32,
+    "bearing": "S 18\u00b041'06\" W",
+    "distance_ft": 1289.84
+   },
+   {
+    "course": 33,
+    "bearing": "S 70\u00b042'55\" E",
+    "distance_ft": 1742.47
+   },
+   {
+    "course": 34,
+    "bearing": "S 70\u00b042'55\" E",
+    "distance_ft": 33.0
+   },
+   {
+    "course": 35,
+    "bearing": "S 38\u00b042'25\" W",
+    "distance_ft": 18.66
+   },
+   {
+    "course": 36,
+    "bearing": "S 43\u00b022'25\" W",
+    "distance_ft": 57.19
+   },
+   {
+    "course": 37,
+    "bearing": "S 45\u00b041'18\" W",
+    "distance_ft": 179.79
+   },
+   {
+    "course": 38,
+    "bearing": "S 45\u00b018'57\" W",
+    "distance_ft": 107.39
+   },
+   {
+    "course": 39,
+    "bearing": "S 43\u00b041'10\" W",
+    "distance_ft": 100.77
+   },
+   {
+    "course": 40,
+    "bearing": "S 41\u00b045'00\" W",
+    "distance_ft": 518.61
+   },
+   {
+    "course": 41,
+    "bearing": "S 39\u00b001'52\" W",
+    "distance_ft": 88.09
+   },
+   {
+    "course": 42,
+    "bearing": "N 73\u00b014'30\" W",
+    "distance_ft": 52.69
+   },
+   {
+    "course": 43,
+    "bearing": "S 17\u00b046'02\" W",
+    "distance_ft": 511.14
+   }
+  ]
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Property boundary",
+    "area_acres": 409.258
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -81.15234739,
+       34.64955272
+      ],
+      [
+       -81.15682926,
+       34.65361556
+      ],
+      [
+       -81.16405569,
+       34.66015928
+      ],
+      [
+       -81.16396335,
+       34.66022848
+      ],
+      [
+       -81.16233211,
+       34.66145091
+      ],
+      [
+       -81.16374358,
+       34.6627292
+      ],
+      [
+       -81.15699507,
+       34.66778771
+      ],
+      [
+       -81.15345653,
+       34.67269671
+      ],
+      [
+       -81.15135682,
+       34.67010875
+      ],
+      [
+       -81.15040372,
+       34.6697552
+      ],
+      [
+       -81.15075642,
+       34.66796851
+      ],
+      [
+       -81.14948456,
+       34.66768305
+      ],
+      [
+       -81.14943655,
+       34.66695907
+      ],
+      [
+       -81.14957695,
+       34.66623875
+      ],
+      [
+       -81.14952778,
+       34.66617484
+      ],
+      [
+       -81.14944383,
+       34.66612262
+      ],
+      [
+       -81.14948442,
+       34.66599904
+      ],
+      [
+       -81.1494687,
+       34.66572475
+      ],
+      [
+       -81.14950021,
+       34.6656399
+      ],
+      [
+       -81.14948128,
+       34.66551559
+      ],
+      [
+       -81.14952849,
+       34.66544618
+      ],
+      [
+       -81.14955467,
+       34.66532661
+      ],
+      [
+       -81.14943034,
+       34.66517425
+      ],
+      [
+       -81.14925252,
+       34.66496747
+      ],
+      [
+       -81.14917565,
+       34.66496488
+      ],
+      [
+       -81.14935783,
+       34.66336055
+      ],
+      [
+       -81.14928982,
+       34.6629126
+      ],
+      [
+       -81.14897295,
+       34.66187827
+      ],
+      [
+       -81.1499263,
+       34.6621229
+      ],
+      [
+       -81.1515752,
+       34.66254545
+      ],
+      [
+       -81.15219448,
+       34.66103153
+      ],
+      [
+       -81.15344537,
+       34.65795975
+      ],
+      [
+       -81.1548209,
+       34.65460858
+      ],
+      [
+       -81.14934602,
+       34.65303024
+      ],
+      [
+       -81.14924233,
+       34.65300035
+      ],
+      [
+       -81.14928117,
+       34.65296041
+      ],
+      [
+       -81.14941191,
+       34.6528464
+      ],
+      [
+       -81.14984016,
+       34.65250193
+      ],
+      [
+       -81.15009433,
+       34.65229481
+      ],
+      [
+       -81.15032602,
+       34.65209495
+      ],
+      [
+       -81.15147556,
+       34.65103377
+      ],
+      [
+       -81.15166023,
+       34.65084609
+      ],
+      [
+       -81.15182817,
+       34.65088776
+      ],
+      [
+       -81.15234738,
+       34.64955273
+      ],
+      [
+       -81.15234739,
+       34.64955272
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Point of Beginning"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -81.15234739,
+     34.64955272
+    ]
+   }
+  }
+ ]
+}
