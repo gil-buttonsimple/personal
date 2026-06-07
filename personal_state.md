@@ -1,7 +1,27 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-04 (session 13)
+Last Updated: 2026-06-07 (session 14)
 Status: Active
+
+---
+
+## Session 14 Notes (2026-06-07)
+
+Georeferenced sheet 07 for the farm map. Reconstructed the boundary exactly from
+the plat's 43-course bearing/distance table -- traverse closes 0.00 ft and computes
+to 409.258 acres, matching the plat label to the thousandth (these are the
+surveyor's balanced figures). Committed the boundary spine at
+`farm-map/source-data/sheet07-boundary.geojson` + `.kml`: exact shape in WGS84,
+all courses/area/closure/provenance embedded, anchored to county parcel 073
+centroid (shape exact, position good to ~tens of m; grid vs true north <0.1deg).
+Built a self-contained browser demo at `farm-map/demo/index.html` -- Esri satellite
++ exact boundary vector (green) + the 1995 survey sheet draped as an image overlay
+(2-point similarity warp: North apex + POB) with an opacity slider and layer
+toggles. Finding confirmed: parcel 073 (610 ac) is a genuinely different boundary
+from the survey (different parcel ID, edge bearings don't match) -- good for
+approximate position only, not edge-tie. Next: tighter raster alignment via
+thin-plate-spline with 8-15 GCPs (absorbs paper curl); then trace the water/lake
+layer into the same frame.
 
 ---
 
@@ -195,8 +215,13 @@ Drive folder (`_personal_gk`) deleted 2026-05-26. Local ZIP export also deleted.
   Source art ingested (session 12): 7 survey plats archived in farm-map/source-art/,
   cataloged in farm-map/source-art.md. County GIS parcel boundary filed (session 13)
   at farm-map/source-data/chester-county-parcel-073.kml -- but it computes to ~611
-  acres vs the survey's 409.258 (likely land added since 1995; needs reconciliation).
-  Next: georeference sheet 07 against the county boundary.
+  acres vs the survey's 409.258 (likely land added since 1995; needs reconciliation,
+  parked as low priority).
+  Boundary georeferenced (session 14): exact boundary spine reconstructed from sheet
+  07's bearing/distance table at farm-map/source-data/sheet07-boundary.geojson + .kml,
+  plus a working browser demo at farm-map/demo/index.html (satellite + exact boundary
+  vector + draped 1995 sheet, opacity slider). Next: thin-plate-spline raster warp
+  (8-15 GCPs) for tighter image alignment; then trace water/lake layer.
 
 - **Starlink Mini -- wired vs WiFi findings (2026-05-28):** Wired ethernet is significantly better than WiFi through an exterior wall. Test results: download +57% (59 to 93 Mbps), ping -74% (138 to 37 ms), jitter -74% (68 to 18 ms). Upload flat. Implications: (1) House: run wired ethernet from Mini to dev machine; use outdoor CAT6 for any exposed section. (2) Vehicle (VW bus): metal body blocks WiFi nearly entirely -- wired is the only reliable option for any permanent bus install. Any in-vehicle Starlink setup requires a physical ethernet run. Expense as business cost once Starlink is used for work.
 

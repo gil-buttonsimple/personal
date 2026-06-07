@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>K-Farm map demo</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+ html,body,#map{height:100%;margin:0}
+ .panel{position:absolute;z-index:1000;top:10px;right:10px;background:#fff;
+   padding:10px 12px;border-radius:8px;font:13px system-ui;box-shadow:0 1px 6px rgba(0,0,0,.3)}
+ .panel h4{margin:0 0 6px}.panel label{display:block;margin:4px 0}
+</style></head><body>
+<div id="map"></div>
+<div class="panel">
+ <h4>K-Farm &mdash; 409.258 ac</h4>
+ <label><input type="checkbox" id="bnd" checked> Boundary (exact, 1995 survey)</label>
+ <label><input type="checkbox" id="img" checked> Survey sheet overlay</label>
+ <label>Overlay opacity <input type="range" id="op" min="0" max="100" value="70"></label>
+</div>
+<script>
+var sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  {maxZoom:19,attribution:'Esri World Imagery'});
+var map=L.map('map',{layers:[sat]});
+var imgB=[[34.64847703816965, -81.1653686900281], [34.67378028115997, -81.14766530302003]];
+var overlay=L.imageOverlay('sheet07-rectified.jpg',imgB,{opacity:0.7});
+overlay.addTo(map);
+var bound=L.polygon([[34.64955683516782, -81.15235053005671], [34.65361967269643, -81.15683239977646], [34.660163390269354, -81.1640588306849], [34.66023259345542, -81.16396648407951], [34.66145501698818, -81.16233524901632], [34.6627333087172, -81.16374671387112], [34.66779182137473, -81.15699820677577], [34.67270082364086, -81.15345966414611], [34.670112863596884, -81.15135995756498], [34.66975931503322, -81.15040685367792], [34.66797262153459, -81.15075955481277], [34.667687160993275, -81.14948769349466], [34.66696318465898, -81.14943968650033], [34.66624285997279, -81.14958008551375], [34.66617894573808, -81.14953091900473], [34.66612673044215, -81.1494469622501], [34.66600314784495, -81.14948755586116], [34.665728855938724, -81.14947183524502], [34.66564401442, -81.14950334928287], [34.665519703311865, -81.14948441840606], [34.66545029235439, -81.14953162430945], [34.665330721816225, -81.14955780654586], [34.66517836277826, -81.14943347478797], [34.66497158360624, -81.14925565126232], [34.66496898587652, -81.14917878722294], [34.66336466510845, -81.14936096322191], [34.66291671025297, -81.14929295466486], [34.66188238326117, -81.14897608818906], [34.66212700941446, -81.14992943335822], [34.662549558077316, -81.15157833743953], [34.6610356437552, -81.15219761769566], [34.65796386192668, -81.1534485042367], [34.65461269128099, -81.15482403154269], [34.653034350805704, -81.14934915200132], [34.653004459194555, -81.14924546526647], [34.65296452182309, -81.14928430839886], [34.652850505967855, -81.1494150485085], [34.652506040491694, -81.14984329531893], [34.652298922676316, -81.15009746162832], [34.65209906251557, -81.15032915494919], [34.65103788278248, -81.15147870068668], [34.650850204522165, -81.15166336278861], [34.65089187247892, -81.15183130839345], [34.649556841437196, -81.15235051756102], [34.64955683516782, -81.15235053005671]],{color:'#39ff14',weight:3,fill:false}).addTo(map);
+map.fitBounds(bound.getBounds().pad(0.15));
+document.getElementById('op').oninput=function(){overlay.setOpacity(this.value/100)};
+document.getElementById('img').onchange=function(){this.checked?overlay.addTo(map):overlay.remove()};
+document.getElementById('bnd').onchange=function(){this.checked?bound.addTo(map):bound.remove()};
+</script></body></html>
