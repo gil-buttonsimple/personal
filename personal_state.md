@@ -169,18 +169,11 @@ vehicle-eurovan-profile.md updated with road trip findings:
 
 ## Top Priority
 
-- **Audit AI conversations from the past 12 days (by 2026-06-07):** Parse ChatGPT,
-  Claude, and Gemini conversations from the bus trip for meaningful learning. Extract
-  repair topics discussed, document what worked and what didn't for voice-command
-  use while driving, and build a consolidated to-do list.
-  - Claude Code sessions: done (voice/mobile setup, May 16-18)
-  - Claude.ai export: done (Eurovan repair, voice findings -- see vehicle-eurovan-profile.md)
-  - Gemini: done via in-app self-summary (shifter fix, audio shop, voice workflow)
-  - ChatGPT: partial -- a mobile-notes batch ingested 2026-06-03. Routed: product
-    ideas -> gov roadmap.md Backlog; farm/property project -> property-mapping.md;
-    VW tire leak -> gov vehicle_eurovan.md; Don Baldwin client task -> Open Items
-    below. Still pending: the GitHub-repo-access threads and any remaining
-    voice/hands-free content.
+Personal tasks are now tracked in **GitHub Issues**:
+https://github.com/gil-buttonsimple/personal/issues
+
+- AI-conversation audit from the 12-day trip -> #1 (pending tail: GitHub-repo-access
+  threads, remaining voice/hands-free content)
 
 ---
 
@@ -202,26 +195,21 @@ Drive folder (`_personal_gk`) deleted 2026-05-26. Local ZIP export also deleted.
 
 ## Open Items
 
-- **Terbinafine course -- ACTIVE (June 4 -> July 3, 2026):** 250mg once daily ~11am
-  for toenail fungus. Daily tracking grid in `health/health-medications.md`.
-  Last dose July 3. Confirm with prescriber whether a 4-6 week LFT check is needed.
+Active personal tasks now live in **GitHub Issues**:
+https://github.com/gil-buttonsimple/personal/issues
 
-- **Don Baldwin (private client, not Button) -- TIME-SENSITIVE (2026-06-03):**
-  check in with Don, and coordinate an email blast with him within the next few days.
+Migrated 2026-06-07 (full context preserved in each issue):
+- Terbinafine course -> #2
+- Don Baldwin client check-in -> #3
+- Farm / property mapping -> #4
+- Mobile operating profile / multi-AI driving workflow -> #5
+- Spotify taste session -> #6
+- Vision correction -> #7
+- Google account cleanup -> #8
+- Hard drive consolidation -> #9
+- Personal security audit (new capture) -> #10
 
-- **Farm / property mapping project:** full scope captured in property-mapping.md
-  (mapping foundation, data layers, outputs, voice-first field data collection,
-  recreation + ecology layers, property logistics / Amazon drop). Active side project.
-  Source art ingested (session 12): 7 survey plats archived in farm-map/source-art/,
-  cataloged in farm-map/source-art.md. County GIS parcel boundary filed (session 13)
-  at farm-map/source-data/chester-county-parcel-073.kml -- but it computes to ~611
-  acres vs the survey's 409.258 (likely land added since 1995; needs reconciliation,
-  parked as low priority).
-  Boundary georeferenced (session 14): exact boundary spine reconstructed from sheet
-  07's bearing/distance table at farm-map/source-data/sheet07-boundary.geojson + .kml,
-  plus a working browser demo at farm-map/demo/index.html (satellite + exact boundary
-  vector + draped 1995 sheet, opacity slider). Next: thin-plate-spline raster warp
-  (8-15 GCPs) for tighter image alignment; then trace water/lake layer.
+### Gov-domain items (pending routing to the governance repo -- NOT migrated to personal Issues)
 
 - **Starlink Mini -- wired vs WiFi findings (2026-05-28):** Wired ethernet is significantly better than WiFi through an exterior wall. Test results: download +57% (59 to 93 Mbps), ping -74% (138 to 37 ms), jitter -74% (68 to 18 ms). Upload flat. Implications: (1) House: run wired ethernet from Mini to dev machine; use outdoor CAT6 for any exposed section. (2) Vehicle (VW bus): metal body blocks WiFi nearly entirely -- wired is the only reliable option for any permanent bus install. Any in-vehicle Starlink setup requires a physical ethernet run. Expense as business cost once Starlink is used for work.
 
@@ -235,24 +223,6 @@ Drive folder (`_personal_gk`) deleted 2026-05-26. Local ZIP export also deleted.
   AI chat apps (Claude Android, ChatGPT, Gemini) cannot consume GPS directly --
   manual coordinate paste only, or a local HTTP endpoint as a workaround.
 
-- **Mobile operating profile for Claude:** Deferred from May 14 session. Claude
-  Android voice mode not ready for true hands-free driving use. Build a profile
-  documenting workarounds and preferred AI per context. See workflow-multi-ai-audit.md.
-
-- **Spotify taste session:** Started May 14 (Claude.ai), not completed. Export
-  Spotify data and finish the discovery/rating session.
-
-- **Vision correction:** Research prescription clip-on sunglasses ($15-90) for
-  driving. Confirm Xtreme goggle model for swim lens compatibility.
-
 - **Suggestions for business canon:** Personal boot never writes to business canon
   directly. Items identified this session with work application: multi-AI workflow
   method (workflow-multi-ai-audit.md). Raise in a gov session.
-
-- **Google account cleanup** -- see [data-google-cleanup.md](data-google-cleanup.md).
-  Retiring `web@gkasparek.com` off Workspace (preserve data, shut down; keep
-  `gil@b`, land on `tgk@`). Next: preserve web@ email (step 7), then tear down.
-
-- **Hard drive consolidation** -- see [data-drives-consolidation.md](data-drives-consolidation.md).
-  3-5 drives of mixed content to review, catalog, dedup, consolidate into cloud +
-  offline backup. Stub; content review not yet started.
