@@ -1,7 +1,20 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-08 (session 16)
+Last Updated: 2026-06-09 (session 17)
 Status: Active
+
+---
+
+## Session 17 Notes (2026-06-09)
+
+Trashed mountain bike rear derailleur -> derailleur-free conversion. Created #12
+(priority: now, type: errand). Plan: anchor on the middle chainring of the triple.
+Path A (free) -- shorten chain to a "magic gear" single-speed on the middle ring;
+1 gear, no purchase, do this first. Path B (3-speed) -- add a ~$15-30 chain
+tensioner on the hanger to keep all three front rings shifting; only path to 3-speed
+(a fixed chain can't stay tight across ring sizes). Caution logged: size the cut to
+the middle ring, trim a couple links at a time, don't over-cut or a later tensioner
+build won't reach the big ring. Open: terrain/gearing, hanger-straight check, photos.
 
 ---
 
