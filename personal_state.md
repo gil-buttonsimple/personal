@@ -1,7 +1,24 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-07 (session 15)
+Last Updated: 2026-06-08 (session 16)
 Status: Active
+
+---
+
+## Session 16 Notes (2026-06-08)
+
+Cedar machine: personal repo was not present -- cloned fresh from GitHub.
+gh CLI not authenticated on Cedar (git push works; gh issue creation does not).
+
+Electrical puzzle (farm): two switch banks (1-4 south, 5-6 north) controlling
+four light banks (A-D east-west). South bank is clean 1:1 (1→A, 2→B, 3→C,
+4→D). North bank both switches mis-wired: SW5 landed in parallel on B's circuit
+(should be A via 3-way); SW6 landed in series on A's circuit using NC contact
+(should be B via 3-way). Two mistakes: crossed wires + wrong terminals. Fix:
+pull north bank, rewire SW5 and SW6 as proper 3-way switches to A and B
+respectively. North bank pull scheduled tomorrow.
+
+GitHub issue not filed this session (gh not auth on Cedar). File in next session.
 
 ---
 
