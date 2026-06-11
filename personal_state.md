@@ -1,7 +1,42 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-09 (session 17)
+Last Updated: 2026-06-11 (session 18)
 Status: Active
+
+---
+
+## Session 18 Notes (2026-06-11)
+
+Investment proposal from Trea Floyd (CFP, Floyd McMillan Scott Group / Baird
+Wealth), emailed Jun 9. Plan: invest $75k of $100k; $25k stays in money market
+as a cash-flow buffer. Stated goals: high return, diversified, tax-sensitive.
+Two strategies offered, Trea says either fits:
+- **PFF 100** -- globally allocated, all-ETF portfolio (you see fund tickers
+  only, no individual company names). Simple, cheap, tax-efficient.
+- **BT Core + Satellite** -- same global allocation but a CORE of 25-30
+  individual large-cap stocks (visible by name) plus ETF SATELLITES for the
+  harder-to-hold categories (international, small-cap). The "BT Large Cap
+  Equity" PDF is the stock core. Trea names visible stock names as the "biggest
+  difference."
+
+**KEY FACT (the hinge): two accounts are involved -- (1) a TAXABLE cash-savings
+account and (2) a Roth (Rollover) IRA.** This drives ASSET LOCATION, not just
+strategy choice. Tax-loss harvesting and individual-stock tax control only help
+in the TAXABLE account. Inside the Roth, all growth is tax-free and harvesting
+is useless -- so "sensitive to taxes" is moot there, and the Roth should take
+the simpler/cheaper ETF approach (PFF-style). Verify the exact IRA type with
+Trea ("Roth (Rollover)" is ambiguous -- a Rollover IRA is usually Traditional;
+a true Roth changes nothing about the tax-free conclusion but confirm it).
+
+OPEN QUESTIONS for Trea before deciding: all-in annual cost of each (advisory
+fee + fund expense ratios, core vs satellite broken out); does BT Core do
+automated tax-loss harvesting; expected turnover / historical cap-gains
+distributions; and which strategy goes in WHICH account. Attachments (the two
+PDFs) not yet reviewed -- Gil to share for holdings/fee detail.
+
+NEXT: Gil gets the answers from Trea, then decide allocation per account
+(likely: ETF/PFF in the Roth; consider BT Core only if the taxable account is
+where the harvesting edge can pay off).
 
 ---
 
