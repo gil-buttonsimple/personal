@@ -1,7 +1,29 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-12 (session 19)
+Last Updated: 2026-06-12 (session 20)
 Status: Active
+
+---
+
+## Session 20 Notes (2026-06-12)
+
+Farm-map: resolved the 611-vs-409 acreage puzzle. Pulled the Beacon/Schneider
+parcel record for 091-00-00-073-000: K-Farm LLC (c/o Gene A. Kasparek), 604.69
+deeded ac, single 1994 deed (Book 668-98, $503k, Ward W.B. Jr -> K-Farm; plats
+Cab C Slide 37 & 5). So the 409.258-ac Ashview survey is ONE tract of a single
+1994 purchase, not a "land added later" event; the ~195-ac balance is the rest
+of the same deed. Full record + reconciliation stored in property-mapping.md
+(committed 91eaa5b). Deed/plat images need the $5/day Avenu pass or the Clerk
+(free archive viewer stops at 1984; our docs are 1994-95) -- parked, not blocking.
+
+Demo (farm-map/demo/index.html) rebuilt: county parcel (cyan) now the
+authoritative boundary; basemap switcher (Esri / USGS imagery / USGS topo);
+1995 survey tract registered onto the parcel by a rigid +193 m E / +110 m S move
+(rotation ~0; edges tie at 3.6 m RMS) -> it's the SE tract, extra acreage is
+N/NW. Survey-sheet raster moved with green and rotated +1 deg CCW (rotated-overlay
+plugin). Open polish: exact tie-point refinement of green<->blue (3.6 m is the
+survey-vs-GIS-digitizing floor); confirm overlay rotation direction/magnitude.
+Next visible win: digitize the lake/water layer off sheet 06.
 
 ---
 
