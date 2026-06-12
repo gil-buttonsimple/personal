@@ -11,13 +11,13 @@ actually change, record the new mailing address as a durable fact in gov
 `operations.md` (Legal & Company).
 
 ## New address (canonical)
-**Mailing:** PO Box 152, Chester, SC 29706  ← confirm exact ZIP against the mailer
-**Physical (where PO box is rejected):** 1221 GFH, Chester, SC (the farm)
-  ← confirm full street name (GFH = Great Falls Hwy?) + ZIP. No USPS delivery
-  there (no mailbox) — expect a "can't deliver, accept anyway" override.
+**Mailing:** PO Box 152, Chester, SC 29706-0152
+**Physical (where PO box is rejected):** 1221 Great Falls Hwy, Chester, SC (the farm)
+  ← confirm ZIP. No USPS delivery there (no mailbox) — expect a "can't deliver,
+  accept anyway" override.
 
 ## Old addresses being retired
-- 2973 India Hook Rd, Rock Hill, SC 29732 (most recent — confirm road + ZIP)
+- 2973 India Hook Rd, Rock Hill, SC 29732-8423 (most recent — confirmed; USPS COA filed 2026-06-12)
 - Hawaii (address TBD)
 - California (older, addresses TBD)
 
@@ -29,7 +29,7 @@ required: driver's license (physical addr), bank/brokerage KYC. Use the PO box
 for mailing/contact, keep a physical address where mandated.
 
 ## Active Todos
-- [ ] File USPS Change of Address (catch-all backstop, forwards mail ~12 mo)
+- [~] USPS Change of Address — per-origin forwarding (see USPS forwarding section below)
 - [ ] **Financial sweep (current focus — below)**
 - [ ] Government / official
 - [ ] Insurance / other
@@ -38,11 +38,26 @@ for mailing/contact, keep a physical address where mandated.
 
 ---
 
+## USPS forwarding (one COA per old address → PO Box 152, Chester, SC 29706-0152)
+Filed as: Travis G Kasparek · Individual · Permanent · web@gkasparek.com · (510) 427-4326.
+File online at usps.com/move ($1.10 ID-verify fee each) or free in person on PS Form 3575.
+
+| From address | Status | Forward date | Notes |
+|---|---|---|---|
+| 2973 India Hook Rd, Rock Hill, SC 29732-8423 | ✅ filed 2026-06-12 | 2026-06-13 | Permanent, Individual |
+| Fillmore St box (CA) — full addr TBD | ☐ | — | Need street # + ZIP; confirm PO Box vs store/private mailbox (CMRA won't USPS-forward) |
+| 1221 Great Falls Hwy, Chester, SC (farm) | ☐ very low priority | — | Precautionary only; likely rejected (no USPS delivery there) — try if convenient, don't sweat it |
+
+Business (Button Simple) USPS forward: NOT filing at this time (decided 2026-06-12).
+Personal forward (2973 → PO box) only. Business mail handled per-account if/when it changes.
+
+---
+
 ## Financial — banks & brokerage  ← START HERE
 | Account | Old addr on file | PO box OK? | Status | Notes |
 |---|---|---|---|---|
-| USAA — Checking | ? | verify | ☐ | USAA may want a physical addr on file |
-| USAA — Savings | ? | verify | ☐ | Same login as checking |
+| USAA — Checking | ? | verify | ✅ done | Updated 2026-06-12 (all USAA accounts in one pass) |
+| USAA — Savings | ? | verify | ✅ done | Same login as checking |
 | Baird — Other (taxable) | ? | yes | ☐ | |
 | Baird — IRA | ? | yes | ☐ | |
 | Nest529 | ? | yes | ☐ | |
@@ -54,9 +69,9 @@ for mailing/contact, keep a physical address where mandated.
 | Card | Old addr on file | PO box OK? | Status | Notes |
 |---|---|---|---|---|
 | BofA Visa "Unlimited Cash Rewards" | ? | yes | ✅ done | PO box on card mailing; profile rejected PO box → used 1221 GFH physical (2026-06-11) |
-| USAA Signature Visa ·2053 | ? | verify | ☐ | Same USAA login |
-| Wells Fargo ·3834 | ? | yes | ☐ | |
-| Chase Freedom ·7878 | ? | yes | ☐ | |
+| USAA Signature Visa ·2053 | ? | verify | ✅ done | Updated 2026-06-12 (USAA pass) |
+| Wells Fargo ·3834 | ? | yes | ✅ done | Via phone 2026-06-12 (online wouldn't take it); PO box accepted; verified online. Billing ZIP for AVS now 29706 |
+| ~~Chase Freedom ·7878~~ | — | — | ✅ closed | No action — account closed |
 | Edfinancial (student loan) | ? | yes | ☐ | Loan servicer, not a card |
 | ~~Citi Simplicity Visa ·0745~~ | — | — | ✅ closed | No action — account closed |
 
@@ -65,7 +80,7 @@ for mailing/contact, keep a physical address where mandated.
 ## Government / official
 | Place | Old addr on file | PO box OK? | Status | Notes |
 |---|---|---|---|---|
-| USPS Change of Address | — | n/a | ☐ | Do early; forwards mail while you chase the rest |
+| USPS Change of Address | — | n/a | ◐ | Per-origin; see USPS forwarding section. 2973 ✅ filed 2026-06-12 |
 | IRS (personal 1040) | ? | yes (mailing) | ☐ | Updates via next return or Form 8822 |
 | SC DMV — license + registration | ? | mailing only | ☐ | Physical addr required for license |
 | Voter registration (SC) | ? | ? | ☐ | |
@@ -76,7 +91,7 @@ for mailing/contact, keep a physical address where mandated.
 | Place | Old addr on file | PO box OK? | Status | Notes |
 |---|---|---|---|---|
 | Health insurance | ? | yes | ☐ | |
-| Auto insurance | ? | verify | ☐ | Likely USAA |
+| Auto insurance (USAA) | ? | yes | ✅ done | Address updated + coverage restructured 2026-06-12 (dropped comp/collision/rental; see finance-canon.md) |
 | Renters/home (if any) | ? | — | ☐ | |
 | Amazon delivery default | ? | n/a | ☐ | Farm has no mailbox (property-mapping.md) |
 

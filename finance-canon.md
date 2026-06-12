@@ -1,5 +1,5 @@
 # Personal Finance Canon
-*Last updated: 2026-05-11*
+*Last updated: 2026-06-12*
 
 This document captures the conventions, decisions, and analytical framing for personal finance tracking. Upload alongside balances.csv when starting a Claude conversation about finances.
 
@@ -95,6 +95,34 @@ Of that, ~$154K is locked in retirement (Baird-IRA)
 True runway pool (Liquid + Taxable, excluding retirement): ~$116K
 Pre-inheritance liquid trend: ~$1.1K/month draw on liquid cash over Oct 2025 → May 2026
 Credit card debt: substantially paid down over the past year ($12K+ → $1.2K)
+
+## Insurance philosophy
+*Added 2026-06-12.*
+
+Insure only what I cannot absorb. Self-insure any asset I could replace from
+savings; buy insurance only for catastrophic, can't-self-fund losses (liability
+judgments, my own injury).
+
+- Physical-damage on owned vehicles: DECLINE. If the vehicle is worth roughly
+  what's in savings (~$5K for the Eurovan), comprehensive and collision aren't
+  worth it. I would not file a claim for a tree, hail, theft, or a fender on an
+  old vehicle, so I don't pay to transfer that risk. Owned outright = no lender
+  can require it.
+- Liability: CARRY, at least state minimum. The real protection -- shields me
+  from lawsuits if I hurt someone or damage property. Bump above minimum only as
+  a deliberate anti-lawsuit choice, never by default.
+- UM/UIM: KEEP. Protects MY body and income when an at-fault driver has no/too
+  little coverage -- the one auto loss $5K in savings can't replace. SC requires
+  UM; keep UIM too, it's cheap.
+- Roadside/Towing on the Eurovan: ALWAYS KEEP. Practical exception, not risk
+  transfer -- a 1999 VW will need a tow. Do not cut it in a coverage review.
+- DECLINE: rental reimbursement, car-replacement assistance, accident
+  forgiveness, optional PIP add-ons. None clear the "can't self-absorb" bar.
+
+### Eurovan auto policy (USAA, personal) -- 2026-06-12
+Restructured to the above: DROPPED comprehensive, collision, rental; KEPT
+liability 25/50/25 (SC min), UM 25/50, UIM 25/50, towing. ~$280/6mo (was ~$447).
+Garaging addr = farm (1221 Great Falls Hwy); mailing = PO Box 152.
 
 ## Storage
 File location: Google Drive (personal account), root of My Drive
