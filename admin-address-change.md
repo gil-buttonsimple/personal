@@ -18,8 +18,8 @@ actually change, record the new mailing address as a durable fact in gov
 
 ## Old addresses being retired
 - 2973 India Hook Rd, Rock Hill, SC 29732-8423 (most recent — confirmed; USPS COA filed 2026-06-12)
-- Hawaii (address TBD)
-- California (older, addresses TBD)
+- 1770 Analani St, Wailuku, HI 96793 (Hawaii — confirm ZIP; for-the-record, chase in account profiles)
+- 2443 Fillmore St, San Francisco, CA 94115 (California — the "Fillmore St box"; assoc. old phone 380-7839?; for-the-record)
 
 "Some still hanging around" — stale ones lingering in systems that never updated.
 
@@ -45,7 +45,7 @@ File online at usps.com/move ($1.10 ID-verify fee each) or free in person on PS 
 | From address | Status | Forward date | Notes |
 |---|---|---|---|
 | 2973 India Hook Rd, Rock Hill, SC 29732-8423 | ✅ filed 2026-06-12 | 2026-06-13 | Permanent, Individual |
-| Fillmore St box (CA) — full addr TBD | ☐ | — | Need street # + ZIP; confirm PO Box vs store/private mailbox (CMRA won't USPS-forward) |
+| 2443 Fillmore St, San Francisco, CA 94115 | ✕ N/A | — | Years old; mail no longer flows there, mailbox long closed. Not USPS-forwardable — for-the-record / account cleanup only |
 | 1221 Great Falls Hwy, Chester, SC (farm) | ☐ very low priority | — | Precautionary only; likely rejected (no USPS delivery there) — try if convenient, don't sweat it |
 
 Business (Button Simple) USPS forward: NOT filing at this time (decided 2026-06-12).
@@ -81,8 +81,8 @@ Personal forward (2973 → PO box) only. Business mail handled per-account if/wh
 | Place | Old addr on file | PO box OK? | Status | Notes |
 |---|---|---|---|---|
 | USPS Change of Address | — | n/a | ◐ | Per-origin; see USPS forwarding section. 2973 ✅ filed 2026-06-12 |
-| IRS (personal 1040) | ? | yes (mailing) | ☐ | Updates via next return or Form 8822 |
-| SC DMV — license + registration | ? | mailing only | ☐ | Physical addr required for license |
+| IRS (personal 1040) | — | yes (mailing) | ✅ decided | No action now; PO box on next 1040 (no paper IRS mail expected). Business EIN is separate — Form 8822-B, part of deferred business pass |
+| SC DMV — license + registration | ? | mailing only | ✅ done | Updated 2026-06-12. Physical 1221 Great Falls Hwy on license; PO box mailing. County York→Chester = vehicle property tax now Chester |
 | Voter registration (SC) | ? | ? | ☐ | |
 | Social Security (SSA) | ? | yes | ☐ | |
 | Passport | ? | yes | ☐ | Only at renewal — low priority |
@@ -102,7 +102,7 @@ Durable new address also goes in gov `operations.md` once changed.
 |---|---|---|---|---|
 | IRS EIN business addr (Form 8822-B) | ? | yes | ☐ | EIN 33-2392297 |
 | Northwest Registered Agent acct | ? | yes | ☐ | KEEP as RA (PO box can't be the RA) |
-| Relay business banking | ? | verify (KYC) | ☐ | May require physical addr |
+| Relay business banking | ? | verify (KYC) | ✅ done | Updated 2026-06-12. Confirm whether it took PO box mailing or required a physical addr — relevant to the later business pass |
 | Apple Developer (seller addr) | ? | verify | ☐ | Shown publicly on paid apps |
 | Google Play Developer | ? | verify | ☐ | Public seller addr |
 | Domain WHOIS buttonsimple.com | ? | yes | ☐ | Often privacy-masked already |
