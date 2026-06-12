@@ -14,6 +14,7 @@ Last Updated: 2026-06-01
 | [data-google-cleanup.md](data-google-cleanup.md) | Data | Retire web@ off Google Workspace; preserve data, shut down |
 | [data-drives-consolidation.md](data-drives-consolidation.md) | Data | 3-5 hard drives → review, dedup, consolidate to cloud + offline backup |
 | [property-mapping.md](property-mapping.md) | Side | Farm / property mapping project |
+| [admin-address-change.md](admin-address-change.md) | Admin | Change-of-address sweep, consolidating accounts to the new PO box |
 | [personal_state.md](personal_state.md) | System | Current state, open items, migration status |
 | [_inbox.md](_inbox.md) | System | Cross-context captures (business items surfacing in personal chats) |
 
@@ -30,6 +31,7 @@ moved to gov on 2026-06-01.
 - `health-` -- health, diet, medical
 - `finance-` -- money, accounts
 - `data-` -- digital data consolidation: storage, migration, backup
+- `admin-` -- life admin: addresses, accounts, official records, filings
 - Sub-projects extend the prefix
 - Additional domains as they emerge: `friends-`, `side-`
 
