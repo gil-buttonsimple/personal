@@ -1,7 +1,33 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-11 (session 18)
+Last Updated: 2026-06-12 (session 19)
 Status: Active
+
+---
+
+## Session 19 Notes (2026-06-12)
+
+NYT Crossword daily auto-delivery -- PLANNED, not built ("do it later").
+Goal: a cloud job that fetches the day's NYT Crossword PDF and emails it to Gil.
+HOME DECIDED: personal repo, GitHub Actions on a cron -- runs in the cloud so no
+fleet node need be awake, runs Python natively (for xword-dl), and encrypted
+Actions secrets hold the NYT auth + email creds (never in the repo). Rejected:
+Cloudflare Worker (no Python, more plumbing), Convex (it's the product backend,
+org-bound). DELIVERY = email the PDF; a cloud runner can't reach a LAN printer,
+and Gil doesn't need an email-to-print printer (the only hands-off-print path).
+FETCH options: the NYT print-PDF endpoint
+(.../svc/crosswords/v2/puzzle/print/{Mon}{DD}{YY}.pdf) sent with the NYT-S
+subscription cookie, OR xword-dl with username/password (logs in fresh).
+SCHEDULE ~6am ET (puzzle posts 10pm ET the night before; 6pm Sun for Sunday).
+Effort ~30-60 min, almost all of it getting auth working once.
+
+OPEN (resolve before building):
+1. Does Gil have the NYT Crossword subscription? Separate paid add-on -- hard blocker.
+2. NYT login method: email+password (script logs in fresh every run, zero
+   maintenance) vs Google/Apple SSO (no password to script -> forced onto the
+   manual NYT-S cookie pull, refresh every few months when it expires).
+3. Email sender + destination: Gmail app password (SMTP, simplest) vs a personal
+   Resend account; and which address to send to.
 
 ---
 
