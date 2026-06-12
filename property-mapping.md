@@ -1,6 +1,6 @@
 # Farm / Property Mapping Project
 
-Last Updated: 2026-06-04
+Last Updated: 2026-06-12
 Status: Active (personal side project)
 
 Captured from mobile/ChatGPT notes 2026-06-03. The goal is a clean, layered,
@@ -35,12 +35,55 @@ polygon was discarded.
 This is the **georeference control layer**: a real-world-coordinate boundary to align
 sheet 07 against, rather than tracing the boundary by hand.
 
-**Open discrepancy — county parcel is ~611 acres vs the 1995 survey's 409.258.** Not a
-rounding error (verified against the bounding box). The two boundaries are *not* the same
-extent. Most likely **land was added since 1995** (adjacent parcels acquired and merged
-under one parcel ID); could also be that the survey covered one of several deed tracts.
-Do not substitute the county boundary for the survey blindly — reconcile them: overlay
-survey on parcel, locate the extra ~200 acres, and confirm the current true extent.
+## Parcel Record (Beacon / Schneider, retrieved 2026-06-12)
+
+Authoritative county assessment record for parcel **091-00-00-073-000**, pulled from
+Chester County SC's Beacon system (beacon.schneidercorp.com/?site=ChesterCountySC):
+
+- **Owner:** K-Farm LLC, c/o **Gene A. Kasparek**, 2973 India Hook Road, Rock Hill SC 29732
+  (family land; same India Hook address tied to Gil's mail forwarding).
+- **Location address:** 1221 Great Falls Hwy.
+- **Deeded / assessed acreage:** **604.69 acres** (the county's official figure — distinct
+  from the ~611 ac our GIS polygon computes).
+- **Class:** LA (Land Agricultural) / MV (Market Value) / RN (Residential Non-Owner Occ).
+  Tax District 01.
+- **Sale history (single record):** **11/18/1994 — W.B. Ward Jr → K-Farm LLC, $503,000.**
+  Deed **Book 668-98**. Plat **Cabinet C, Slide 37 & 5** (likely two plats = two tracts).
+  True Sale: Yes. No transfer since 1994 — K-Farm has held it continuously.
+- **Improvements:** 2008 metal cabin, 1 bed / 1 full bath, 1,152 sqft, one story, porch
+  (bldg value $112,200); metal pole barn (1,152 units, $3,525); garages/patios/storage
+  ($46,000).
+- **2026 valuation:** market land $1,901,550 + improvements $161,700 = **$2,063,250 total
+  market**. Total taxable $227,550; total assessed $7,630 (agricultural-use valuation).
+- **Plats to pull:** Cabinet C, Slide 37 and Slide 5. **Deed to pull:** Book 668, Page 98
+  (sclandrecords.com or Clerk of Court).
+
+## Acreage reconciliation (RESOLVED 2026-06-12)
+
+Three acreage figures, two gaps, two stories:
+
+| Figure | Acres | Source |
+|---|---|---|
+| County deeded / assessed | **604.69** | Beacon parcel record |
+| GIS polygon area | ~611 | county KML (session 13) |
+| 1995 Ashview survey (sheet 07) | 409.258 | our boundary spine |
+
+- **604.69 − 409.258 = ~195.4 ac (the big gap).** This is the other tract(s) conveyed in
+  the **same 1994 deed**, not a later addition. The Beacon sales tab shows only the one
+  1994 acquisition, so the earlier "land added since 1995" hypothesis is ruled out: the
+  farm is a single 1994 purchase of ~605 deeded acres, and the 409.258-ac Ashview survey
+  (sheet 07) is one tract of a multi-tract deed. The two plat slides (37 & 5) corroborate
+  two tracts. Price check: $503k ÷ 604.69 ≈ $832/ac (plausible 1994 rural SC) vs ÷ 409 ≈
+  $1,230/ac — also leans toward the larger figure being what changed hands.
+- **~611 (GIS) − 604.69 (deeded) ≈ 6 ac (the small gap).** Candidate for the "small piece
+  sold off" (parcel now officially smaller than the raw polygon), or GIS-vs-deed
+  measurement slop. The deed/plats will resolve which. A subdivided-out piece would NOT
+  appear on this parcel's sales tab — it would be a separate child parcel with a deed
+  *from* K-Farm; to find it, search Beacon for K-Farm LLC as seller, or check parcels
+  adjacent to 073 for a recent carve-out.
+
+Do not substitute the county boundary for the survey blindly. Next: pull deed 668-98 +
+plats Cab C Slide 37 & 5 to break out the ~195-ac tract and confirm the ~6-ac sliver.
 
 ## Mapping Foundation
 
