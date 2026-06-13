@@ -85,6 +85,42 @@ Three acreage figures, two gaps, two stories:
 Do not substitute the county boundary for the survey blindly. Next: pull deed 668-98 +
 plats Cab C Slide 37 & 5 to break out the ~195-ac tract and confirm the ~6-ac sliver.
 
+## Registration update (2026-06-13, session 21)
+
+Survey<->parcel registration corrected. The demo now registers the 1995 survey (green)
+to the county parcel by pinning the survey's southernmost apex (Point of Beginning) to
+the parcel's south corner -- a single rigid translation, no scaling (replaces the s20
++193 m E / +110 m S least-squares fit). Result: the survey's E/S/W edges sit on the
+parcel boundary; the divergences are real -- the NW lobe (~195 ac, the deed's second
+tract) and a small south sliver (~6 ac, the GIS-vs-deed candidate). The survey SHAPE
+comes from the plat's 43-course bearing/distance table (closes 0.00 ft), not from
+tracing the photo, so its accuracy is independent of image quality. Registration is
+now driven by one SHIFT constant in farm-map/demo/index.html.
+
+Open, free reconciliation path (no Avenu pass): pull the parcels adjacent to 073 from
+Chester County GIS (neighbors labeled on sheet 07: 032, 033 Hinton, 042 Odell Kennedy,
+043, 070 Shannon). Where the survey and parcel diverge should coincide with real
+parcel lines -- decomposes the ~195 ac and ~6 ac AND independently validates the POB
+registration.
+
+## Raster georeference (attempted, deferred)
+
+Tried to warp sheet 07 to remove its keystone perspective + diagonal paper fold (both
+confirmed in the original photo). Automated fitting failed: the plat has multiple heavy
+lines (boundary, roads, "TRANS LINE 100' R/W") and the fit locks onto interior ink.
+Verdict: warping is unnecessary for vector extraction (we need a pixel->world transform,
+not a warped image), and a clean backdrop is an interactive job (QGIS Georeferencer / a
+purpose-built digitizer), not headless auto-fit.
+
+## Vector extraction pipeline -> [vector-pipeline-spec.md](farm-map/vector-pipeline-spec.md)
+
+Speced (not built): trace features from the highest-res source in native pixels, convert
+via a per-sheet pixel->world homography (control = the boundary drawn on every sheet),
+fuse across sheets using shared features as tie-points (which brace the interior where
+boundary-only control can't fix the fold), then validate layer by layer. Includes a
+sheet-dating / feature-currency pass -- an older sheet's trails or stands may no longer
+exist, so each sheet's date hints at which traced features are still real.
+
 ## Mapping Foundation
 
 - Align and scale property maps / photos. → Anchor on sheet 07 (NAD 1983, S.C.

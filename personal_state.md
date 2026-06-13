@@ -1,7 +1,39 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-12 (session 20)
+Last Updated: 2026-06-13 (session 21)
 Status: Active
+
+---
+
+## Session 21 Notes (2026-06-13)
+
+Farm-map alignment + extraction strategy.
+
+Registration FIXED: the survey<->parcel vectors didn't align because the s20 +193E/
++110S shift was a floating least-squares fit. Re-registered by pinning the survey's
+southernmost apex (POB) to the parcel's south corner -- pure translation
+(SHIFT = -0.0011753 lat, +0.0019292 lon). Survey E/S/W edges now sit on the parcel
+boundary; the divergences are real (NW ~195 ac second tract + ~6 ac south sliver).
+Demo (farm-map/demo/index.html) rewritten so one SHIFT constant drives both the green
+vector and the raster overlay. Confirmed the survey polygon's SHAPE is from the plat's
+43-course bearing/distance table (closes 0.00 ft), NOT a photo trace -- so boundary
+accuracy is independent of image quality.
+
+Raster warp attempted + deferred: the original sheet-07 photo has real keystone + paper
+fold. Auto-georeferencing (homography ICP, grid search) kept locking onto interior ink
+because the plat has three heavy lines (boundary, roads, transmission corridor).
+Verdict: a warped image isn't needed for extraction (need a pixel->world transform);
+a clean backdrop warp is an interactive job (QGIS / digitizer), not headless.
+
+Strategy decided: vector extraction is the priority. Trace from highest-res source in
+native pixels -> per-sheet homography (boundary = control on every sheet) -> fuse sheets
+via shared features as tie-points (brace the interior, fix the fold) -> validate layer
+by layer. Speced in farm-map/vector-pipeline-spec.md (digitizer tool + data model +
+layer catalog + phases + sheet-dating/feature-currency). NOT built (spec only).
+
+Next: (1) deduce each sheet's date (1995 known for 07/06; 02-05 undated) -- hints at
+which features are still real; (2) build digitizer P1; (3) free GIS-neighbor pull to
+decompose the acreage. Farm = personal issue #4.
 
 ---
 
