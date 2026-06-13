@@ -1,0 +1,381 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>K-Farm digitizer — P1 georeference</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+ html,body{height:100%;margin:0;font:13px system-ui,sans-serif}
+ #wrap{display:flex;height:100%;position:relative}
+ #side{width:288px;flex:0 0 288px;overflow-y:auto;background:#1c1f24;color:#e6e6e6;padding:12px 14px;box-sizing:border-box}
+ #side h3{margin:0 0 2px;font-size:15px}
+ #side .sub{color:#9aa0a8;font-size:11px;margin:0 0 10px;line-height:1.4}
+ #side h4{margin:14px 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:#9aa0a8}
+ select,button{font:13px system-ui;width:100%;box-sizing:border-box}
+ select{padding:5px;margin-bottom:6px;background:#2a2e35;color:#e6e6e6;border:1px solid #3a3f48;border-radius:5px}
+ button{padding:6px;margin:3px 0;background:#2a2e35;color:#e6e6e6;border:1px solid #3a3f48;border-radius:5px;cursor:pointer}
+ button:hover{background:#343a43}
+ button.go{background:#1f6f3d;border-color:#2a8a4e}button.go:hover{background:#268049}
+ #gcps{list-style:none;margin:6px 0;padding:0;font-size:12px}
+ #gcps li{padding:4px 6px;border-radius:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border:1px solid transparent}
+ #gcps li:hover{background:#2a2e35}
+ #gcps li.armed{background:#3a3320;border-color:#b8860b}
+ #gcps li.set{color:#7fe39a}
+ #gcps li .tag{font-size:10px;color:#9aa0a8}
+ #gcps li.primary .tag{color:#e8c46a}
+ #gcps li .chk{font-weight:bold}
+ #stat{font-size:12px;line-height:1.5;background:#12151a;border-radius:6px;padding:8px;margin-top:6px}
+ #stat b{color:#7fe39a}
+ #stat .bad{color:#e88}
+ #cv{flex:1;display:block;background:#0d0f12;cursor:grab}
+ #cv.arm{cursor:crosshair}
+ label.row{display:block;margin:5px 0;font-size:12px}
+ .hint{font-size:11px;color:#9aa0a8;line-height:1.4;margin:6px 0}
+ #keypanel{position:absolute;top:14px;right:14px;width:220px;height:240px;z-index:600;
+  background:rgba(244,241,234,.94);border:1px solid #888;border-radius:8px;
+  box-shadow:0 2px 12px rgba(0,0,0,.45);resize:both;overflow:hidden;min-width:130px;min-height:120px;display:flex;flex-direction:column}
+ #keybar{flex:0 0 auto;cursor:move;background:#33373f;color:#e6e6e6;font-size:11px;
+  padding:4px 8px;display:flex;justify-content:space-between;align-items:center;border-radius:7px 7px 0 0;user-select:none}
+ #keyhide{cursor:pointer;font-size:15px;line-height:1;padding:0 2px}
+ #keysvg{flex:1 1 auto;width:100%;min-height:0}
+</style><script src="apexkey.js"></script></head><body>
+<div id="wrap">
+ <div id="side">
+  <h3>K-Farm digitizer</h3>
+  <p class="sub">Match the survey photo to the real world: tell the tool where a few known points on the property sit in the photo, and it places the whole sheet on the map (same position as the demo). <a href="apex-key.html" target="_blank" style="color:#7fb8ff">Open the apex key →</a></p>
+
+  <h4>Sheet</h4>
+  <select id="sheet"></select>
+
+  <h4>Rotate photo (turn north up)</h4>
+  <input type="range" id="rot" min="-180" max="180" value="0" style="width:100%">
+  <div style="display:flex;gap:6px"><button id="rotL">⟲ 90°</button><button id="rotR">90° ⟳</button><button id="rot0">reset</button></div>
+  <div class="hint"><b id="rotread">0°</b>. Scroll to zoom, drag to move. Pick a point in the list below, then click that same spot on the photo. After 4 points, the true outline is drawn back onto the photo in green.</div>
+  <button id="showkey" style="display:none">Show apex key panel</button>
+
+  <h4>Points to match</h4>
+  <ul id="gcps"></ul>
+  <button id="clr">Clear all points</button>
+  <label class="row"><input type="checkbox" id="bp" checked> Show back-projected boundary (green)</label>
+
+  <h4>Fit</h4>
+  <div id="stat">Place ≥4 points to solve.</div>
+
+  <h4>Saving</h4>
+  <div class="hint" id="saved">Auto-saves to the repository each time you place a point (once 4 are down). No download or copy-paste.</div>
+  <select id="sdate" title="best-guess date for this sheet">
+   <option value="">date: unset</option>
+   <option value="1995-08-29 (rev 1996-10)">1995-08-29 (rev 1996-10)</option>
+   <option value="1995 (basis: TBD)">1995 (basis: TBD)</option>
+  </select>
+  <div class="hint" style="margin-top:8px">If the page can't reach the saving server, use these:</div>
+  <button id="save">⬇ Download file</button>
+  <button id="copy">⧉ Copy to clipboard</button>
+ </div>
+ <canvas id="cv"></canvas>
+ <div id="keypanel">
+  <div id="keybar"><span>Apex key — drag · resize from corner</span><span id="keyhide" title="hide">×</span></div>
+  <svg id="keysvg"></svg>
+ </div>
+</div>
+<script>
+// ============================================================================
+// World frame — identical to demo/index.html. The exact 1995 traverse (44 verts,
+// raw WGS84) translated by SHIFT (POB pinned to parcel south corner). Lat,lon.
+// ============================================================================
+var SHIFT=[-0.0011753,0.0019292]; // [dLat,dLon]
+var SURVEY_RAW=[
+ [34.6495527,-81.1523474],[34.6536156,-81.1568293],[34.6601593,-81.1640557],
+ [34.6602285,-81.1639634],[34.6614509,-81.1623321],[34.6627292,-81.1637436],
+ [34.6677877,-81.1569951],[34.6726967,-81.1534565],[34.6701087,-81.1513568],
+ [34.6697552,-81.1504037],[34.6679685,-81.1507564],[34.6676831,-81.1494846],
+ [34.6669591,-81.1494366],[34.6662387,-81.1495769],[34.6661748,-81.1495278],
+ [34.6661226,-81.1494438],[34.6659990,-81.1494844],[34.6657248,-81.1494687],
+ [34.6656399,-81.1495002],[34.6655156,-81.1494813],[34.6654462,-81.1495285],
+ [34.6653266,-81.1495547],[34.6651742,-81.1494303],[34.6649675,-81.1492525],
+ [34.6649649,-81.1491757],[34.6633606,-81.1493578],[34.6629126,-81.1492898],
+ [34.6618783,-81.1489730],[34.6621229,-81.1499263],[34.6625455,-81.1515752],
+ [34.6610315,-81.1521945],[34.6579598,-81.1534454],[34.6546086,-81.1548209],
+ [34.6530302,-81.1493460],[34.6530003,-81.1492423],[34.6529604,-81.1492812],
+ [34.6528464,-81.1494119],[34.6525019,-81.1498402],[34.6522948,-81.1500943],
+ [34.6520949,-81.1503260],[34.6510338,-81.1514756],[34.6508461,-81.1516602],
+ [34.6508878,-81.1518282],[34.6495527,-81.1523474]
+];
+// world vertex = raw + SHIFT, kept as {X:lon, Y:lat} for the homography.
+function shp(p){return {Y:p[0]+SHIFT[0], X:p[1]+SHIFT[1]};}
+var WORLD=SURVEY_RAW.map(shp);
+// cardinal, well-spread, easy-to-identify corners (primary picks)
+var LABELS={0:'POB / South apex',2:'West apex',7:'North apex',27:'East apex'};
+var PRIMARY={0:1,2:1,7:1,27:1};
+
+var SHEETS=[
+ '01-base-plat-clean.jpg','02-trails-green.jpg','03-trails-orange-water-blue.jpg',
+ '04-deer-stands.jpg','05-habitat-full-color.jpg','06-master-legend-1995.jpg',
+ '07-deed-survey-kasparek.jpg'];
+// known feature-currency dates (section 8); 06/07 are dated on the sheet.
+var SHEET_DATE={'06-master-legend-1995.jpg':'1995-08-29 (rev 1996-10)','07-deed-survey-kasparek.jpg':'1995-08-29 (rev 1996-10)'};
+
+// ============================================================================
+// State
+// ============================================================================
+var img=new Image(), imgReady=false;
+var view={s:1,rot:0,px:0,py:0};      // s=scale, rot=radians, (px,py)=canvas pos of image centre
+var gcp={};                          // idx -> {u,v} clicked pixel (image space)
+var armed=null;                      // idx currently armed for placement
+var H=null, Hinv=null, fit=null;     // homography + residuals
+var cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+
+// ============================================================================
+// Linear algebra (hand-rolled; normalized DLT, no libraries)
+// ============================================================================
+function mul3(a,b){var r=[[0,0,0],[0,0,0],[0,0,0]];for(var i=0;i<3;i++)for(var j=0;j<3;j++){var s=0;for(var k=0;k<3;k++)s+=a[i][k]*b[k][j];r[i][j]=s;}return r;}
+function inv3(m){var a=m[0][0],b=m[0][1],c=m[0][2],d=m[1][0],e=m[1][1],f=m[1][2],g=m[2][0],h=m[2][1],i=m[2][2];
+ var A=e*i-f*h,B=-(d*i-f*g),C=d*h-e*g,D=-(b*i-c*h),E=a*i-c*g,F=-(a*h-b*g),G=b*f-c*e,Hh=-(a*f-c*d),I=a*e-b*d;
+ var det=a*A+b*B+c*C;return [[A/det,D/det,G/det],[B/det,E/det,Hh/det],[C/det,F/det,I/det]];}
+function applyH(M,x,y){var w=M[2][0]*x+M[2][1]*y+M[2][2];return [(M[0][0]*x+M[0][1]*y+M[0][2])/w,(M[1][0]*x+M[1][1]*y+M[1][2])/w];}
+function normMat(pts){var n=pts.length,cx=0,cy=0;pts.forEach(function(p){cx+=p[0];cy+=p[1];});cx/=n;cy/=n;
+ var d=0;pts.forEach(function(p){d+=Math.hypot(p[0]-cx,p[1]-cy);});d/=n;var s=d>0?Math.SQRT2/d:1;
+ return [[s,0,-s*cx],[0,s,-s*cy],[0,0,1]];}
+function applyAff(T,x,y){return [T[0][0]*x+T[0][1]*y+T[0][2], T[1][0]*x+T[1][1]*y+T[1][2]];}
+function gauss(A,b){var n=b.length;for(var col=0;col<n;col++){var piv=col;for(var r=col+1;r<n;r++)if(Math.abs(A[r][col])>Math.abs(A[piv][col]))piv=r;
+ if(piv!==col){var t=A[piv];A[piv]=A[col];A[col]=t;var tb=b[piv];b[piv]=b[col];b[col]=tb;}
+ var dd=A[col][col];if(Math.abs(dd)<1e-12)continue;
+ for(var r2=0;r2<n;r2++){if(r2===col)continue;var fct=A[r2][col]/dd;for(var c=col;c<n;c++)A[r2][c]-=fct*A[col][c];b[r2]-=fct*b[col];}}
+ var x=[];for(var i=0;i<n;i++)x[i]=Math.abs(A[i][i])<1e-12?0:b[i]/A[i][i];return x;}
+function lstsq(M,b){var m=M.length,n=M[0].length,A=[],g=[];
+ for(var i=0;i<n;i++){A.push(new Array(n).fill(0));g.push(0);}
+ for(var k=0;k<m;k++)for(var i=0;i<n;i++){g[i]+=M[k][i]*b[k];for(var j=0;j<n;j++)A[i][j]+=M[k][i]*M[k][j];}
+ return gauss(A,g);}
+// solve pixel(u,v) -> world(X=lon,Y=lat), n>=4
+function solveHomography(src,dst){
+ var Ts=normMat(src.map(function(p){return [p.u,p.v];}));
+ var Td=normMat(dst.map(function(p){return [p.X,p.Y];}));
+ var sN=src.map(function(p){return applyAff(Ts,p.u,p.v);});
+ var dN=dst.map(function(p){return applyAff(Td,p.X,p.Y);});
+ var M=[],b=[];
+ for(var i=0;i<src.length;i++){var u=sN[i][0],v=sN[i][1],X=dN[i][0],Y=dN[i][1];
+  M.push([u,v,1,0,0,0,-u*X,-v*X]);b.push(X);
+  M.push([0,0,0,u,v,1,-u*Y,-v*Y]);b.push(Y);}
+ var h=lstsq(M,b);
+ var Hn=[[h[0],h[1],h[2]],[h[3],h[4],h[5]],[h[6],h[7],1]];
+ var Hd=mul3(mul3(inv3(Td),Hn),Ts);
+ var sc=Hd[2][2];for(var r=0;r<3;r++)for(var c=0;c<3;c++)Hd[r][c]/=sc;
+ return Hd;
+}
+
+// ============================================================================
+// Solve + residuals
+// ============================================================================
+function recompute(){
+ var idxs=Object.keys(gcp);
+ if(idxs.length<4){H=Hinv=fit=null;draw();showStat();return;}
+ var src=idxs.map(function(i){return {u:gcp[i].u,v:gcp[i].v};});
+ var dst=idxs.map(function(i){return {X:WORLD[i].X,Y:WORLD[i].Y};});
+ H=solveHomography(src,dst);Hinv=inv3(H);
+ // residuals
+ var mLat=111320, errM=[], errPx=[];
+ idxs.forEach(function(i){
+  var w=applyH(H,gcp[i].u,gcp[i].v);          // predicted world
+  var mLon=111320*Math.cos(WORLD[i].Y*Math.PI/180);
+  errM.push(Math.hypot((w[0]-WORLD[i].X)*mLon,(w[1]-WORLD[i].Y)*mLat));
+  var px=applyH(Hinv,WORLD[i].X,WORLD[i].Y);   // predicted pixel
+  errPx.push(Math.hypot(px[0]-gcp[i].u,px[1]-gcp[i].v));
+ });
+ fit={n:idxs.length,medM:median(errM),maxM:Math.max.apply(null,errM),medPx:median(errPx)};
+ draw();showStat();postSave();
+}
+function median(a){var b=a.slice().sort(function(x,y){return x-y;});var n=b.length;return n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2;}
+function showStat(){
+ var s=document.getElementById('stat'),n=Object.keys(gcp).length;
+ if(!fit){s.innerHTML='Placed '+n+' / need ≥4 to solve.';return;}
+ var cls=fit.medM<8?'':'class="bad"';
+ s.innerHTML='Points: <b>'+fit.n+'</b><br>Median residual: <b '+cls+'>'+fit.medM.toFixed(1)+' m</b> ('+fit.medPx.toFixed(1)+' px)<br>Max residual: '+fit.maxM.toFixed(1)+' m';
+}
+
+// ============================================================================
+// Rendering
+// ============================================================================
+function fitView(){
+ if(!imgReady)return;
+ var pad=20,sw=cv.width-pad*2,sh=cv.height-pad*2;
+ view.s=Math.min(sw/img.width,sh/img.height);
+ view.px=cv.width/2; view.py=cv.height/2;
+}
+function i2c(ix,iy){
+ var c=Math.cos(view.rot),s=Math.sin(view.rot);
+ var dx=(ix-img.width/2)*view.s, dy=(iy-img.height/2)*view.s;
+ return [dx*c-dy*s+view.px, dx*s+dy*c+view.py];
+}
+function c2i(cx,cy){
+ var c=Math.cos(view.rot),s=Math.sin(view.rot);
+ var rx=cx-view.px, ry=cy-view.py;
+ var dx=rx*c+ry*s, dy=-rx*s+ry*c;
+ return [dx/view.s+img.width/2, dy/view.s+img.height/2];
+}
+function draw(){
+ ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);
+ if(!imgReady)return;
+ ctx.imageSmoothingEnabled=true;
+ ctx.save();
+ ctx.translate(view.px,view.py); ctx.rotate(view.rot); ctx.scale(view.s,view.s);
+ ctx.drawImage(img,-img.width/2,-img.height/2);
+ ctx.restore();
+ // back-projected boundary
+ if(H&&document.getElementById('bp').checked){
+  ctx.beginPath();
+  WORLD.forEach(function(w,k){var p=applyH(Hinv,w.X,w.Y);var c=i2c(p[0],p[1]);k?ctx.lineTo(c[0],c[1]):ctx.moveTo(c[0],c[1]);});
+  ctx.closePath();ctx.lineWidth=2;ctx.strokeStyle='rgba(57,255,20,.9)';ctx.stroke();
+ }
+ // placed GCP markers
+ Object.keys(gcp).forEach(function(i){
+  var c=i2c(gcp[i].u,gcp[i].v);
+  ctx.beginPath();ctx.arc(c[0],c[1],6,0,7);ctx.lineWidth=2;
+  ctx.strokeStyle=PRIMARY[i]?'#e8c46a':'#4db6ff';ctx.stroke();
+  ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(c[0]+8,c[1]-8,16,14);
+  ctx.fillStyle='#fff';ctx.font='11px system-ui';ctx.fillText(i,c[0]+10,c[1]+3);
+ });
+}
+
+// ============================================================================
+// GCP list
+// ============================================================================
+function buildList(){
+ var ul=document.getElementById('gcps');ul.innerHTML='';
+ // primary corners first, then the rest as a numbered fallback set
+ var order=Object.keys(WORLD).map(Number).sort(function(a,b){return (PRIMARY[b]?1:0)-(PRIMARY[a]?1:0)||a-b;});
+ order.forEach(function(i){
+  if(i===WORLD.length-1)return; // last vertex duplicates POB (closing point)
+  var li=document.createElement('li');
+  li.dataset.i=i;
+  if(PRIMARY[i])li.className='primary';
+  var name=LABELS[i]||('vertex '+i);
+  li.innerHTML='<span><span class="chk">'+(gcp[i]?'✓ ':'')+'</span>'+name+'</span><span class="tag">'+WORLD[i].Y.toFixed(4)+', '+WORLD[i].X.toFixed(4)+'</span>';
+  if(armed==i)li.classList.add('armed');
+  if(gcp[i])li.classList.add('set');
+  li.onclick=function(){armed=(armed==i?null:i);cv.classList.toggle('arm',armed!=null);buildList();};
+  ul.appendChild(li);
+ });
+}
+
+// ============================================================================
+// Canvas interaction: click=place (when armed), drag=pan, wheel=zoom
+// ============================================================================
+var down=null,moved=false;
+cv.addEventListener('mousedown',function(e){down={x:e.offsetX,y:e.offsetY,px:view.px,py:view.py};moved=false;cv.style.cursor='grabbing';});
+window.addEventListener('mousemove',function(e){
+ if(!down)return;var dx=e.offsetX-down.x,dy=e.offsetY-down.y;
+ if(Math.abs(dx)+Math.abs(dy)>3)moved=true;
+ view.px=down.px+dx;view.py=down.py+dy;draw();
+});
+window.addEventListener('mouseup',function(e){
+ cv.style.cursor='';
+ if(down&&!moved&&armed!=null){
+  var ic=c2i(e.offsetX,e.offsetY);
+  if(ic[0]>=0&&ic[1]>=0&&ic[0]<=img.width&&ic[1]<=img.height){
+   gcp[armed]={u:ic[0],v:ic[1]};armed=null;cv.classList.remove('arm');buildList();recompute();
+  }
+ }
+ down=null;
+});
+cv.addEventListener('wheel',function(e){
+ e.preventDefault();var f=e.deltaY<0?1.15:1/1.15;
+ var ic=c2i(e.offsetX,e.offsetY);view.s*=f;
+ var cur=i2c(ic[0],ic[1]);view.px+=e.offsetX-cur[0];view.py+=e.offsetY-cur[1];draw();
+},{passive:false});
+
+// ---- rotation control ----
+function setRot(deg){
+ deg=((deg+180)%360+360)%360-180;            // wrap to -180..180
+ view.rot=deg*Math.PI/180;
+ document.getElementById('rot').value=Math.round(deg);
+ document.getElementById('rotread').textContent=Math.round(deg)+'°';
+ draw();
+}
+document.getElementById('rot').addEventListener('input',function(){setRot(+this.value);});
+document.getElementById('rotL').onclick=function(){setRot(Math.round(view.rot*180/Math.PI)-90);};
+document.getElementById('rotR').onclick=function(){setRot(Math.round(view.rot*180/Math.PI)+90);};
+document.getElementById('rot0').onclick=function(){setRot(0);};
+
+// ============================================================================
+// Sheet load
+// ============================================================================
+function loadSheet(name){
+ imgReady=false;gcp={};armed=null;H=Hinv=fit=null;
+ view.rot=0;document.getElementById('rot').value=0;document.getElementById('rotread').textContent='0°';
+ img.onload=function(){imgReady=true;fitView();buildList();draw();showStat();};
+ img.src='../source-art/'+name;
+ var sd=document.getElementById('sdate');sd.value=SHEET_DATE[name]||'';
+}
+
+// ============================================================================
+// Save / copy
+// ============================================================================
+function transformJSON(){
+ var name=document.getElementById('sheet').value;
+ var pts=Object.keys(gcp).map(function(i){
+  var w=H?applyH(H,gcp[i].u,gcp[i].v):null;
+  return {vertex:+i,label:LABELS[i]||('vertex '+i),pixel:[+gcp[i].u.toFixed(2),+gcp[i].v.toFixed(2)],
+   world:[WORLD[i].Y,WORLD[i].X],world_predicted:w?[+w[1].toFixed(7),+w[0].toFixed(7)]:null};
+ });
+ return {
+  sheet:name,
+  source:'farm-map/source-art/'+name,
+  image_px:imgReady?[img.width,img.height]:null,
+  world_frame:'WGS84 lat,lon; POB-anchored SHIFT registration (see demo/index.html)',
+  shift:SHIFT,
+  date:document.getElementById('sdate').value||null,
+  date_basis:document.getElementById('sdate').value?'on-sheet title block':'unknown — pending section 8 dating',
+  transform_type:'projective (normalized DLT, pixel->world)',
+  homography_px_to_world:H,
+  gcp_count:pts.length,
+  residual_m_median:fit?+fit.medM.toFixed(2):null,
+  residual_m_max:fit?+fit.maxM.toFixed(2):null,
+  residual_px_median:fit?+fit.medPx.toFixed(2):null,
+  gcps:pts
+ };
+}
+// auto-save straight into the repository (no download/paste). Silent fallback if offline.
+function postSave(){
+ if(!H)return;
+ var el=document.getElementById('saved');
+ fetch('/api/save',{method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({kind:'transform',name:document.getElementById('sheet').value.replace('.jpg','.json'),data:transformJSON()})})
+ .then(function(r){return r.json();})
+ .then(function(j){el.innerHTML=j.ok?('✓ saved to <code>'+j.path+'</code> ('+Object.keys(gcp).length+' points)'):('save error: '+j.error);})
+ .catch(function(){el.innerHTML='⚠ saving server not reachable — use Download/Copy below. (Run <code>python3 farm-map/serve.py</code>.)';});
+}
+document.getElementById('sdate').onchange=postSave;
+document.getElementById('save').onclick=function(){
+ if(!H){alert('Place ≥4 points and get a solve first.');return;}
+ var name=document.getElementById('sheet').value.replace('.jpg','.json');
+ var blob=new Blob([JSON.stringify(transformJSON(),null,1)],{type:'application/json'});
+ var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();
+};
+document.getElementById('copy').onclick=function(){
+ if(!H){alert('Place ≥4 points and get a solve first.');return;}
+ navigator.clipboard.writeText(JSON.stringify(transformJSON(),null,1)).then(function(){
+  var b=document.getElementById('copy');b.textContent='✓ copied';setTimeout(function(){b.textContent='⧉ Copy JSON to clipboard';},1200);
+ });
+};
+document.getElementById('clr').onclick=function(){gcp={};armed=null;H=Hinv=fit=null;cv.classList.remove('arm');buildList();draw();showStat();};
+document.getElementById('bp').onchange=draw;
+
+// ============================================================================
+// Boot
+// ============================================================================
+var sel=document.getElementById('sheet');
+SHEETS.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n.replace('.jpg','');sel.appendChild(o);});
+sel.value='07-deed-survey-kasparek.jpg';
+sel.onchange=function(){loadSheet(this.value);};
+function resize(){cv.width=cv.clientWidth;cv.height=cv.clientHeight;if(imgReady){draw();}else fitView();}
+window.addEventListener('resize',function(){resize();fitView();draw();});
+resize();loadSheet(sel.value);
+
+// ---- floating apex-key panel: draggable + resizable, map stays visible ----
+(function(){
+ var p=document.getElementById('keypanel'),bar=document.getElementById('keybar'),drag=null;
+ bar.addEventListener('mousedown',function(e){drag={x:e.clientX,y:e.clientY,l:p.offsetLeft,t:p.offsetTop};e.preventDefault();});
+ window.addEventListener('mousemove',function(e){if(!drag)return;p.style.left=(drag.l+e.clientX-drag.x)+'px';p.style.top=(drag.t+e.clientY-drag.y)+'px';p.style.right='auto';});
+ window.addEventListener('mouseup',function(){drag=null;});
+ document.getElementById('keyhide').onclick=function(){p.style.display='none';document.getElementById('showkey').style.display='block';};
+ document.getElementById('showkey').onclick=function(){p.style.display='flex';this.style.display='none';};
+ drawApexKey(document.getElementById('keysvg'));
+})();
+</script></body></html>

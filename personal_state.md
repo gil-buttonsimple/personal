@@ -1,7 +1,33 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-13 (session 21)
+Last Updated: 2026-06-13 (session 22)
 Status: Active
+
+---
+
+## Session 22 Notes (2026-06-13)
+
+Farm-map: built a self-contained tool to match the survey sheets to the real world by
+hand, with the machine doing the math. Files under farm-map/:
+- digitizer/index.html -- open a survey photo, rotate it north-up, click the four outer
+  tips (apexes) of the property against their known locations; at 4+ points it solves a
+  photo-to-map fit (hand-rolled, no libraries) and draws the true outline back on in green.
+  Same map frame as demo/index.html (POB-anchored SHIFT).
+- digitizer/apexkey.js + apex-key.html -- shared diagram of the property north-up with the
+  four apexes labelled (N/S/E/W); embedded in the digitizer as a draggable, resizable
+  floating panel so the key stays visible while matching.
+- serve.py -- tiny standard-library server that also accepts saves, so the digitizer
+  auto-writes each alignment into source-data/transforms/<sheet>.json (no download/paste).
+  Run: python3 farm-map/serve.py -> http://127.0.0.1:8099/farm-map/digitizer/index.html
+
+Strategy shift (supersedes part of s21): manual clicking is tedious, so the direction is
+machine-first / human-validates -- auto-fit the boundary per sheet + pull colour-keyed
+features (water, stand dots, trails), then Gil + the hunt-club fellas validate/correct in
+the browser; the digitizer becomes the correction tool. Tooling check: numpy + Pillow are
+on baobab; still need scipy/scikit-image/shapely (NOT installed -- pending OK) and a
+decision on remote vs local validation hosting (lean local-first). Still open from s21:
+sheet dating for 02-05 (step 1, photos already pulled) and the free GIS-neighbor pull to
+decompose the ~195 ac balance (step 3). Farm = personal issue #4.
 
 ---
 
