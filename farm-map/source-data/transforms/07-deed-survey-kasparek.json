@@ -1,0 +1,103 @@
+{
+ "sheet": "07-deed-survey-kasparek.jpg",
+ "source": "farm-map/source-art/07-deed-survey-kasparek.jpg",
+ "image_px": [
+  3072,
+  4080
+ ],
+ "world_frame": "WGS84 lat,lon; POB-anchored SHIFT registration (see demo/index.html)",
+ "shift": [
+  -0.0011753,
+  0.0019292
+ ],
+ "date": "1995-08-29 (rev 1996-10)",
+ "date_basis": "on-sheet title block",
+ "transform_type": "projective (normalized DLT, pixel->world)",
+ "homography_px_to_world": [
+  [
+   0.0022990735486164296,
+   0.00016433205571600017,
+   -81.14116421016851
+  ],
+  [
+   -0.0009856006435926877,
+   -6.281095982697497e-05,
+   34.64657400300648
+  ],
+  [
+   -2.843833965591137e-05,
+   -2.0227404245058127e-06,
+   1
+  ]
+ ],
+ "gcp_count": 4,
+ "residual_m_median": 0,
+ "residual_m_max": 0,
+ "residual_px_median": 0,
+ "gcps": [
+  {
+   "vertex": 0,
+   "label": "POB / South apex",
+   "pixel": [
+    1068.6,
+    285.88
+   ],
+   "world": [
+    34.6483774,
+    -81.15041819999999
+   ],
+   "world_predicted": [
+    34.6483774,
+    -81.1504182
+   ]
+  },
+  {
+   "vertex": 2,
+   "label": "West apex",
+   "pixel": [
+    2348.43,
+    1687.18
+   ],
+   "world": [
+    34.658984,
+    -81.1621265
+   ],
+   "world_predicted": [
+    34.658984,
+    -81.1621265
+   ]
+  },
+  {
+   "vertex": 7,
+   "label": "North apex",
+   "pixel": [
+    1255.68,
+    3339.28
+   ],
+   "world": [
+    34.6715214,
+    -81.1515273
+   ],
+   "world_predicted": [
+    34.6715214,
+    -81.1515273
+   ]
+  },
+  {
+   "vertex": 27,
+   "label": "East apex",
+   "pixel": [
+    725.68,
+    1926.67
+   ],
+   "world": [
+    34.660703,
+    -81.14704379999999
+   ],
+   "world_predicted": [
+    34.660703,
+    -81.1470438
+   ]
+  }
+ ]
+}

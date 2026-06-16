@@ -1,0 +1,104 @@
+{
+ "sheet": "02-trails-green.jpg",
+ "source": "farm-map/source-art/02-trails-green.jpg",
+ "image_px": [
+  3072,
+  4080
+ ],
+ "rotation_deg": 0,
+ "world_frame": "WGS84 lat,lon; POB-anchored SHIFT registration (see demo/index.html)",
+ "shift": [
+  -0.0011753,
+  0.0019292
+ ],
+ "date": null,
+ "date_basis": "unknown \u2014 pending section 8 dating",
+ "transform_type": "projective (normalized DLT, pixel->world)",
+ "homography_px_to_world": [
+  [
+   0.006499431647415089,
+   -0.0013815882345165785,
+   -81.17308253667846
+  ],
+  [
+   -0.00277078210683307,
+   0.0005813043496883194,
+   34.67959287975633
+  ],
+  [
+   -7.994891744244987e-05,
+   1.7026644163644456e-05,
+   1
+  ]
+ ],
+ "gcp_count": 4,
+ "residual_m_median": 0,
+ "residual_m_max": 0,
+ "residual_px_median": 0,
+ "gcps": [
+  {
+   "vertex": 0,
+   "label": "POB / South apex",
+   "pixel": [
+    1924.09,
+    3460.56
+   ],
+   "world": [
+    34.6483774,
+    -81.15041819999999
+   ],
+   "world_predicted": [
+    34.6483774,
+    -81.1504182
+   ]
+  },
+  {
+   "vertex": 2,
+   "label": "West apex",
+   "pixel": [
+    959.53,
+    2354.19
+   ],
+   "world": [
+    34.658984,
+    -81.1621265
+   ],
+   "world_predicted": [
+    34.658984,
+    -81.1621265
+   ]
+  },
+  {
+   "vertex": 7,
+   "label": "North apex",
+   "pixel": [
+    1866.9,
+    1134.76
+   ],
+   "world": [
+    34.6715214,
+    -81.1515273
+   ],
+   "world_predicted": [
+    34.6715214,
+    -81.1515273
+   ]
+  },
+  {
+   "vertex": 27,
+   "label": "East apex",
+   "pixel": [
+    2190.41,
+    2209.31
+   ],
+   "world": [
+    34.660703,
+    -81.14704379999999
+   ],
+   "world_predicted": [
+    34.660703,
+    -81.1470438
+   ]
+  }
+ ]
+}

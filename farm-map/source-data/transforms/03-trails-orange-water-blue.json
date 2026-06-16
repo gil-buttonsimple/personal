@@ -1,0 +1,103 @@
+{
+ "sheet": "03-trails-orange-water-blue.jpg",
+ "source": "farm-map/source-art/03-trails-orange-water-blue.jpg",
+ "image_px": [
+  4080,
+  3072
+ ],
+ "world_frame": "WGS84 lat,lon; POB-anchored SHIFT registration (see demo/index.html)",
+ "shift": [
+  -0.0011753,
+  0.0019292
+ ],
+ "date": null,
+ "date_basis": "unknown \u2014 pending section 8 dating",
+ "transform_type": "projective (normalized DLT, pixel->world)",
+ "homography_px_to_world": [
+  [
+   -0.0009175676786085879,
+   -0.003745814566146763,
+   -81.1781537621378
+  ],
+  [
+   0.00040204998498043806,
+   0.0016050790260883697,
+   34.642055373639124
+  ],
+  [
+   1.1305983444755972e-05,
+   4.630601158662829e-05,
+   1
+  ]
+ ],
+ "gcp_count": 4,
+ "residual_m_median": 0,
+ "residual_m_max": 0,
+ "residual_px_median": 0,
+ "gcps": [
+  {
+   "vertex": 0,
+   "label": "POB / South apex",
+   "pixel": [
+    466.05,
+    2326.59
+   ],
+   "world": [
+    34.6483774,
+    -81.15041819999999
+   ],
+   "world_predicted": [
+    34.6483774,
+    -81.1504182
+   ]
+  },
+  {
+   "vertex": 2,
+   "label": "West apex",
+   "pixel": [
+    1640.29,
+    1277.69
+   ],
+   "world": [
+    34.658984,
+    -81.1621265
+   ],
+   "world_predicted": [
+    34.658984,
+    -81.1621265
+   ]
+  },
+  {
+   "vertex": 7,
+   "label": "North apex",
+   "pixel": [
+    3024.38,
+    2238.53
+   ],
+   "world": [
+    34.6715214,
+    -81.1515273
+   ],
+   "world_predicted": [
+    34.6715214,
+    -81.1515273
+   ]
+  },
+  {
+   "vertex": 27,
+   "label": "East apex",
+   "pixel": [
+    1811.46,
+    2659.14
+   ],
+   "world": [
+    34.660703,
+    -81.14704379999999
+   ],
+   "world_predicted": [
+    34.660703,
+    -81.1470438
+   ]
+  }
+ ]
+}

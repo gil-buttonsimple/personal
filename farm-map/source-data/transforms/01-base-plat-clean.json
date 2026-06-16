@@ -1,0 +1,103 @@
+{
+ "sheet": "01-base-plat-clean.jpg",
+ "source": "farm-map/source-art/01-base-plat-clean.jpg",
+ "image_px": [
+  3072,
+  4080
+ ],
+ "world_frame": "WGS84 lat,lon; POB-anchored SHIFT registration (see demo/index.html)",
+ "shift": [
+  -0.0011753,
+  0.0019292
+ ],
+ "date": null,
+ "date_basis": "unknown \u2014 pending section 8 dating",
+ "transform_type": "projective (normalized DLT, pixel->world)",
+ "homography_px_to_world": [
+  [
+   0.00032186189569723757,
+   -0.000541961220604407,
+   -81.13680799698524
+  ],
+  [
+   -0.00014263869165819323,
+   0.0002417562180004283,
+   34.64234917239932
+  ],
+  [
+   -4.117640755270379e-06,
+   6.680901687755133e-06,
+   1
+  ]
+ ],
+ "gcp_count": 4,
+ "residual_m_median": 0,
+ "residual_m_max": 0,
+ "residual_px_median": 0,
+ "gcps": [
+  {
+   "vertex": 0,
+   "label": "POB / South apex",
+   "pixel": [
+    1117.09,
+    583.4
+   ],
+   "world": [
+    34.6483774,
+    -81.15041819999999
+   ],
+   "world_predicted": [
+    34.6483774,
+    -81.1504182
+   ]
+  },
+  {
+   "vertex": 2,
+   "label": "West apex",
+   "pixel": [
+    2088.65,
+    1615.13
+   ],
+   "world": [
+    34.658984,
+    -81.1621265
+   ],
+   "world_predicted": [
+    34.658984,
+    -81.1621265
+   ]
+  },
+  {
+   "vertex": 7,
+   "label": "North apex",
+   "pixel": [
+    1245.2,
+    2867.33
+   ],
+   "world": [
+    34.6715214,
+    -81.1515273
+   ],
+   "world_predicted": [
+    34.6715214,
+    -81.1515273
+   ]
+  },
+  {
+   "vertex": 27,
+   "label": "East apex",
+   "pixel": [
+    859.51,
+    1794.02
+   ],
+   "world": [
+    34.660703,
+    -81.14704379999999
+   ],
+   "world_predicted": [
+    34.660703,
+    -81.1470438
+   ]
+  }
+ ]
+}

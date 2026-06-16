@@ -120,6 +120,7 @@ var view={s:1,rot:0,px:0,py:0};      // s=scale, rot=radians, (px,py)=canvas pos
 var gcp={};                          // idx -> {u,v} clicked pixel (image space)
 var armed=null;                      // idx currently armed for placement
 var H=null, Hinv=null, fit=null;     // homography + residuals
+var loading=false;                   // true while restoring a saved sheet (suppresses re-save)
 var cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 
 // ============================================================================
@@ -297,11 +298,32 @@ document.getElementById('rot0').onclick=function(){setRot(0);};
 // Sheet load
 // ============================================================================
 function loadSheet(name){
- imgReady=false;gcp={};armed=null;H=Hinv=fit=null;
+ imgReady=false;gcp={};armed=null;H=Hinv=fit=null;loading=false;
  view.rot=0;document.getElementById('rot').value=0;document.getElementById('rotread').textContent='0°';
- img.onload=function(){imgReady=true;fitView();buildList();draw();showStat();};
+ document.getElementById('sdate').value=SHEET_DATE[name]||'';
+ document.getElementById('saved').innerHTML='Auto-saves to the repository each time you place a point (once 4 are down). No download or copy-paste.';
+ img.onload=function(){imgReady=true;fitView();restoreSaved(name);};
  img.src='../source-art/'+name;
- var sd=document.getElementById('sdate');sd.value=SHEET_DATE[name]||'';
+}
+// Pull any prior alignment for this sheet back into the editor so it can be
+// reviewed and adjusted. Restores points, rotation, and date; blank if none.
+function restoreSaved(name){
+ fetch('../source-data/transforms/'+name.replace('.jpg','.json'),{cache:'no-store'})
+  .then(function(r){return r.ok?r.json():null;})
+  .then(function(d){
+   if(d&&Array.isArray(d.gcps)&&d.gcps.length){
+    loading=true;
+    d.gcps.forEach(function(p){if(p.pixel)gcp[p.vertex]={u:p.pixel[0],v:p.pixel[1]};});
+    if(typeof d.rotation_deg==='number')setRot(d.rotation_deg);
+    if(d.date)document.getElementById('sdate').value=d.date;
+    buildList();recompute();
+    loading=false;
+    document.getElementById('saved').innerHTML='✓ loaded saved alignment ('+Object.keys(gcp).length+' points) — re-click any apex to adjust, or place a missing one.';
+   }else{
+    buildList();draw();showStat();
+   }
+  })
+  .catch(function(){buildList();draw();showStat();});
 }
 
 // ============================================================================
@@ -318,6 +340,7 @@ function transformJSON(){
   sheet:name,
   source:'farm-map/source-art/'+name,
   image_px:imgReady?[img.width,img.height]:null,
+  rotation_deg:Math.round(view.rot*180/Math.PI),
   world_frame:'WGS84 lat,lon; POB-anchored SHIFT registration (see demo/index.html)',
   shift:SHIFT,
   date:document.getElementById('sdate').value||null,
@@ -333,7 +356,7 @@ function transformJSON(){
 }
 // auto-save straight into the repository (no download/paste). Silent fallback if offline.
 function postSave(){
- if(!H)return;
+ if(!H||loading)return;
  var el=document.getElementById('saved');
  fetch('/api/save',{method:'POST',headers:{'Content-Type':'application/json'},
   body:JSON.stringify({kind:'transform',name:document.getElementById('sheet').value.replace('.jpg','.json'),data:transformJSON()})})

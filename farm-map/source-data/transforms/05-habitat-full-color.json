@@ -1,0 +1,103 @@
+{
+ "sheet": "05-habitat-full-color.jpg",
+ "source": "farm-map/source-art/05-habitat-full-color.jpg",
+ "image_px": [
+  3072,
+  4080
+ ],
+ "world_frame": "WGS84 lat,lon; POB-anchored SHIFT registration (see demo/index.html)",
+ "shift": [
+  -0.0011753,
+  0.0019292
+ ],
+ "date": null,
+ "date_basis": "unknown \u2014 pending section 8 dating",
+ "transform_type": "projective (normalized DLT, pixel->world)",
+ "homography_px_to_world": [
+  [
+   0.0017934575739767126,
+   -0.001134514923228585,
+   -81.14117895472491
+  ],
+  [
+   -0.0007701413945356917,
+   0.0004926287842932006,
+   34.646689213458615
+  ],
+  [
+   -2.2216315487767843e-05,
+   1.3979688103506218e-05,
+   1
+  ]
+ ],
+ "gcp_count": 4,
+ "residual_m_median": 0,
+ "residual_m_max": 0,
+ "residual_px_median": 0,
+ "gcps": [
+  {
+   "vertex": 0,
+   "label": "POB / South apex",
+   "pixel": [
+    980.78,
+    249.9
+   ],
+   "world": [
+    34.6483774,
+    -81.15041819999999
+   ],
+   "world_predicted": [
+    34.6483774,
+    -81.1504182
+   ]
+  },
+  {
+   "vertex": 2,
+   "label": "West apex",
+   "pixel": [
+    2184.29,
+    1556.03
+   ],
+   "world": [
+    34.658984,
+    -81.1621265
+   ],
+   "world_predicted": [
+    34.658984,
+    -81.1621265
+   ]
+  },
+  {
+   "vertex": 7,
+   "label": "North apex",
+   "pixel": [
+    1083.52,
+    3112.7
+   ],
+   "world": [
+    34.6715214,
+    -81.1515273
+   ],
+   "world_predicted": [
+    34.6715214,
+    -81.1515273
+   ]
+  },
+  {
+   "vertex": 27,
+   "label": "East apex",
+   "pixel": [
+    609.03,
+    1741.9
+   ],
+   "world": [
+    34.660703,
+    -81.14704379999999
+   ],
+   "world_predicted": [
+    34.660703,
+    -81.1470438
+   ]
+  }
+ ]
+}

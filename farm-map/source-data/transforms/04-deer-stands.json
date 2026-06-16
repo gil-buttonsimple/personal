@@ -1,0 +1,103 @@
+{
+ "sheet": "04-deer-stands.jpg",
+ "source": "farm-map/source-art/04-deer-stands.jpg",
+ "image_px": [
+  3072,
+  4080
+ ],
+ "world_frame": "WGS84 lat,lon; POB-anchored SHIFT registration (see demo/index.html)",
+ "shift": [
+  -0.0011753,
+  0.0019292
+ ],
+ "date": null,
+ "date_basis": "unknown \u2014 pending section 8 dating",
+ "transform_type": "projective (normalized DLT, pixel->world)",
+ "homography_px_to_world": [
+  [
+   0.0008734002484937759,
+   -0.0005928068791422134,
+   -81.13608064682221
+  ],
+  [
+   -0.0003782246884260823,
+   0.0002634810619405841,
+   34.640383905527884
+  ],
+  [
+   -1.0914660821807596e-05,
+   7.3057441746374945e-06,
+   1
+  ]
+ ],
+ "gcp_count": 4,
+ "residual_m_median": 0,
+ "residual_m_max": 0,
+ "residual_px_median": 0,
+ "gcps": [
+  {
+   "vertex": 0,
+   "label": "POB / South apex",
+   "pixel": [
+    1166.53,
+    777.97
+   ],
+   "world": [
+    34.6483774,
+    -81.15041819999999
+   ],
+   "world_predicted": [
+    34.6483774,
+    -81.1504182
+   ]
+  },
+  {
+   "vertex": 2,
+   "label": "West apex",
+   "pixel": [
+    2111.5,
+    1797.22
+   ],
+   "world": [
+    34.658984,
+    -81.1621265
+   ],
+   "world_predicted": [
+    34.658984,
+    -81.1621265
+   ]
+  },
+  {
+   "vertex": 7,
+   "label": "North apex",
+   "pixel": [
+    1267.72,
+    3033.45
+   ],
+   "world": [
+    34.6715214,
+    -81.1515273
+   ],
+   "world_predicted": [
+    34.6715214,
+    -81.1515273
+   ]
+  },
+  {
+   "vertex": 27,
+   "label": "East apex",
+   "pixel": [
+    897.12,
+    1973.2
+   ],
+   "world": [
+    34.660703,
+    -81.14704379999999
+   ],
+   "world_predicted": [
+    34.660703,
+    -81.1470438
+   ]
+  }
+ ]
+}
