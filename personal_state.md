@@ -1,7 +1,51 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-17 (session 23)
+Last Updated: 2026-06-17 (session 24)
 Status: Active
+
+---
+
+## Session 24 Notes (2026-06-17)
+
+Farm-map deep dive + demo rework. Investigated why the extracted layers "looked wrong."
+ROOT CAUSE (found by drawing the known boundary onto each rectified sheet in a shared
+frame and comparing): sheet 06's saved homography was bad -- its East-apex pixel click was
+placed ~700 px off the true corner. Sheet 07, same method, aligned fine, proving the method
+works when the clicks are right. Because water, food plots, AND stands were ALL extracted
+from sheet 06, they inherited that bad georeference -- so they were misplaced at the source,
+not merely drifting. This overturns the first read ("not a coordinate bug"): it WAS a
+georeference bug, on sheet 06 specifically. Fixed: Gil re-clicked sheet 06's East apex in
+the digitizer (coverage 85% -> 97%; boundary now tracks the drawn line); re-ran warp_sheets.py
++ extract_all.py -> water 19, food 34, stands 42 re-projected through the corrected homography.
+Display issues also fixed in the rework (raster no longer draped over all; polygons no-fill;
+layers off by default). Remaining limitation: still a single 4-point homography per sheet, so
+the interior carries some keystone/fold wobble; adding interior control points (dam, road
+junction) is the next lever -- DEFERRED per Gil ("another day unless accuracy becomes a
+problem"). Roads look sparse because OSM has only the public roads (Great Falls Hwy, Hinton
+Rd), not the farm's internal network. Trails confirmed noise (1062 fragments). Full write-up
+in property-mapping.md ("Registration accuracy").
+
+Demo (demo/index.html) rewritten per Gil's spec: default = basemap + county parcel only;
+basemap switcher (Esri / USGS topo / USGS NAIP / none) + opacity; per-layer opacity sliders
+(onion-skin one at a time); polygons no-fill by default + fill slider; 3 line-colour schemes
+(bright/dark/white); stands off by default.
+
+Boundary export regenerated: sheet07-boundary.geojson + .kml now POB-registered (raw
+traverse + SHIFT; POB pinned to parcel south corner -81.1504182, 34.6483774), retiring the
+session-14 centroid anchor (~200 m off at south). Demo doesn't read this file (it computes
+its own SHIFT); it's the QGIS/external export.
+
+Sheet dating: 02-06 are one 1995 survey (K-Farm Hunt Club, Aug 29 1995, 1"=400', Ashmark;
+06 rev. Oct 18 1996; 07 deed survey Aug 1995 rev 1996) themed five ways; 03/04/05 are
+magnetic-north thematic overlays of the same base. Sheets do NOT differ in date -- feature
+currency must come from modern imagery, not sheet dates.
+
+Validation so far (Gil, on satellite): water/food/stands much better after the 06 fix;
+remaining issue -- some deer-stand candidates land in the lake (blue-dot detector likely
+catching blue marks/labels inside the water blob; revisit stand extraction or cull these
+in the digitizer). Open: Gil validates layers in demo/digitizer; number plots (1-30)/stands DURING validation
+(not blind -- 35 polys vs 30 legend nums); improve interior registration; better trail
+source; GIS-neighbour pull to decompose ~195 ac still deferred. Farm = personal issue #4.
 
 ---
 

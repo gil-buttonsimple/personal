@@ -61,11 +61,33 @@ Homography self-check on sheet 06: 0.005 m at the control points.
 - Trails are too faint on every photographed sheet to extract cleanly. Better source
   (rescan or higher-res photo of sheet 02/05) needed before trails are worth vectoring.
 
+## Correction (session 24): re-extracted after fixing sheet 06's georeference
+
+The first pass above inherited a bad homography: sheet 06's East-apex click was ~700 px
+off the true corner, so every layer extracted from sheet 06 (water, food plots, stands)
+was misplaced at the source. Found by drawing the known boundary onto each rectified sheet
+in a shared frame (sheet 07 aligned, sheet 06 did not). Fixed by re-clicking the East apex
+in the digitizer (frame coverage 85% -> 97%) and re-running this script. Current counts:
+water 19, food plots 34, stands 42. See property-mapping.md "Registration accuracy."
+Validation note: some stand candidates fall in the lake -- the blue-dot detector is
+catching blue marks/labels inside the water blob. Tighten stand extraction (exclude the
+water mask) or cull in the digitizer.
+
 ## Open / next
 
 - Validate stands, plots, water in the browser (machine-first / human-validates).
-- Reconcile/regenerate `source-data/sheet07-boundary.geojson` -- it uses an older
-  centroid anchor (~200 m off at the south) vs the POB-pinned registration the demo
-  and this pass use.
-- Number the food plots (1-30) and woods stands (40-50) per the legend.
-- Sheet dating for 02-05 (feature currency).
+  Demo reworked for this (session 24): default = basemap + parcel only; per-layer
+  opacity sliders (onion-skin); polygons no-fill by default; basemap switcher; stands
+  off by default; all 7 survey sheets rectified into one frame as onion-skin overlays
+  (warp_sheets.py).
+- DONE (session 24): regenerated `source-data/sheet07-boundary.geojson` + `.kml` into
+  the POB-pinned frame, retiring the ~200 m-off centroid anchor.
+- DONE (session 24): sheet dating -- 02-06 are one 1995 survey (Aug 29 1995, 06 rev.
+  Oct 18 1996) themed five ways, not independent dates; currency must come from modern
+  imagery, not sheet dates. See property-mapping.md.
+- Improve interior registration (the real accuracy limit): validate-and-nudge in the
+  digitizer, add interior control points, or thin-plate-spline warp. See
+  property-mapping.md "Registration accuracy."
+- Number the food plots (1-30) and woods stands (40-50) per the legend -- do this DURING
+  digitizer validation, not as a blind auto-pass (extractor gave 35 polys vs 30 legend
+  numbers; assignment needs the human eye on sheet 06).

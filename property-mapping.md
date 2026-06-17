@@ -1,6 +1,6 @@
 # Farm / Property Mapping Project
 
-Last Updated: 2026-06-12
+Last Updated: 2026-06-17
 Status: Active (personal side project)
 
 Captured from mobile/ChatGPT notes 2026-06-03. The goal is a clean, layered,
@@ -24,6 +24,16 @@ in `~/Documents/farm-map/`. Key sheets:
   food plots, water, boundary) and **shows the lake** that modern topo maps miss.
 - **Sheets 02-05**: field annotations -- trails, deer stands, food plots, named
   creeks (Flake's Branch, Crane's Branch) -- the layers to digitize.
+
+**Sheet dating (session 24).** All sheets are one survey themed five ways, not
+independent re-surveys at different dates. Sheets 02 and 06 both read "K-FARM HUNT
+CLUB / AUGUST 29, 1995 / 1\"=400' / Ashmark Land Surveyors / for general orientation
+purposes only"; 06 adds "revised October 18, 1996"; 07 is the deed survey (Aug 1995,
+rev. Oct 1996). Sheets 03/04/05 are magnetic-north thematic overlays (trails+water;
+deer stands; habitat) of the same 1995 base, same neighbor refs (Blair White
+90-00-00-056, Peden Oaks Subdivision). Consequence for feature currency: the sheets do
+NOT differ in date, so currency cannot be inferred from sheet dates -- every annotation
+is ~31 years old (1995) and must be validated against modern imagery / on the ground.
 
 ## County GIS Data (ingested 2026-06-04)
 
@@ -111,6 +121,36 @@ lines (boundary, roads, "TRANS LINE 100' R/W") and the fit locks onto interior i
 Verdict: warping is unnecessary for vector extraction (we need a pixel->world transform,
 not a warped image), and a clean backdrop is an interactive job (QGIS Georeferencer / a
 purpose-built digitizer), not headless auto-fit.
+
+## Registration accuracy -- the real limitation (session 24)
+
+The first read ("the layers are correctly placed, the demo just renders them badly") was
+wrong. The actual root cause, found by drawing the known traverse boundary onto each
+rectified sheet in one shared frame and comparing: **sheet 06's saved homography was bad**
+-- its East-apex pixel click in the digitizer sat ~700 px off the true corner, skewing the
+whole projective fit. Sheet 07, identical method, aligned cleanly -- so the method is sound;
+the click was not. And because the water, food-plot, and deer-stand layers were **all
+extracted from sheet 06**, every one of them inherited that bad georeference: they were
+misplaced at the source, not merely drifting. Fixed by re-clicking sheet 06's East apex in
+the digitizer (frame coverage 85% -> 97%; the boundary now tracks the drawn line) and
+re-running the warp + extraction. Display issues (raster draped over everything, polygon
+fills, all layers on) were fixed separately in the demo rework.
+
+The remaining limitation is interior accuracy: each sheet is still placed by ONE projective
+homography fit to only the **four outer apex tips**, which pins the corners but leaves the
+interior unconstrained, so the photo's keystone + paper-fold can still wobble interior
+features by tens of metres. (The "0 m residual" is meaningless with exactly four points: an
+8-DOF projective fit through four points is always exact and says nothing about the middle
+-- which is exactly what hid the bad East apex.) Next lever, **deferred** until interior
+accuracy actually bites: add interior control points (the dam, a road junction) or a few
+extra boundary vertices so the residual becomes a real quality signal, or a thin-plate-spline
+warp braced by features shared across sheets.
+
+The boundary export `source-data/sheet07-boundary.geojson` (+ `.kml`) was regenerated into
+the POB-registered frame (raw traverse + SHIFT; POB pinned to the parcel south corner at
+-81.1504182, 34.6483774), retiring the session-14 centroid anchor that sat ~200 m off at
+the south. Note: the demo computes its own SHIFTed boundary and does not read this file --
+it is the export artifact for QGIS / external use.
 
 ## Vector extraction pipeline -> [vector-pipeline-spec.md](farm-map/vector-pipeline-spec.md)
 

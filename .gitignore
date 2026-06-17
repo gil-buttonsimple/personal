@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+
+# rectified survey overlays — regenerable via farm-map/extract/warp_sheets.py
+farm-map/demo/rectified/
+farm-map/demo/_dbg-*.png

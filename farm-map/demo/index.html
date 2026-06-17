@@ -3,39 +3,54 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-imageoverlay-rotated@0.2.1/Leaflet.ImageOverlay.Rotated.js"></script>
 <style>
  html,body,#map{height:100%;margin:0}
  .panel{position:absolute;z-index:1000;top:10px;right:10px;background:#fff;
-   padding:10px 12px;border-radius:8px;font:13px system-ui;box-shadow:0 1px 6px rgba(0,0,0,.3);max-width:240px}
+   padding:10px 12px;border-radius:8px;font:13px system-ui;box-shadow:0 1px 6px rgba(0,0,0,.3);
+   max-width:270px;max-height:94%;overflow:auto}
  .panel h4{margin:0 0 2px}.panel .sub{margin:0 0 6px;color:#555;font-size:11px}
- .panel label{display:block;margin:4px 0}
- .sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle;margin-right:3px}
+ .panel hr{border:none;border-top:1px solid #ddd;margin:8px 0}
+ .row{margin:5px 0}
+ .row .top{display:flex;align-items:center;gap:5px}
+ .row .top label{flex:1;cursor:pointer}
+ .row input[type=range]{width:100%;margin:2px 0 0}
+ .sw{display:inline-block;width:11px;height:11px;border-radius:2px;flex:0 0 auto}
+ .glob{font-size:11px;color:#555}
+ select,button{font:12px system-ui}
+ .op{width:74px;flex:0 0 auto}
 </style></head><body>
 <div id="map"></div>
 <div class="panel">
  <h4>K-Farm</h4>
  <p class="sub">Kasparek family farm &middot; parcel 091-00-00-073-000<br>1221 Great Falls Hwy, Chester County SC</p>
- <label><input type="checkbox" id="par" checked>
-   <span class="sw" style="background:#2dc0fb"></span>County parcel &mdash; 604.69 ac (current)</label>
- <label><input type="checkbox" id="bnd" checked>
-   <span class="sw" style="background:#39ff14"></span>1995 survey tract &mdash; 409.26 ac (registered)</label>
- <label style="font-size:11px;color:#555"><input type="checkbox" id="bnd0"> &nbsp;&nbsp;survey as-anchored (pre-fit, dashed)</label>
- <label><input type="checkbox" id="img" checked> Survey sheet overlay</label>
- <label>Overlay opacity <input type="range" id="op" min="0" max="100" value="70"></label>
- <hr style="border:none;border-top:1px solid #ddd;margin:8px 0">
- <p class="sub" style="margin:0 0 4px"><b>Digitized layers</b> &mdash; survey features vectorized off sheet 06 &amp; projected through its homography; roads from OpenStreetMap. Stands/plots are automated candidates to confirm in the digitizer.</p>
- <label><input type="checkbox" id="rd" checked>
-   <span class="sw" style="background:#888"></span>Roads (OpenStreetMap)</label>
- <label><input type="checkbox" id="st" checked>
-   <span class="sw" style="background:#ff7a00;border-radius:50%"></span>Deer stands (42 candidates)</label>
- <label><input type="checkbox" id="wt" checked>
-   <span class="sw" style="background:#00a2ff"></span>Water / creek / lake</label>
- <label><input type="checkbox" id="fp" checked>
-   <span class="sw" style="background:#34c000"></span>Food plots / woods (35)</label>
- <label style="font-size:11px;color:#555"><input type="checkbox" id="tr">
-   <span class="sw" style="background:#c8a000"></span>Trails (rough, fragmentary)</label>
- <p class="sub" style="margin-top:6px">Survey is one tract of a single 1994 deed (Book 668-98). Registered to the parcel by pinning its southernmost apex (the Point of Beginning) to the parcel's south corner &mdash; a pure translation, no scaling. Survey&rsquo;s E/S/W edges land on the parcel boundary; the ~195 ac balance is the north lobe, a separate tract of the same deed.</p>
+
+ <div class="glob">
+  <div class="row top"><label for="base"><b>Basemap</b></label>
+    <select id="base">
+      <option value="esri">Esri imagery</option>
+      <option value="topo">USGS topo</option>
+      <option value="naip">USGS imagery (NAIP)</option>
+      <option value="none">None (blank)</option>
+    </select></div>
+  <input type="range" id="baseOp" min="0" max="100" value="100" title="Basemap opacity">
+ </div>
+ <hr>
+ <div class="glob">
+  <div class="row top"><label for="scheme">Line colors</label>
+    <select id="scheme">
+      <option value="bright">Bright (for imagery)</option>
+      <option value="dark">Dark (for topo)</option>
+      <option value="white">White</option>
+    </select></div>
+  <div class="row top"><label for="fill">Polygon fill</label>
+    <span id="fillv" class="op" style="text-align:right;color:#888">off</span></div>
+  <input type="range" id="fill" min="0" max="80" value="0" title="Polygon fill opacity">
+ </div>
+ <hr>
+ <p class="sub" style="margin:0 0 4px"><b>Layers</b> &mdash; each has its own opacity slider (onion-skin one at a time). Survey features were vectorized off sheet 06 and projected through its homography; roads from OpenStreetMap. Stands/plots are automated candidates to confirm in the digitizer.</p>
+ <div id="layers"></div>
+
+ <p class="sub" style="margin-top:6px">Survey is one tract of a single 1994 deed (Book 668-98), registered to the parcel by pinning its southernmost apex (the Point of Beginning) to the parcel's south corner &mdash; a pure translation, no scaling. The ~195 ac balance is the north lobe, a separate tract of the same deed.</p>
 </div>
 <script>
 // ---- Registration -------------------------------------------------------
@@ -65,68 +80,156 @@ var SURVEY_RAW=[
   [34.6508878,-81.1518282],[34.6495527,-81.1523474],[34.6495527,-81.1523474]
 ];
 
-var esri=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-  {maxZoom:19,attribution:'Esri World Imagery'});
-var usgsImg=L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}',
-  {maxZoom:16,attribution:'USGS The National Map (NAIP)'});
-var usgsTopo=L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
-  {maxZoom:16,attribution:'USGS The National Map (Topo)'});
-var map=L.map('map',{layers:[esri]});
-L.control.layers({'Esri imagery':esri,'USGS imagery (NAIP)':usgsImg,'USGS topo':usgsTopo},null,{collapsed:false,position:'topleft'}).addTo(map);
-
-// Survey sheet raster -- rides on SHIFT. Corners = RASTER_BASE (raw-survey frame,
-// includes the +1 deg CCW de-skew baked into the 3-corner parallelogram) + SHIFT.
-var RASTER_BASE=[[34.6736531,-81.1656418],[34.6739073,-81.1479411],[34.6483538,-81.1651049]];
-var overlay=L.imageOverlay.rotated('sheet07-rectified.jpg',
-  L.latLng(shp(RASTER_BASE[0])), L.latLng(shp(RASTER_BASE[1])), L.latLng(shp(RASTER_BASE[2])),
-  {opacity:0.7});
-overlay.addTo(map);
-
-// County parcel boundary (Chester County GIS, ~604.69 deeded ac) -- current full extent
-var parcel=L.polygon([[34.6742364,-81.15376],[34.6717812,-81.1518473],[34.6688881,-81.1492794],[34.6688781,-81.1482871],[34.6670397,-81.1486333],[34.6667364,-81.1473817],[34.6659967,-81.1473225],[34.6652538,-81.1474564],[34.6652424,-81.1474312],[34.6652278,-81.1474087],[34.6652103,-81.1473892],[34.6651905,-81.1473735],[34.6651688,-81.1473619],[34.6651458,-81.1473548],[34.6651222,-81.1473522],[34.6650986,-81.1473543],[34.6650755,-81.1473611],[34.6650537,-81.1473723],[34.6650337,-81.1473876],[34.665016,-81.1474067],[34.6648812,-81.1473824],[34.6646081,-81.1473778],[34.6645807,-81.1474232],[34.6643213,-81.14746],[34.6641986,-81.1473027],[34.6641152,-81.1472535],[34.664086,-81.1472363],[34.6640212,-81.1471825],[34.6639509,-81.1470336],[34.6621129,-81.1475121],[34.6606659,-81.1471155],[34.6609583,-81.1482433],[34.6613396,-81.1497143],[34.6598542,-81.1503286],[34.6585386,-81.1508727],[34.6566463,-81.151528],[34.6554718,-81.1468535],[34.6552139,-81.1469497],[34.654864,-81.1467782],[34.6545137,-81.1467465],[34.6533396,-81.1469488],[34.6531433,-81.1469827],[34.6520079,-81.1471783],[34.6520079,-81.1471783],[34.6520053,-81.1471788],[34.6520053,-81.1471788],[34.6519782,-81.1471834],[34.6518988,-81.1471971],[34.6518449,-81.1472396],[34.6517676,-81.1473236],[34.6517013,-81.1473956],[34.6507985,-81.1484777],[34.6502851,-81.1490361],[34.6500362,-81.1493008],[34.6496825,-81.1496626],[34.649475,-81.1498623],[34.649354,-81.1499553],[34.6492296,-81.1500413],[34.649102,-81.1501203],[34.6489715,-81.1501919],[34.6488384,-81.1502561],[34.6487029,-81.1503128],[34.6483774,-81.1504182],[34.6487996,-81.1508836],[34.6490326,-81.1511393],[34.6494752,-81.1516271],[34.6498157,-81.1520079],[34.6505764,-81.1528442],[34.6513396,-81.1536884],[34.6521671,-81.1545949],[34.6527955,-81.155292],[34.6533004,-81.1558481],[34.6539419,-81.1565647],[34.6549277,-81.1576461],[34.6552973,-81.1580625],[34.6560846,-81.1589281],[34.6572246,-81.1601868],[34.657909,-81.1609385],[34.6585382,-81.1616369],[34.6589888,-81.1621329],[34.6603708,-81.1604282],[34.6616157,-81.1617898],[34.6641014,-81.1585654],[34.6666804,-81.1552196],[34.6694053,-81.1621189],[34.6694249,-81.1628759],[34.6692761,-81.1629142],[34.6692756,-81.1630005],[34.6735005,-81.1626964],[34.6735009,-81.1608381],[34.673487,-81.1608381],[34.673458,-81.1595958],[34.6732474,-81.1596053],[34.6732351,-81.1583986],[34.6732032,-81.1572118],[34.6733422,-81.1570088],[34.6736415,-81.1570328],[34.6740916,-81.1570688],[34.6744946,-81.1570574],[34.6745197,-81.1555025],[34.6744101,-81.1554981],[34.6743826,-81.1538638],[34.6742364,-81.15376]],
-  {color:'#2dc0fb',weight:3,fillColor:'#2dc0fb',fillOpacity:0.08}).addTo(map);
-
-// 1995 deed survey tract (Ashview, exact 409.258 ac), registered to the parcel:
-// raw traverse translated by SHIFT (POB pinned to parcel south corner). Survey's
-// E/S/W edges land on the parcel boundary; the north cut is the internal tract line.
-var bound=L.polygon(SURVEY_RAW.map(shp),
-  {color:'#39ff14',weight:3,fill:false}).addTo(map);
-
-// Raw as-anchored survey position (pre-registration), faint dashed reference.
-var bound0=L.polygon(SURVEY_RAW,
-  {color:'#39ff14',weight:2,fill:false,dashArray:'5,6',opacity:0.4});
-
-map.fitBounds(parcel.getBounds().pad(0.08));
-
-// ---- Digitized layers (loaded from GeoJSON) -----------------------------
-function layer(url,opts,toggle,on){
-  var l=L.geoJSON(null,opts);
-  fetch(url).then(function(r){return r.json();}).then(function(g){
-    l.addData(g); if(document.getElementById(toggle).checked)l.addTo(map);});
-  document.getElementById(toggle).onchange=function(){this.checked?l.addTo(map):l.remove();};
-  return l;
+// ---- Basemaps -----------------------------------------------------------
+// maxNativeZoom caps tile requests at the source's real depth; the map can zoom
+// further (tiles upscale) so you can get in close to place/validate points.
+var bases={
+  esri:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        {maxNativeZoom:19,maxZoom:22,attribution:'Esri World Imagery'}),
+  topo:L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+        {maxNativeZoom:16,maxZoom:22,attribution:'USGS The National Map (Topo)'}),
+  naip:L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}',
+        {maxNativeZoom:16,maxZoom:22,attribution:'USGS The National Map (NAIP)'})
+};
+var map=L.map('map',{layers:[bases.esri],maxZoom:22});
+var curBase='esri';
+function setBase(k){
+  if(curBase&&bases[curBase])map.removeLayer(bases[curBase]);
+  curBase=k;
+  if(bases[k]){bases[k].setOpacity(document.getElementById('baseOp').value/100);bases[k].addTo(map);bases[k].bringToBack();}
 }
-// roads from OpenStreetMap (authoritative; not extracted)
-layer('../source-data/reference/osm-roads-all.geojson',
-  {style:{color:'#888',weight:1.5,opacity:0.9}},'rd');
-// deer stands -- candidate points off the blue dots (confirm in digitizer)
-layer('../source-data/derived/stands.geojson',
-  {pointToLayer:function(f,ll){return L.circleMarker(ll,
-     {radius:5,color:'#5a2c00',weight:1,fillColor:'#ff7a00',fillOpacity:0.92});},
-   onEachFeature:function(f,l){l.bindTooltip('deer stand (candidate)');}},'st');
-// water / creek / lake -- the layer modern topo omits
-layer('../source-data/derived/water.geojson',
-  {style:{color:'#0077cc',weight:1,fillColor:'#00a2ff',fillOpacity:0.55}},'wt');
-// food plots / woods stands
-layer('../source-data/derived/food-plots.geojson',
-  {style:{color:'#1f7a00',weight:1,fillColor:'#34c000',fillOpacity:0.45}},'fp');
-// trails -- faint hand-drawn, fragmentary; off by default
-layer('../source-data/derived/trails.geojson',
-  {style:{color:'#c8a000',weight:2,opacity:0.7}},'tr');
+document.getElementById('base').onchange=function(){setBase(this.value);};
+document.getElementById('baseOp').oninput=function(){if(bases[curBase])bases[curBase].setOpacity(this.value/100);};
 
-document.getElementById('op').oninput=function(){overlay.setOpacity(this.value/100)};
-document.getElementById('img').onchange=function(){this.checked?overlay.addTo(map):overlay.remove()};
-document.getElementById('bnd').onchange=function(){this.checked?bound.addTo(map):bound.remove()};
-document.getElementById('bnd0').onchange=function(){this.checked?bound0.addTo(map):bound0.remove()};
-document.getElementById('par').onchange=function(){this.checked?parcel.addTo(map):parcel.remove()};
+// ---- Colour schemes -----------------------------------------------------
+// role -> colour, per scheme. Strokes recolour live for contrast on any basemap.
+var SCHEME={
+ bright:{parcel:'#2dc0fb',survey:'#39ff14',survey0:'#39ff14',roads:'#ffd21a',stands:'#ff7a00',water:'#00c2ff',food:'#5cf000',trails:'#ffe000'},
+ dark:  {parcel:'#0066a3',survey:'#0a7a00',survey0:'#0a7a00',roads:'#7a4b00',stands:'#b33b00',water:'#005c99',food:'#1f6b00',trails:'#7a5c00'},
+ white: {parcel:'#ffffff',survey:'#ffffff',survey0:'#ffffff',roads:'#ffffff',stands:'#ffffff',water:'#ffffff',food:'#ffffff',trails:'#ffffff'}
+};
+var scheme='bright', fillOp=0;
+
+// ---- Layer registry -----------------------------------------------------
+// kind: line | poly | points | raster.  Each row gets a checkbox + opacity slider.
+var REG=[
+ {key:'par', role:'parcel',  kind:'line',  label:'County parcel — 604.69 ac', on:true,  weight:3, op:1},
+ {key:'bnd', role:'survey',  kind:'line',  label:'1995 survey tract — 409.26 ac', on:false, weight:3, op:1},
+ {key:'bnd0',role:'survey0', kind:'line',  label:'survey as-anchored (pre-fit, dashed)', on:false, weight:2, op:.5, dash:'5,6'},
+ {key:'rd',  role:'roads',   kind:'line',  label:'Roads (OpenStreetMap)', on:false, weight:1.5, op:.9},
+ {key:'st',  role:'stands',  kind:'points',label:'Deer stands (42 candidates)', on:false, weight:1, op:.95},
+ {key:'wt',  role:'water',   kind:'poly',  label:'Water / creek / lake', on:false, weight:1.5, op:.95},
+ {key:'fp',  role:'food',    kind:'poly',  label:'Food plots / woods (35)', on:false, weight:1.5, op:.9},
+ {key:'tr',  role:'trails',  kind:'line',  label:'Trails (rough, fragmentary)', on:false, weight:2, op:.7}
+];
+// Survey sheets, rectified into ONE shared geographic frame (warp_sheets.py) so they
+// onion-skin in exact registration. Placed as plain image overlays on the shared bounds.
+var SHEET_BOUNDS=[[34.6455,-81.1655],[34.677,-81.1445]];
+var SHEETS=[
+ {key:'s07',slug:'07-deed-survey-kasparek', label:'Sheet 07 — deed survey (boundary)'},
+ {key:'s06',slug:'06-master-legend-1995',   label:'Sheet 06 — master legend (lake)'},
+ {key:'s05',slug:'05-habitat-full-color',   label:'Sheet 05 — habitat'},
+ {key:'s04',slug:'04-deer-stands',          label:'Sheet 04 — deer stands'},
+ {key:'s03',slug:'03-trails-orange-water-blue', label:'Sheet 03 — trails / water'},
+ {key:'s02',slug:'02-trails-green',         label:'Sheet 02 — trails'},
+ {key:'s01',slug:'01-base-plat-clean',      label:'Sheet 01 — base plat'}
+];
+SHEETS.forEach(function(s){REG.push({key:s.key,role:null,kind:'raster',label:s.label,on:false,op:.6,url:'rectified/'+s.slug+'.png'});});
+
+var byKey={};
+REG.forEach(function(r){byKey[r.key]=r;});
+
+function styleOf(r){
+  var c=SCHEME[scheme][r.role]||'#fff';
+  var fo=(r.kind==='poly'||r.kind==='points')?fillOp:0;
+  var s={color:c,weight:r.weight||2,opacity:r.op,fill:fo>0,fillColor:c,fillOpacity:fo};
+  if(r.dash)s.dashArray=r.dash;
+  if(r.kind==='points')s.radius=5;
+  return s;
+}
+function restyle(r){
+  if(!r.layer)return;
+  if(r.kind==='raster'){r.layer.setOpacity(r.op);return;}
+  r.layer.setStyle(styleOf(r));
+}
+function setVisible(r,on){
+  r.on=on; if(!r.layer)return;
+  if(on){r.layer.addTo(map);if(r.kind==='raster')r.layer.bringToFront();}
+  else r.layer.remove();
+}
+
+// ---- Build the vector / raster Leaflet objects --------------------------
+byKey.par.layer=L.polygon([[34.6742364,-81.15376],[34.6717812,-81.1518473],[34.6688881,-81.1492794],[34.6688781,-81.1482871],[34.6670397,-81.1486333],[34.6667364,-81.1473817],[34.6659967,-81.1473225],[34.6652538,-81.1474564],[34.6652424,-81.1474312],[34.6652278,-81.1474087],[34.6652103,-81.1473892],[34.6651905,-81.1473735],[34.6651688,-81.1473619],[34.6651458,-81.1473548],[34.6651222,-81.1473522],[34.6650986,-81.1473543],[34.6650755,-81.1473611],[34.6650537,-81.1473723],[34.6650337,-81.1473876],[34.665016,-81.1474067],[34.6648812,-81.1473824],[34.6646081,-81.1473778],[34.6645807,-81.1474232],[34.6643213,-81.14746],[34.6641986,-81.1473027],[34.6641152,-81.1472535],[34.664086,-81.1472363],[34.6640212,-81.1471825],[34.6639509,-81.1470336],[34.6621129,-81.1475121],[34.6606659,-81.1471155],[34.6609583,-81.1482433],[34.6613396,-81.1497143],[34.6598542,-81.1503286],[34.6585386,-81.1508727],[34.6566463,-81.151528],[34.6554718,-81.1468535],[34.6552139,-81.1469497],[34.654864,-81.1467782],[34.6545137,-81.1467465],[34.6533396,-81.1469488],[34.6531433,-81.1469827],[34.6520079,-81.1471783],[34.6520079,-81.1471783],[34.6520053,-81.1471788],[34.6520053,-81.1471788],[34.6519782,-81.1471834],[34.6518988,-81.1471971],[34.6518449,-81.1472396],[34.6517676,-81.1473236],[34.6517013,-81.1473956],[34.6507985,-81.1484777],[34.6502851,-81.1490361],[34.6500362,-81.1493008],[34.6496825,-81.1496626],[34.649475,-81.1498623],[34.649354,-81.1499553],[34.6492296,-81.1500413],[34.649102,-81.1501203],[34.6489715,-81.1501919],[34.6488384,-81.1502561],[34.6487029,-81.1503128],[34.6483774,-81.1504182],[34.6487996,-81.1508836],[34.6490326,-81.1511393],[34.6494752,-81.1516271],[34.6498157,-81.1520079],[34.6505764,-81.1528442],[34.6513396,-81.1536884],[34.6521671,-81.1545949],[34.6527955,-81.155292],[34.6533004,-81.1558481],[34.6539419,-81.1565647],[34.6549277,-81.1576461],[34.6552973,-81.1580625],[34.6560846,-81.1589281],[34.6572246,-81.1601868],[34.657909,-81.1609385],[34.6585382,-81.1616369],[34.6589888,-81.1621329],[34.6603708,-81.1604282],[34.6616157,-81.1617898],[34.6641014,-81.1585654],[34.6666804,-81.1552196],[34.6694053,-81.1621189],[34.6694249,-81.1628759],[34.6692761,-81.1629142],[34.6692756,-81.1630005],[34.6735005,-81.1626964],[34.6735009,-81.1608381],[34.673487,-81.1608381],[34.673458,-81.1595958],[34.6732474,-81.1596053],[34.6732351,-81.1583986],[34.6732032,-81.1572118],[34.6733422,-81.1570088],[34.6736415,-81.1570328],[34.6740916,-81.1570688],[34.6744946,-81.1570574],[34.6745197,-81.1555025],[34.6744101,-81.1554981],[34.6743826,-81.1538638],[34.6742364,-81.15376]],styleOf(byKey.par));
+byKey.bnd.layer=L.polygon(SURVEY_RAW.map(shp),styleOf(byKey.bnd));
+byKey.bnd0.layer=L.polygon(SURVEY_RAW,styleOf(byKey.bnd0));
+
+// Survey-sheet rasters: plain image overlays on the shared rectified bounds.
+REG.forEach(function(r){if(r.kind==='raster'&&r.url)r.layer=L.imageOverlay(r.url,SHEET_BOUNDS,{opacity:r.op});});
+
+// GeoJSON layers (projected real-world coords; plotted as-is, no SHIFT)
+function loadGeo(r,url,tip){
+  r.layer=L.geoJSON(null,{
+    style:(r.kind==='poly'||r.kind==='line')?function(){return styleOf(r);}:undefined,
+    pointToLayer:r.kind==='points'?function(f,ll){return L.circleMarker(ll,styleOf(r));}:undefined,
+    onEachFeature:tip?function(f,l){l.bindTooltip(tip);}:undefined
+  });
+  fetch(url).then(function(x){return x.json();}).then(function(g){
+    r.layer.addData(g); if(r.on)r.layer.addTo(map);
+  });
+}
+loadGeo(byKey.rd,'../source-data/reference/osm-roads-all.geojson');
+loadGeo(byKey.st,'../source-data/derived/stands.geojson','deer stand (candidate)');
+loadGeo(byKey.wt,'../source-data/derived/water.geojson');
+loadGeo(byKey.fp,'../source-data/derived/food-plots.geojson');
+loadGeo(byKey.tr,'../source-data/derived/trails.geojson');
+
+// ---- Build the panel rows ----------------------------------------------
+var host=document.getElementById('layers');
+var sheetHdr=false;
+REG.forEach(function(r){
+  if(r.kind==='raster'&&!sheetHdr){
+    host.appendChild(document.createElement('hr'));
+    var h=document.createElement('p'); h.className='sub'; h.style.margin='0 0 4px';
+    h.innerHTML='<b>Survey sheets</b> &mdash; each photo rectified into the same frame; turn on one and slide its opacity to onion-skin against the imagery.';
+    host.appendChild(h); sheetHdr=true;
+  }
+  var row=document.createElement('div'); row.className='row';
+  var top=document.createElement('div'); top.className='top';
+  var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=r.on;
+  var sw=document.createElement('span'); sw.className='sw';
+  if(r.kind!=='raster')sw.style.background=SCHEME[scheme][r.role];
+  else{sw.style.background='#bbb';}
+  var lab=document.createElement('label'); lab.textContent=r.label;
+  top.appendChild(cb); top.appendChild(sw); top.appendChild(lab);
+  var sl=document.createElement('input'); sl.type='range'; sl.min=0; sl.max=100;
+  sl.value=Math.round(r.op*100); sl.title='Opacity';
+  row.appendChild(top); row.appendChild(sl); host.appendChild(row);
+  r._sw=sw;
+  cb.onchange=function(){setVisible(r,this.checked);};
+  sl.oninput=function(){r.op=this.value/100;restyle(r);};
+});
+
+// ---- Global controls ----------------------------------------------------
+function recolorSwatches(){REG.forEach(function(r){if(r.kind!=='raster')r._sw.style.background=SCHEME[scheme][r.role];});}
+document.getElementById('scheme').onchange=function(){scheme=this.value;recolorSwatches();REG.forEach(restyle);};
+document.getElementById('fill').oninput=function(){
+  fillOp=this.value/100;
+  document.getElementById('fillv').textContent=this.value==0?'off':this.value+'%';
+  REG.forEach(function(r){if(r.kind==='poly'||r.kind==='points')restyle(r);});
+};
+
+// ---- Initial state: basemap + county parcel only ------------------------
+REG.forEach(function(r){if(r.on&&r.layer)setVisible(r,true);});
+// Frame the parcel, but only once the container actually has a size. If Leaflet
+// initialises in a zero-height pane (IDE preview, just-opened tab) fitBounds
+// computes against an empty box and lands at zoom 0 (the world, tiled repeatedly).
+// invalidateSize re-measures; we retry until the map has real dimensions.
+function frame(){
+  map.invalidateSize();
+  var s=map.getSize();
+  if(s.x<2||s.y<2){setTimeout(frame,120);return;}   // not laid out yet -- wait
+  map.fitBounds(byKey.par.layer.getBounds().pad(0.08));
+}
+frame();
+window.addEventListener('load',frame);
 </script></body></html>
