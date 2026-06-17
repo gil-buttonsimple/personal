@@ -52,9 +52,20 @@ def main():
         [F.feat({"type": "Point", "coordinates": p}, layer="deer stand") for p in stands],
         sheet="06", layer="deer stands (blue dots) - candidates, validate in digitizer",
         method="HSV round-blob centroids, projected"))
+    # classify each water polygon: the lake (+ its creek/pond lobes) vs small outliers.
+    # The size split is sharp (top lobes >= ~0.4 ac; the rest cluster at ~0.16 ac).
+    LAKE_AC = 0.30
+    water_feats = []
+    for g in water:
+        ring = g["coordinates"][0]                       # outer ring of the Polygon
+        ac = F.polygon_area_m2(ring) / 4046.86
+        water_feats.append(F.feat(g, layer="water",
+                                  klass=("lake" if ac >= LAKE_AC else "outlier"),
+                                  area_ac=round(ac, 2)))
     F.write("water.geojson", F.fc(
-        [F.feat(g, layer="water") for g in water],
-        sheet="06", layer="water / creek / lake (blue)", method="HSV blobs -> contour polygons, projected"))
+        water_feats,
+        sheet="06", layer="water / creek / lake (blue)",
+        method="HSV blue blobs >=800px -> contour polygons, projected; classed lake vs outlier by area"))
     F.write("food-plots.geojson", F.fc(
         [F.feat(g, layer="food plot") for g in plots],
         sheet="06", layer="food plots / woods (green)", method="HSV blobs -> contour polygons, projected"))

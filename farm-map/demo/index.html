@@ -15,6 +15,7 @@
  .row .top label{flex:1;cursor:pointer}
  .row input[type=range]{width:100%;margin:2px 0 0}
  .sw{display:inline-block;width:11px;height:11px;border-radius:2px;flex:0 0 auto}
+ .cap{font-size:10px;color:#8a8a8a;line-height:1.3;margin:2px 0 0}
  .glob{font-size:11px;color:#555}
  select,button{font:12px system-ui}
  .op{width:74px;flex:0 0 auto}
@@ -139,18 +140,25 @@ SHEETS.forEach(function(s){REG.push({key:s.key,role:null,kind:'raster',label:s.l
 var byKey={};
 REG.forEach(function(r){byKey[r.key]=r;});
 
-function styleOf(r){
+function styleOf(r,f){
   var c=SCHEME[scheme][r.role]||'#fff';
   var fo=(r.kind==='poly'||r.kind==='points')?fillOp:0;
-  var s={color:c,weight:r.weight||2,opacity:r.op,fill:fo>0,fillColor:c,fillOpacity:fo};
+  var op=r.op;
+  var s={color:c,weight:r.weight||2,opacity:op,fill:fo>0,fillColor:c,fillOpacity:fo};
   if(r.dash)s.dashArray=r.dash;
   if(r.kind==='points')s.radius=5;
+  // water outliers (not the lake) drawn faint + dashed so the lake reads clearly
+  if(r.role==='water'&&f&&f.properties&&f.properties.klass==='outlier'){
+    s.opacity=op*0.45; s.weight=1; s.dashArray='3,4';
+    s.fillOpacity=fo*0.4;
+  }
   return s;
 }
 function restyle(r){
   if(!r.layer)return;
   if(r.kind==='raster'){r.layer.setOpacity(r.op);return;}
-  r.layer.setStyle(styleOf(r));
+  if(r.url)r.layer.setStyle(function(f){return styleOf(r,f);});   // geojson: per-feature
+  else r.layer.setStyle(styleOf(r));
 }
 function setVisible(r,on){
   r.on=on; if(!r.layer)return;
@@ -166,19 +174,37 @@ byKey.bnd0.layer=L.polygon(SURVEY_RAW,styleOf(byKey.bnd0));
 // Survey-sheet rasters: plain image overlays on the shared rectified bounds.
 REG.forEach(function(r){if(r.kind==='raster'&&r.url)r.layer=L.imageOverlay(r.url,SHEET_BOUNDS,{opacity:r.op});});
 
-// GeoJSON layers (projected real-world coords; plotted as-is, no SHIFT)
-function loadGeo(r,url,tip){
+// GeoJSON layers (projected real-world coords; plotted as-is, no SHIFT). Each carries
+// provenance in its FeatureCollection metadata (sheet / method), surfaced in the panel
+// caption and a click popup.
+function srcText(m){
+  if(!m)return '';
+  if(m.sheet)return 'sheet '+m.sheet;
+  if(m.source)return m.source.split(' ')[0];   // e.g. "OpenStreetMap"
+  return '';
+}
+function loadGeo(r,url){
   r.layer=L.geoJSON(null,{
-    style:(r.kind==='poly'||r.kind==='line')?function(){return styleOf(r);}:undefined,
-    pointToLayer:r.kind==='points'?function(f,ll){return L.circleMarker(ll,styleOf(r));}:undefined,
-    onEachFeature:tip?function(f,l){l.bindTooltip(tip);}:undefined
+    style:(r.kind==='poly'||r.kind==='line')?function(f){return styleOf(r,f);}:undefined,
+    pointToLayer:r.kind==='points'?function(f,ll){return L.circleMarker(ll,styleOf(r,f));}:undefined,
+    onEachFeature:function(f,l){
+      var m=r.meta||{}, p=f.properties||{};
+      var html='<b>'+(p.layer||r.role||'feature')+'</b>';
+      if(r.role==='water'&&p.klass)html+=' &mdash; '+p.klass+(p.area_ac!=null?(' ('+p.area_ac+' ac)'):'');
+      html+='<br>source: '+(srcText(m)||'?');
+      if(m.method)html+='<br>how: '+m.method;
+      l.bindPopup(html);
+      if(r.role==='stands')l.bindTooltip('deer stand (candidate)');
+    }
   });
   fetch(url).then(function(x){return x.json();}).then(function(g){
+    r.meta={sheet:g.sheet,method:g.method,layer:g.layer,source:g.source};
     r.layer.addData(g); if(r.on)r.layer.addTo(map);
+    if(r._cap){var s=srcText(r.meta);r._cap.innerHTML='from '+(s||'?')+(g.method?(' &middot; '+g.method):'');}
   });
 }
 loadGeo(byKey.rd,'../source-data/reference/osm-roads-all.geojson');
-loadGeo(byKey.st,'../source-data/derived/stands.geojson','deer stand (candidate)');
+loadGeo(byKey.st,'../source-data/derived/stands.geojson');
 loadGeo(byKey.wt,'../source-data/derived/water.geojson');
 loadGeo(byKey.fp,'../source-data/derived/food-plots.geojson');
 loadGeo(byKey.tr,'../source-data/derived/trails.geojson');
@@ -203,7 +229,12 @@ REG.forEach(function(r){
   top.appendChild(cb); top.appendChild(sw); top.appendChild(lab);
   var sl=document.createElement('input'); sl.type='range'; sl.min=0; sl.max=100;
   sl.value=Math.round(r.op*100); sl.title='Opacity';
-  row.appendChild(top); row.appendChild(sl); host.appendChild(row);
+  row.appendChild(top); row.appendChild(sl);
+  if(r.url&&r.kind!=='raster'){                 // provenance caption for digitized layers
+    var cap=document.createElement('div'); cap.className='cap'; cap.textContent='loading…';
+    row.appendChild(cap); r._cap=cap;
+  }
+  host.appendChild(row);
   r._sw=sw;
   cb.onchange=function(){setVisible(r,this.checked);};
   sl.oninput=function(){r.op=this.value/100;restyle(r);};

@@ -185,6 +185,21 @@ def lines_from_mask(mask, proj, min_obj=12, simplify_m=3.0):
             out.append(mapping(g))
     return out
 
+# ---- measurement ------------------------------------------------------------
+def polygon_area_m2(ring):
+    """Geographic shoelace -> area in m^2 for a [lon,lat] ring (local-metre scale)."""
+    if len(ring) < 3:
+        return 0.0
+    la0 = sum(p[1] for p in ring) / len(ring)
+    mlon = 111320.0 * np.cos(np.radians(la0)); mlat = 111320.0
+    s = 0.0
+    for i in range(len(ring)):
+        x1, y1 = ring[i][0] * mlon, ring[i][1] * mlat
+        j = (i + 1) % len(ring)
+        x2, y2 = ring[j][0] * mlon, ring[j][1] * mlat
+        s += x1 * y2 - x2 * y1
+    return abs(s) / 2.0
+
 # ---- output ----------------------------------------------------------------
 def fc(features, **meta):
     f = {"type": "FeatureCollection"}
