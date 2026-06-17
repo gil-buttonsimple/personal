@@ -23,6 +23,18 @@
  <label style="font-size:11px;color:#555"><input type="checkbox" id="bnd0"> &nbsp;&nbsp;survey as-anchored (pre-fit, dashed)</label>
  <label><input type="checkbox" id="img" checked> Survey sheet overlay</label>
  <label>Overlay opacity <input type="range" id="op" min="0" max="100" value="70"></label>
+ <hr style="border:none;border-top:1px solid #ddd;margin:8px 0">
+ <p class="sub" style="margin:0 0 4px"><b>Digitized layers</b> &mdash; survey features vectorized off sheet 06 &amp; projected through its homography; roads from OpenStreetMap. Stands/plots are automated candidates to confirm in the digitizer.</p>
+ <label><input type="checkbox" id="rd" checked>
+   <span class="sw" style="background:#888"></span>Roads (OpenStreetMap)</label>
+ <label><input type="checkbox" id="st" checked>
+   <span class="sw" style="background:#ff7a00;border-radius:50%"></span>Deer stands (42 candidates)</label>
+ <label><input type="checkbox" id="wt" checked>
+   <span class="sw" style="background:#00a2ff"></span>Water / creek / lake</label>
+ <label><input type="checkbox" id="fp" checked>
+   <span class="sw" style="background:#34c000"></span>Food plots / woods (35)</label>
+ <label style="font-size:11px;color:#555"><input type="checkbox" id="tr">
+   <span class="sw" style="background:#c8a000"></span>Trails (rough, fragmentary)</label>
  <p class="sub" style="margin-top:6px">Survey is one tract of a single 1994 deed (Book 668-98). Registered to the parcel by pinning its southernmost apex (the Point of Beginning) to the parcel's south corner &mdash; a pure translation, no scaling. Survey&rsquo;s E/S/W edges land on the parcel boundary; the ~195 ac balance is the north lobe, a separate tract of the same deed.</p>
 </div>
 <script>
@@ -85,6 +97,33 @@ var bound0=L.polygon(SURVEY_RAW,
   {color:'#39ff14',weight:2,fill:false,dashArray:'5,6',opacity:0.4});
 
 map.fitBounds(parcel.getBounds().pad(0.08));
+
+// ---- Digitized layers (loaded from GeoJSON) -----------------------------
+function layer(url,opts,toggle,on){
+  var l=L.geoJSON(null,opts);
+  fetch(url).then(function(r){return r.json();}).then(function(g){
+    l.addData(g); if(document.getElementById(toggle).checked)l.addTo(map);});
+  document.getElementById(toggle).onchange=function(){this.checked?l.addTo(map):l.remove();};
+  return l;
+}
+// roads from OpenStreetMap (authoritative; not extracted)
+layer('../source-data/reference/osm-roads-all.geojson',
+  {style:{color:'#888',weight:1.5,opacity:0.9}},'rd');
+// deer stands -- candidate points off the blue dots (confirm in digitizer)
+layer('../source-data/derived/stands.geojson',
+  {pointToLayer:function(f,ll){return L.circleMarker(ll,
+     {radius:5,color:'#5a2c00',weight:1,fillColor:'#ff7a00',fillOpacity:0.92});},
+   onEachFeature:function(f,l){l.bindTooltip('deer stand (candidate)');}},'st');
+// water / creek / lake -- the layer modern topo omits
+layer('../source-data/derived/water.geojson',
+  {style:{color:'#0077cc',weight:1,fillColor:'#00a2ff',fillOpacity:0.55}},'wt');
+// food plots / woods stands
+layer('../source-data/derived/food-plots.geojson',
+  {style:{color:'#1f7a00',weight:1,fillColor:'#34c000',fillOpacity:0.45}},'fp');
+// trails -- faint hand-drawn, fragmentary; off by default
+layer('../source-data/derived/trails.geojson',
+  {style:{color:'#c8a000',weight:2,opacity:0.7}},'tr');
+
 document.getElementById('op').oninput=function(){overlay.setOpacity(this.value/100)};
 document.getElementById('img').onchange=function(){this.checked?overlay.addTo(map):overlay.remove()};
 document.getElementById('bnd').onchange=function(){this.checked?bound.addTo(map):bound.remove()};

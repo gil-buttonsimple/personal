@@ -1,7 +1,37 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-13 (session 22)
+Last Updated: 2026-06-17 (session 23)
 Status: Active
+
+---
+
+## Session 23 Notes (2026-06-17)
+
+Farm-map: georeferenced all 7 survey sheets (digitizer, 4 cardinal apexes each;
+transforms in source-data/transforms/) and did the first comprehensive feature
+extraction pass. Installed scipy/scikit-image/shapely (apt). Pipeline in
+farm-map/extract/ (featurelib.py + extract_all.py + fetch_osm_roads.py): HSV colour
+isolation, ROI = known boundary inverse-projected onto each sheet (auto-drops the
+legend/margins), geometry via skimage/shapely (points/polygons/merged polylines),
+projected through each sheet's homography. Full write-up in
+farm-map/extraction-pass-1.md.
+
+Key reframing (Gil's call): digitize only what no other map has. Roads now come from
+OpenStreetMap (180 ways, fetch_osm_roads.py), NOT extracted -- the old extracted-road
+PoC was meaningless dots and roads already exist in GIS. Extracted from sheet 06 (the
+cleanest photo): deer stands (42 candidate points), water/creek/lake (20 polygons,
+coherent N-S drainage + pond), food plots/woods (35 polygons). Trails too faint on
+every sheet to extract cleanly -- left rough/off-by-default; needs a better scan.
+
+Georeference independently validated: registered south apex (POB) lands 5 m from
+Hinton Rd / 9 m from Great Falls Hwy (the junction Gil named at the south point); SW
+boundary runs along Great Falls Hwy. All layers live + toggleable in demo/index.html.
+Stands/plots are machine-first candidates to validate in the browser. Farm = personal
+issue #4. Open: validate layers; regenerate stale sheet07-boundary.geojson (older
+centroid anchor, ~200 m off at south); number plots/stands per legend; date sheets 02-05.
+
+Also added to digitizer this session: load-saved-work (revisit a sheet -> restores
+points/rotation/date for review/adjustment).
 
 ---
 
