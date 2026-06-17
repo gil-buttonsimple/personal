@@ -44,14 +44,10 @@ def main():
     water_mask = binary_closing(water_mask, disk(6))      # reconnect the creek band
     stand_mask = np.isin(lbl, 1 + np.where((sizes >= 40) & (sizes < 400))[0])
 
-    stands = F.points_from_blobs(stand_mask, proj6, area_min=40, area_max=400, circ_min=0.45)
     water  = F.polygons_from_blobs(water_mask, proj6, area_min=1000, simplify_m=4.0)
     plots  = F.polygons_from_blobs(green, proj6, area_min=250, simplify_m=4.0, max_polys=60)
-
-    F.write("stands.geojson", F.fc(
-        [F.feat({"type": "Point", "coordinates": p}, layer="deer stand") for p in stands],
-        sheet="06", layer="deer stands (blue dots) - candidates, validate in digitizer",
-        method="HSV round-blob centroids, projected"))
+    # NOTE: deer stands now come from sheet 04 (dedicated stands sheet, red flag markers) --
+    # see the SHEET 04 section below. Sheet 06's blue dots collided with the blue lake.
     # classify each water polygon: the lake (+ its creek/pond lobes) vs small outliers.
     # The size split is sharp (top lobes >= ~0.4 ac; the rest cluster at ~0.16 ac).
     LAKE_AC = 0.30
@@ -70,7 +66,7 @@ def main():
         [F.feat(g, layer="food plot") for g in plots],
         sheet="06", layer="food plots / woods (green)", method="HSV blobs -> contour polygons, projected"))
 
-    report["sheet06"] = {"stands": len(stands), "water_polys": len(water), "food_plots": len(plots)}
+    report["sheet06"] = {"water_polys": len(water), "food_plots": len(plots)}
     overlay(a6, [(green, [0,220,0]), (water_mask, [0,150,255]), (stand_mask, [255,80,255]), (pink, [255,0,120])],
             "_dbg-06-classified.png")
 
@@ -87,6 +83,32 @@ def main():
         method="HSV -> skeleton -> merged polylines, projected"))
     report["sheet02"] = {"trail_lines": len(trails), "green_px": int(tg.sum())}
     overlay(a2, [(tg, [0,230,0])], "_dbg-02-trails.png")
+
+    # ===================== SHEET 04 (deer stands: red flag markers) =====================
+    # Dedicated stands sheet. Stands are red flags (no blue-lake collision). Show ALL
+    # detected markers -- inside AND outside the property -- tagged `inside`; the human
+    # culls. No ROI clipping (that silently dropped real edge stands on the first pass).
+    a4, H4 = F.load_sheet("04-deer-stands"); proj4 = F.projector(H4)
+    roi4, _ = F.boundary_roi(a4, H4, pad_px=40)
+    red = F.colour_mask(a4, 340, 20, s_min=0.30, v_min=0.20)
+    lbl4, n4 = ndimage.label(red)
+    stand_feats = []
+    for i in range(1, n4 + 1):
+        ys, xs = np.where(lbl4 == i)
+        if len(xs) < 80:                       # drop speckle; keep faint markers
+            continue
+        cx, cy = float(xs.mean()), float(ys.mean())
+        lon, lat = proj4(cx, cy)
+        inside = bool(roi4[int(round(cy)), int(round(cx))])
+        stand_feats.append(F.feat({"type": "Point", "coordinates": [round(lon, 7), round(lat, 7)]},
+                                   layer="deer stand", inside=inside, px_area=int(len(xs))))
+    F.write("stands.geojson", F.fc(
+        stand_feats, sheet="04", layer="deer stands (red flag markers)",
+        method="HSV red markers on sheet 04, projected; ALL shown, inside=within property boundary"))
+    report["sheet04"] = {"stands_total": len(stand_feats),
+                         "inside": sum(1 for f in stand_feats if f["properties"]["inside"]),
+                         "outside": sum(1 for f in stand_feats if not f["properties"]["inside"])}
+    overlay(a4, [(red, [255, 60, 60])], "_dbg-04-stands.png")
 
     print(json.dumps(report, indent=2))
 
