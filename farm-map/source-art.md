@@ -44,15 +44,23 @@ checksum-verified identical to the originals.
 | `06-master-legend-1995.jpg` | PXL_20260126_175525696 | **Master legend / management copy** (Ashmark, Aug 29 1995, rev. Oct 1996). The rosetta stone for the color annotations: Main roads = orange, Permanent stands = blue dots, Water = blue, Food plots = green, Property boundary = pink. Numbering: woods stands #40-50, food plots #1-30. **Shows the lake/pond** that the project notes flag as missing from topo maps. |
 | `07-deed-survey-kasparek.jpg` | PXL_20260126_175547606 | **Deed survey: "Plat of Survey for Gene A. Kasparek," 409.258 acres.** S.C. Grid North, NAD 1983 -- the georeference anchor. Topo contours, WOODS / ROAD / DAM labels, creeks. Authoritative legal base for scaling and aligning all other sheets. |
 
-## Annotation key (consolidated from sheet 06)
+## Annotation key (consolidated from sheet 06; founder-confirmed against the printed legend)
 
-- Main roads -- orange
-- Trails -- (hand-drawn, varies: green on sheet 02, brown on sheet 05)
-- Permanent deer stands -- blue dots (sheet 06); red dots on the dedicated stand copy (sheet 04)
-- Water / creeks / lake -- blue
+- Main roads -- yellow / orange
+- Trails -- hand-drawn, varies: green on sheet 02, brown/orange on sheets 03 & 05
+- Permanent deer stands -- **blue DOTS** (solid, round, saturated) on sheet 06; **red markers**
+  on the dedicated stand copy (sheet 04, the cleanest source)
+- Water / creeks / lake -- **blue HIGHLIGHTER** (translucent wash, broad strokes)
 - Food plots -- green; numbered 1-30
 - Woods stands -- numbered 40-50
 - Property boundary -- pink (sheet 06) / heavy black (sheets 01, 03)
+
+**Extraction trap (the key distinction):** stands and water are BOTH blue on sheet 06. They
+are told apart by *mark type*, not hue -- permanent stands are small solid round dots; water
+is a washy translucent highlighter. A plain blue mask conflates them: it catches stand dots
+as fake small "water" and the highlighter edges as noise. Detect water by the highlighter
+(broad, lower-saturation fill) and stands by the dots (small, round, saturated) -- or take
+stands from sheet 04 (red, no blue collision) and water/lake as the large highlighter fill.
 
 ## Digitization notes
 

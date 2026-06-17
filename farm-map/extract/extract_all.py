@@ -73,19 +73,22 @@ def main():
     overlay(a6, [(green, [0,220,0]), (water_mask, [0,150,255]), (stand_mask, [255,80,255]), (pink, [255,0,120])],
             "_dbg-06-classified.png")
 
-    # ===================== SHEET 02 (trails, best-effort) =====================
-    a2, H2 = F.load_sheet("02-trails-green")
-    proj2 = F.projector(H2)
-    roi2, _ = F.boundary_roi(a2, H2)            # clip to the property; drop margin noise
-    # trails are faint hand-drawn green -- fragmentary at best on this photo
-    tg = F.colour_mask(a2, 70, 175, s_min=0.28, v_min=0.18) & roi2
-    trails = F.lines_from_mask(tg, proj2, min_obj=20, simplify_m=4.0)
+    # ===================== SHEET 03 (trails: orange marker) =====================
+    # Orange trail network -- bolder/cleaner than sheet 02's faint green. NO survey-ROI
+    # clip: the north (~195 ac) tract's trails live OUTSIDE the 409-ac survey boundary, so
+    # clipping to it dropped them (founder caught this). Show the whole network across both
+    # tracts; gap-bridge (closing) to de-fragment the skeleton. Draft -- minor margin/legend
+    # over-catch remains; validate/cull in the digitizer.
+    a3, H3 = F.load_sheet("03-trails-orange-water-blue"); proj3 = F.projector(H3)
+    orange = F.colour_mask(a3, 10, 52, s_min=0.30, v_min=0.28)
+    orange = binary_closing(orange, disk(3))
+    trails = F.lines_from_mask(orange, proj3, min_obj=30, simplify_m=3.0)
     F.write("trails.geojson", F.fc(
         [F.feat(g, layer="trail") for g in trails],
-        sheet="02", layer="trails (green hand-drawn) - best-effort",
-        method="HSV -> skeleton -> merged polylines, projected"))
-    report["sheet02"] = {"trail_lines": len(trails), "green_px": int(tg.sum())}
-    overlay(a2, [(tg, [0,230,0])], "_dbg-02-trails.png")
+        sheet="03", layer="trails (orange marker) - draft",
+        method="HSV orange -> closing -> skeleton -> merged polylines, projected; NO survey-ROI clip (whole property, both tracts)"))
+    report["sheet03"] = {"trail_features": len(trails), "orange_px": int(orange.sum())}
+    overlay(a3, [(orange, [255,120,0])], "_dbg-03-trails.png")
 
     # ===================== SHEET 04 (deer stands: red flag markers) =====================
     # Dedicated stands sheet. Stands are red flags (no blue-lake collision). Show ALL

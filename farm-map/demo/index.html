@@ -105,7 +105,7 @@ document.getElementById('baseOp').oninput=function(){if(bases[curBase])bases[cur
 // ---- Colour schemes -----------------------------------------------------
 // role -> colour, per scheme. Strokes recolour live for contrast on any basemap.
 var SCHEME={
- bright:{parcel:'#2dc0fb',survey:'#39ff14',survey0:'#39ff14',roads:'#ffd21a',stands:'#ff7a00',water:'#00c2ff',food:'#5cf000',trails:'#ffe000'},
+ bright:{parcel:'#2dc0fb',survey:'#39ff14',survey0:'#39ff14',roads:'#ffd21a',stands:'#ff7a00',water:'#00c2ff',food:'#5cf000',trails:'#ff2ddd'},
  dark:  {parcel:'#0066a3',survey:'#0a7a00',survey0:'#0a7a00',roads:'#7a4b00',stands:'#b33b00',water:'#005c99',food:'#1f6b00',trails:'#7a5c00'},
  white: {parcel:'#ffffff',survey:'#ffffff',survey0:'#ffffff',roads:'#ffffff',stands:'#ffffff',water:'#ffffff',food:'#ffffff',trails:'#ffffff'}
 };
@@ -121,7 +121,7 @@ var REG=[
  {key:'st',  role:'stands',  kind:'points',label:'Deer stands (sheet 04 · all shown)', on:false, weight:1, op:.95},
  {key:'wt',  role:'water',   kind:'poly',  label:'Water / creek / lake', on:false, weight:1.5, op:.95},
  {key:'fp',  role:'food',    kind:'poly',  label:'Food plots / woods (35)', on:false, weight:1.5, op:.9},
- {key:'tr',  role:'trails',  kind:'line',  label:'Trails (rough, fragmentary)', on:false, weight:2, op:.7}
+ {key:'tr',  role:'trails',  kind:'line',  label:'Trails (sheet 03 · draft)', on:false, weight:2, op:.85}
 ];
 // Survey sheets, rectified into ONE shared geographic frame (warp_sheets.py) so they
 // onion-skin in exact registration. Placed as plain image overlays on the shared bounds.
