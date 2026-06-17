@@ -40,10 +40,14 @@ Sheet dating: 02-06 are one 1995 survey (K-Farm Hunt Club, Aug 29 1995, 1"=400',
 magnetic-north thematic overlays of the same base. Sheets do NOT differ in date -- feature
 currency must come from modern imagery, not sheet dates.
 
-Validation so far (Gil, on satellite): water/food/stands much better after the 06 fix;
-remaining issue -- some deer-stand candidates land in the lake (blue-dot detector likely
-catching blue marks/labels inside the water blob; revisit stand extraction or cull these
-in the digitizer). Open: Gil validates layers in demo/digitizer; number plots (1-30)/stands DURING validation
+Validation (Gil, on satellite): water/food much better after the 06 fix. Stands re-sourced
+from sheet 06 (blue dots, collided with the blue lake -> inflated/mislocated) to SHEET 04
+(dedicated red flag markers); now extracted with NO ROI clip -- ALL 52 shown, tagged inside
+(20) / outside (32) the property boundary, human culls. Founder CONFIRMED the stands.
+Multi-sheet direction adopted (Gil): extract each layer from its dedicated sheet, cross-check
+across sheets to decide what's real, and always show all data (even outside the property) --
+don't let an auto-filter silently hide marks. Next dedicated sources: water from sheet 03,
+trails from 02+03. Open: number plots (1-30)/stands DURING validation
 (not blind -- 35 polys vs 30 legend nums); improve interior registration; better trail
 source; GIS-neighbour pull to decompose ~195 ac still deferred. Farm = personal issue #4.
 

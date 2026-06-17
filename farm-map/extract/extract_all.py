@@ -48,25 +48,28 @@ def main():
     plots  = F.polygons_from_blobs(green, proj6, area_min=250, simplify_m=4.0, max_polys=60)
     # NOTE: deer stands now come from sheet 04 (dedicated stands sheet, red flag markers) --
     # see the SHEET 04 section below. Sheet 06's blue dots collided with the blue lake.
-    # classify each water polygon: the lake (+ its creek/pond lobes) vs small outliers.
-    # The size split is sharp (top lobes >= ~0.4 ac; the rest cluster at ~0.16 ac).
+    # Blue on sheet 06 is overloaded: the lake AND the permanent-stand DOTS are both blue
+    # (legend). The small ~0.16 ac "blobs" the water pass picked up are stand dots, not water
+    # (confirmed by inspecting sheet 06 at each: every one is a blue dot). Keep only genuine
+    # water -- the lake + its creek/pond lobes, which are far larger -- and drop the dots.
+    # Stands themselves come from sheet 04 (red markers).
     LAKE_AC = 0.30
     water_feats = []
     for g in water:
         ring = g["coordinates"][0]                       # outer ring of the Polygon
         ac = F.polygon_area_m2(ring) / 4046.86
-        water_feats.append(F.feat(g, layer="water",
-                                  klass=("lake" if ac >= LAKE_AC else "outlier"),
-                                  area_ac=round(ac, 2)))
+        if ac < LAKE_AC:                                 # stand-dot contamination -- skip
+            continue
+        water_feats.append(F.feat(g, layer="water", klass="lake", area_ac=round(ac, 2)))
     F.write("water.geojson", F.fc(
         water_feats,
-        sheet="06", layer="water / creek / lake (blue)",
-        method="HSV blue blobs >=800px -> contour polygons, projected; classed lake vs outlier by area"))
+        sheet="06", layer="water / lake (blue)",
+        method="HSV blue blobs -> contour polygons, projected; kept lake (>=0.30 ac), dropped blue stand-dots"))
     F.write("food-plots.geojson", F.fc(
         [F.feat(g, layer="food plot") for g in plots],
         sheet="06", layer="food plots / woods (green)", method="HSV blobs -> contour polygons, projected"))
 
-    report["sheet06"] = {"water_polys": len(water), "food_plots": len(plots)}
+    report["sheet06"] = {"lake_polys": len(water_feats), "food_plots": len(plots)}
     overlay(a6, [(green, [0,220,0]), (water_mask, [0,150,255]), (stand_mask, [255,80,255]), (pink, [255,0,120])],
             "_dbg-06-classified.png")
 
