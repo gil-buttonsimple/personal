@@ -3,10 +3,14 @@
 (the things no GIS has) into projected GeoJSON, and render a debug overlay per
 feature on the source image so quality is visible before the map ever loads it.
 
-Sources (chosen by the HSV palette analysis):
-  sheet 06  boundary (pink) | water (blue, large) | stands (blue dots) | food plots (green)
-  sheet 02  trails (green hand-drawn)   [best-effort]
-Roads are NOT extracted here -- they come from GIS (fetch_osm_roads.py).
+Sources (chosen by the HSV palette analysis; one dedicated sheet per layer):
+  sheet 06  lake (blue) -> ACTIVE water.geojson | food plots (green)
+  sheet 03  trails (orange)
+  sheet 02  trails (green hand-drawn)
+  sheet 04  deer stands (red flag markers)
+Trails fuse sheets 02 + 03 (source-tagged). Roads come from GIS (OSM, fetch_osm_roads.py);
+creeks are likewise a GIS pull (USGS NHD), NOT traced from the sheet 03 blue highlighter --
+that highlighter only overlays creek/contour lines already available in cleaner sources.
 
 Run:  python3 farm-map/extract/extract_all.py
 """
@@ -61,9 +65,14 @@ def main():
         if ac < LAKE_AC:                                 # stand-dot contamination -- skip
             continue
         water_feats.append(F.feat(g, layer="water", klass="lake", area_ac=round(ac, 2)))
+    # Sheet 06 lake is the ACTIVE water layer -- a rough auto interim only. The real lake /
+    # impoundment boundary (plus spillway, flood area, creeks) will be HAND-TRACED from the
+    # clean base (sheet 07) in the digitizer; this blob version stands in until then. (s25:
+    # sheet 03's blue highlighter is NOT a usable water source -- it only overlays creek /
+    # contour lines that are available cleaner on the base sheets, so it was dropped.)
     F.write("water.geojson", F.fc(
         water_feats,
-        sheet="06", layer="water / lake (blue)",
+        sheet="06", layer="water / lake (blue) - interim, pending hand-trace from sheet 07",
         method="HSV blue blobs -> contour polygons, projected; kept lake (>=0.30 ac), dropped blue stand-dots"))
     F.write("food-plots.geojson", F.fc(
         [F.feat(g, layer="food plot") for g in plots],
@@ -73,22 +82,33 @@ def main():
     overlay(a6, [(green, [0,220,0]), (water_mask, [0,150,255]), (stand_mask, [255,80,255]), (pink, [255,0,120])],
             "_dbg-06-classified.png")
 
-    # ===================== SHEET 03 (trails: orange marker) =====================
-    # Orange trail network -- bolder/cleaner than sheet 02's faint green. NO survey-ROI
-    # clip: the north (~195 ac) tract's trails live OUTSIDE the 409-ac survey boundary, so
-    # clipping to it dropped them (founder caught this). Show the whole network across both
-    # tracts; gap-bridge (closing) to de-fragment the skeleton. Draft -- minor margin/legend
-    # over-catch remains; validate/cull in the digitizer.
+    # ===== ROADS & TRAILS (sheet 02 green + sheet 03 orange, fused) -- auto, UNCLASSIFIED =====
+    # The on-property network OSM lacks: the internal main road (to the barn), dirt roads,
+    # 2-track / ATV roads, and foot trails. Two annotation copies fused, each feature tagged by
+    # source sheet. This auto pass CANNOT tell the road tiers apart (colour != tier) -- it
+    # yields one unclassified network; tier classification (main / dirt / 2-track / trail) is
+    # done by hand-tracing in the digitizer (s25). NO survey-ROI clip (network runs into the
+    # north tract). Draft -- sheet 03 still over-catches the wood-table band at the top margin.
+    net_feats = []
+
+    a2, H2 = F.load_sheet("02-trails-green"); proj2 = F.projector(H2)
+    green2 = F.colour_mask(a2, 70, 170, s_min=0.18, v_min=0.30)
+    green2 = binary_closing(green2, disk(3))
+    n2 = F.lines_from_mask(green2, proj2, min_obj=30, simplify_m=3.0)
+    net_feats += [F.feat(g, layer="road/trail", klass="unclassified", source="02") for g in n2]
+    overlay(a2, [(green2, [0,220,0])], "_dbg-02-trails.png")
+
     a3, H3 = F.load_sheet("03-trails-orange-water-blue"); proj3 = F.projector(H3)
     orange = F.colour_mask(a3, 10, 52, s_min=0.30, v_min=0.28)
     orange = binary_closing(orange, disk(3))
-    trails = F.lines_from_mask(orange, proj3, min_obj=30, simplify_m=3.0)
-    F.write("trails.geojson", F.fc(
-        [F.feat(g, layer="trail") for g in trails],
-        sheet="03", layer="trails (orange marker) - draft",
-        method="HSV orange -> closing -> skeleton -> merged polylines, projected; NO survey-ROI clip (whole property, both tracts)"))
-    report["sheet03"] = {"trail_features": len(trails), "orange_px": int(orange.sum())}
+    n3 = F.lines_from_mask(orange, proj3, min_obj=30, simplify_m=3.0)
+    net_feats += [F.feat(g, layer="road/trail", klass="unclassified", source="03") for g in n3]
     overlay(a3, [(orange, [255,120,0])], "_dbg-03-trails.png")
+
+    F.write("trails.geojson", F.fc(
+        net_feats, sheet="02+03", layer="roads & trails (internal network, unclassified) - draft",
+        method="HSV green (s02) + orange (s03) -> closing -> skeleton -> merged polylines, projected; NO ROI clip; source-tagged; tiers classified by hand-trace"))
+    report["roads_trails"] = {"sheet02": len(n2), "sheet03": len(n3)}
 
     # ===================== SHEET 04 (deer stands: red flag markers) =====================
     # Dedicated stands sheet. Stands are red flags (no blue-lake collision). Show ALL

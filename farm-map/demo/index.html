@@ -119,9 +119,9 @@ var REG=[
  {key:'bnd0',role:'survey0', kind:'line',  label:'survey as-anchored (pre-fit, dashed)', on:false, weight:2, op:.5, dash:'5,6'},
  {key:'rd',  role:'roads',   kind:'line',  label:'Roads (OpenStreetMap)', on:false, weight:1.5, op:.9},
  {key:'st',  role:'stands',  kind:'points',label:'Deer stands (sheet 04 · all shown)', on:false, weight:1, op:.95},
- {key:'wt',  role:'water',   kind:'poly',  label:'Water / creek / lake', on:false, weight:1.5, op:.95},
+ {key:'wt',  role:'water',   kind:'poly',  label:'Water / lake (sheet 06 · interim)', on:false, weight:1.5, op:.95},
  {key:'fp',  role:'food',    kind:'poly',  label:'Food plots / woods (35)', on:false, weight:1.5, op:.9},
- {key:'tr',  role:'trails',  kind:'line',  label:'Trails (sheet 03 · draft)', on:false, weight:2, op:.85}
+ {key:'tr',  role:'trails',  kind:'line',  label:'Roads & trails (auto · draft)', on:false, weight:2, op:.85}
 ];
 // Survey sheets, rectified into ONE shared geographic frame (warp_sheets.py) so they
 // onion-skin in exact registration. Placed as plain image overlays on the shared bounds.
@@ -245,6 +245,86 @@ REG.forEach(function(r){
   cb.onchange=function(){setVisible(r,this.checked);};
   sl.oninput=function(){r.op=this.value/100;restyle(r);};
 });
+
+// ---- Traced features (hand-drawn in the digitizer) ----------------------
+// Each sheet may have a <sheet>-traces.geojson under source-data/traces/. Features
+// carry their own label + colour; we group by label across sheets into one toggle
+// each. Missing files are ignored (none traced yet -> no section appears).
+(function(){
+ var TRACE_SHEETS=['07-deed-survey-kasparek','01-base-plat-clean','03-trails-orange-water-blue',
+  '05-habitat-full-color','06-master-legend-1995','02-trails-green','04-deer-stands'];
+ var groups={};
+ function addHeader(){
+  host.appendChild(document.createElement('hr'));
+  var h=document.createElement('p');h.className='sub';h.style.margin='0 0 4px';
+  h.innerHTML='<b>Traced features</b> &mdash; hand-drawn in the digitizer, projected to the map.';
+  host.appendChild(h);
+ }
+ function makeRow(key,g){
+  var lyr=L.geoJSON(g.features,{
+   style:function(f){var poly=f.geometry.type==='Polygon';return {color:f.properties.color||'#fff',
+     weight:poly?2:3,opacity:.95,fill:poly,fillColor:f.properties.color||'#fff',fillOpacity:poly?.2:0};},
+   pointToLayer:function(f,ll){return L.circleMarker(ll,{radius:5,color:f.properties.color||'#fff',
+     weight:2,fillOpacity:.85,fillColor:f.properties.color||'#fff'});},
+   onEachFeature:function(f,l){var p=f.properties||{};
+     l.bindPopup('<b>'+(p.name||key)+'</b><br>group: '+(p.group||'?')+'<br>source: sheet '+(p.source||'?'));}
+  });
+  var row=document.createElement('div');row.className='row';
+  var top=document.createElement('div');top.className='top';
+  var cb=document.createElement('input');cb.type='checkbox';
+  var sw=document.createElement('span');sw.className='sw';sw.style.background=g.color;
+  var lab=document.createElement('label');lab.textContent=g.name+' ('+g.features.length+')';
+  top.appendChild(cb);top.appendChild(sw);top.appendChild(lab);row.appendChild(top);
+  host.appendChild(row);
+  cb.onchange=function(){this.checked?lyr.addTo(map):lyr.remove();};
+ }
+ Promise.all(TRACE_SHEETS.map(function(s){
+  return fetch('../source-data/traces/'+s+'-traces.geojson',{cache:'no-store'})
+   .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+ })).then(function(all){
+  all.forEach(function(g){
+   if(!g||!Array.isArray(g.features))return;
+   g.features.forEach(function(f){
+    var k=(f.properties&&f.properties.label)||'feature';
+    if(!groups[k])groups[k]={name:(f.properties&&f.properties.name)||k,
+      group:(f.properties&&f.properties.group)||'',color:(f.properties&&f.properties.color)||'#fff',features:[]};
+    groups[k].features.push(f);
+   });
+  });
+  var keys=Object.keys(groups);
+  if(!keys.length)return;
+  addHeader();keys.forEach(function(k){makeRow(k,groups[k]);});
+ });
+})();
+
+// ---- Roads by source (compare sheets 02 / 03 / 05) ----------------------
+// roads_compare.py extracts the road/path annotation from each colour sheet separately,
+// source-tagged + coloured, so the accurate sheet can be picked by eye against the imagery.
+(function(){
+ fetch('../source-data/derived/roads-compare.geojson',{cache:'no-store'})
+  .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+  .then(function(g){
+   if(!g||!Array.isArray(g.features)||!g.features.length)return;
+   var by={};
+   g.features.forEach(function(f){var k=(f.properties&&f.properties.source)||'?';(by[k]=by[k]||[]).push(f);});
+   host.appendChild(document.createElement('hr'));
+   var h=document.createElement('p');h.className='sub';h.style.margin='0 0 4px';
+   h.innerHTML='<b>Roads by source &mdash; compare</b> &mdash; same network as drawn on each colour sheet. Turn on one at a time and check it against the imagery + OSM roads.';
+   host.appendChild(h);
+   Object.keys(by).sort().forEach(function(k){
+    var p0=by[k][0].properties||{}, col=p0.color||'#fff';
+    var lyr=L.geoJSON(by[k],{style:function(f){return {color:(f.properties&&f.properties.color)||'#fff',weight:2.5,opacity:.95};},
+      onEachFeature:function(f,l){var p=f.properties||{};l.bindPopup('<b>road/path</b><br>source: sheet '+(p.source||'?')+' ('+(p.marker||'')+')');}});
+    var row=document.createElement('div');row.className='row';
+    var top=document.createElement('div');top.className='top';
+    var cb=document.createElement('input');cb.type='checkbox';
+    var sw=document.createElement('span');sw.className='sw';sw.style.background=col;
+    var lab=document.createElement('label');lab.textContent='Sheet '+k+' '+(p0.marker?('('+p0.marker+')'):'')+' — '+by[k].length;
+    top.appendChild(cb);top.appendChild(sw);top.appendChild(lab);row.appendChild(top);host.appendChild(row);
+    cb.onchange=function(){this.checked?lyr.addTo(map):lyr.remove();};
+   });
+  });
+})();
 
 // ---- Global controls ----------------------------------------------------
 function recolorSwatches(){REG.forEach(function(r){if(r.kind!=='raster')r._sw.style.background=SCHEME[scheme][r.role];});}

@@ -35,6 +35,15 @@
   padding:4px 8px;display:flex;justify-content:space-between;align-items:center;border-radius:7px 7px 0 0;user-select:none}
  #keyhide{cursor:pointer;font-size:15px;line-height:1;padding:0 2px}
  #keysvg{flex:1 1 auto;width:100%;min-height:0}
+ #tlist{list-style:none;margin:6px 0;padding:0;font-size:12px}
+ #tlist li{padding:4px 6px;border-radius:4px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+ #tlist li:hover{background:#2a2e35}
+ #tlist .nm{display:flex;align-items:center;min-width:0}
+ #tlist .sw{width:10px;height:10px;border-radius:2px;flex:0 0 auto;display:inline-block;margin-right:6px;border:1px solid rgba(255,255,255,.3)}
+ #tlist .del{cursor:pointer;color:#e88;font-weight:bold;flex:0 0 auto}
+ #tstat{font-size:12px;line-height:1.5;background:#12151a;border-radius:6px;padding:8px;margin-top:6px}
+ #tstat b{color:#7fe39a}
+ button.sel{background:#1f6f3d;border-color:#2a8a4e}
 </style><script src="apexkey.js"></script></head><body>
 <div id="wrap">
  <div id="side">
@@ -44,12 +53,19 @@
   <h4>Sheet</h4>
   <select id="sheet"></select>
 
+  <h4>Mode</h4>
+  <div style="display:flex;gap:6px">
+   <button id="modeGcp" class="sel">Georeference</button>
+   <button id="modeTrace">Trace features</button>
+  </div>
+
   <h4>Rotate photo (turn north up)</h4>
   <input type="range" id="rot" min="-180" max="180" value="0" style="width:100%">
   <div style="display:flex;gap:6px"><button id="rotL">⟲ 90°</button><button id="rotR">90° ⟳</button><button id="rot0">reset</button></div>
   <div class="hint"><b id="rotread">0°</b>. Scroll to zoom, drag to move. Pick a point in the list below, then click that same spot on the photo. After 4 points, the true outline is drawn back onto the photo in green.</div>
   <button id="showkey" style="display:none">Show apex key panel</button>
 
+  <div id="gcpsec">
   <h4>Points to match</h4>
   <ul id="gcps"></ul>
   <button id="clr">Clear all points</button>
@@ -57,6 +73,23 @@
 
   <h4>Fit</h4>
   <div id="stat">Place ≥4 points to solve.</div>
+  </div>
+
+  <div id="tracesec" style="display:none">
+  <h4>Trace a feature</h4>
+  <div class="hint" id="tracehint">Pick a label, then click along the feature on the photo. Roads, creeks, power lines and fences are lines; lake, flood and woods are areas (auto-closed). Drag to pan, scroll to zoom -- a click that doesn't drag drops a point.</div>
+  <select id="tlabel"></select>
+  <div style="display:flex;gap:6px">
+   <button id="tfinish" class="go">✓ Finish feature</button>
+   <button id="tundo">↶ Undo point</button>
+  </div>
+  <button id="tcancel">Cancel current</button>
+  <label class="row"><input type="checkbox" id="tshow" checked> Show traced features</label>
+
+  <h4>Traced features</h4>
+  <ul id="tlist"></ul>
+  <div id="tstat">No features traced yet.</div>
+  </div>
 
   <h4>Saving</h4>
   <div class="hint" id="saved">Auto-saves to the repository each time you place a point (once 4 are down). No download or copy-paste.</div>
@@ -122,6 +155,30 @@ var armed=null;                      // idx currently armed for placement
 var H=null, Hinv=null, fit=null;     // homography + residuals
 var loading=false;                   // true while restoring a saved sheet (suppresses re-save)
 var cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+
+// ---- tracing mode state ----
+var mode='gcp';                      // 'gcp' | 'trace'
+var traces=[];                       // finished: {def, pixels:[[u,v],...]}
+var cur=null;                        // in-progress: {def, pixels:[[u,v],...]}
+var curDef=null;                     // selected label definition
+// Feature taxonomy: group, key, display name, geometry, colour. (s25 source map.)
+var TRACE_LABELS=[
+ {group:'Roads & trails', key:'road_main',     name:'Main road (to barn)',    geom:'line',  color:'#ee1111'},
+ {group:'Roads & trails', key:'road_dirt',     name:'Dirt road',              geom:'line',  color:'#e67e00'},
+ {group:'Roads & trails', key:'road_2track',   name:'2-track / ATV',          geom:'line',  color:'#f0b000'},
+ {group:'Roads & trails', key:'trail',         name:'Trail (foot)',           geom:'line',  color:'#c8a000'},
+ {group:'Water',          key:'lake',          name:'Lake / impoundment',     geom:'poly',  color:'#0aa3d6'},
+ {group:'Water',          key:'creek',         name:'River / creek',          geom:'line',  color:'#1e90ff'},
+ {group:'Water',          key:'flood',         name:'Flood area',             geom:'poly',  color:'#6fd0ff'},
+ {group:'Water',          key:'spillway',      name:'Emergency spillway',     geom:'line',  color:'#00d2c0'},
+ {group:'Infrastructure', key:'powerline',     name:'Power line',             geom:'line',  color:'#c000c0'},
+ {group:'Infrastructure', key:'coop_easement', name:'Electric coop easement', geom:'line',  color:'#ff66cc'},
+ {group:'Infrastructure', key:'fence',         name:'Fence',                  geom:'line',  color:'#aaaaaa'},
+ {group:'Land cover',     key:'woods',         name:'Woods',                  geom:'poly',  color:'#2f8f2f'},
+ {group:'Land cover',     key:'open',          name:'Open',                   geom:'poly',  color:'#bcd35f'},
+ {group:'Point',          key:'poi',           name:'Point of interest',      geom:'point', color:'#ffffff'}
+];
+function defByKey(k){for(var i=0;i<TRACE_LABELS.length;i++)if(TRACE_LABELS[i].key===k)return TRACE_LABELS[i];return null;}
 
 // ============================================================================
 // Linear algebra (hand-rolled; normalized DLT, no libraries)
@@ -232,6 +289,24 @@ function draw(){
   ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(c[0]+8,c[1]-8,16,14);
   ctx.fillStyle='#fff';ctx.font='11px system-ui';ctx.fillText(i,c[0]+10,c[1]+3);
  });
+ // traced features (image-space pixels -> canvas)
+ var tshow=document.getElementById('tshow');
+ if(tshow&&tshow.checked){
+  traces.concat(cur?[cur]:[]).forEach(function(t){
+   var isCur=(cur&&t===cur);
+   var pts=t.pixels.map(function(p){return i2c(p[0],p[1]);});
+   if(!pts.length)return;
+   if(t.def.geom==='point'){
+    ctx.beginPath();ctx.arc(pts[0][0],pts[0][1],5,0,7);ctx.fillStyle=t.def.color;ctx.fill();
+    ctx.lineWidth=1.5;ctx.strokeStyle='#000';ctx.stroke();return;
+   }
+   ctx.beginPath();pts.forEach(function(c,k){k?ctx.lineTo(c[0],c[1]):ctx.moveTo(c[0],c[1]);});
+   if(t.def.geom==='poly'&&pts.length>=3&&!isCur)ctx.closePath();
+   if(t.def.geom==='poly'&&pts.length>=3){ctx.globalAlpha=isCur?.12:.20;ctx.fillStyle=t.def.color;ctx.fill();ctx.globalAlpha=1;}
+   ctx.lineWidth=isCur?3:2.5;ctx.strokeStyle=t.def.color;ctx.setLineDash(isCur?[6,5]:[]);ctx.stroke();ctx.setLineDash([]);
+   pts.forEach(function(c){ctx.beginPath();ctx.arc(c[0],c[1],isCur?3.5:2.5,0,7);ctx.fillStyle=isCur?'#fff':t.def.color;ctx.fill();});
+  });
+ }
 }
 
 // ============================================================================
@@ -267,10 +342,18 @@ window.addEventListener('mousemove',function(e){
 });
 window.addEventListener('mouseup',function(e){
  cv.style.cursor='';
- if(down&&!moved&&armed!=null){
+ if(down&&!moved){
   var ic=c2i(e.offsetX,e.offsetY);
-  if(ic[0]>=0&&ic[1]>=0&&ic[0]<=img.width&&ic[1]<=img.height){
+  var inImg=ic[0]>=0&&ic[1]>=0&&ic[0]<=img.width&&ic[1]<=img.height;
+  if(mode==='gcp'&&armed!=null&&inImg){
    gcp[armed]={u:ic[0],v:ic[1]};armed=null;cv.classList.remove('arm');buildList();recompute();
+  }else if(mode==='trace'&&curDef&&inImg){
+   if(!H){tstat('⚠ Georeference this sheet first (Mode → Georeference, place ≥4 points).');}
+   else{
+    if(!cur)cur={def:curDef,pixels:[]};
+    cur.pixels.push([ic[0],ic[1]]);
+    if(curDef.geom==='point')finishFeature(); else draw();
+   }
   }
  }
  down=null;
@@ -298,11 +381,11 @@ document.getElementById('rot0').onclick=function(){setRot(0);};
 // Sheet load
 // ============================================================================
 function loadSheet(name){
- imgReady=false;gcp={};armed=null;H=Hinv=fit=null;loading=false;
+ imgReady=false;gcp={};armed=null;H=Hinv=fit=null;loading=false;traces=[];cur=null;
  view.rot=0;document.getElementById('rot').value=0;document.getElementById('rotread').textContent='0°';
  document.getElementById('sdate').value=SHEET_DATE[name]||'';
  document.getElementById('saved').innerHTML='Auto-saves to the repository each time you place a point (once 4 are down). No download or copy-paste.';
- img.onload=function(){imgReady=true;fitView();restoreSaved(name);};
+ img.onload=function(){imgReady=true;fitView();restoreSaved(name);restoreTraces(name);};
  img.src='../source-art/'+name;
 }
 // Pull any prior alignment for this sheet back into the editor so it can be
@@ -379,6 +462,112 @@ document.getElementById('copy').onclick=function(){
 };
 document.getElementById('clr').onclick=function(){gcp={};armed=null;H=Hinv=fit=null;cv.classList.remove('arm');buildList();draw();showStat();};
 document.getElementById('bp').onchange=draw;
+
+// ============================================================================
+// Tracing mode: trace + label features on a georeferenced sheet, save as GeoJSON
+// ============================================================================
+function tstat(msg){var e=document.getElementById('tstat');if(e)e.innerHTML=msg;}
+
+function buildLabelSelect(){
+ var sel=document.getElementById('tlabel');sel.innerHTML='';
+ var groups={};TRACE_LABELS.forEach(function(d){(groups[d.group]=groups[d.group]||[]).push(d);});
+ Object.keys(groups).forEach(function(g){
+  var og=document.createElement('optgroup');og.label=g;
+  groups[g].forEach(function(d){var o=document.createElement('option');o.value=d.key;o.textContent=d.name+' ('+d.geom+')';og.appendChild(o);});
+  sel.appendChild(og);
+ });
+ curDef=defByKey(sel.value);
+}
+
+function setMode(m){
+ mode=m;var g=(m==='gcp');
+ document.getElementById('gcpsec').style.display=g?'':'none';
+ document.getElementById('tracesec').style.display=g?'none':'';
+ document.getElementById('modeGcp').classList.toggle('sel',g);
+ document.getElementById('modeTrace').classList.toggle('sel',!g);
+ armed=null;cv.classList.toggle('arm',!g&&!!curDef);cv.style.cursor=g?'':'crosshair';
+ if(!g){
+  if(!H)tstat('⚠ Georeference this sheet first (Mode → Georeference, place ≥4 points), then trace.');
+  else if(traces.length)buildTraceList();
+  else tstat('No features traced yet. Pick a label and click along the feature.');
+ }
+ draw();
+}
+
+function finishFeature(){
+ if(!cur)return;
+ var need=cur.def.geom==='point'?1:(cur.def.geom==='poly'?3:2);
+ if(cur.pixels.length<need){tstat('Need ≥ '+need+' point'+(need>1?'s':'')+' for a '+cur.def.geom+'.');return;}
+ traces.push(cur);cur=null;buildTraceList();draw();saveTraces();
+}
+
+function buildTraceList(){
+ var ul=document.getElementById('tlist');ul.innerHTML='';
+ traces.forEach(function(t,i){
+  var li=document.createElement('li');
+  li.innerHTML='<span class="nm"><span class="sw" style="background:'+t.def.color+'"></span>'+t.def.name+
+   ' <span class="tag" style="color:#9aa0a8;margin-left:4px">'+t.pixels.length+'pt</span></span><span class="del" title="delete">✕</span>';
+  li.querySelector('.del').onclick=function(){traces.splice(i,1);buildTraceList();draw();saveTraces();};
+  ul.appendChild(li);
+ });
+ if(traces.length)tstat('<b>'+traces.length+'</b> feature'+(traces.length>1?'s':'')+' traced.');
+}
+
+function tracesGeoJSON(){
+ var name=document.getElementById('sheet').value;
+ var feats=traces.map(function(t){
+  var world=t.pixels.map(function(p){var w=applyH(H,p[0],p[1]);return [+w[0].toFixed(7),+w[1].toFixed(7)];}); // [lon,lat]
+  var geom;
+  if(t.def.geom==='point')geom={type:'Point',coordinates:world[0]};
+  else if(t.def.geom==='poly'){var ring=world.slice();
+   if(ring.length>1&&(ring[0][0]!==ring[ring.length-1][0]||ring[0][1]!==ring[ring.length-1][1]))ring.push(ring[0]);
+   geom={type:'Polygon',coordinates:[ring]};}
+  else geom={type:'LineString',coordinates:world};
+  return {type:'Feature',geometry:geom,properties:{
+   label:t.def.key,name:t.def.name,group:t.def.group,color:t.def.color,
+   source:name.replace('.jpg',''),
+   pixels:t.pixels.map(function(p){return [+p[0].toFixed(1),+p[1].toFixed(1)];})}};
+ });
+ return {type:'FeatureCollection',sheet:name.replace('.jpg',''),
+  source:'farm-map/source-art/'+name,
+  world_frame:'WGS84 lon,lat; POB-anchored SHIFT (see demo/index.html)',
+  method:"hand-traced in digitizer, projected through this sheet's homography",
+  feature_count:feats.length,features:feats};
+}
+
+function saveTraces(){
+ if(!H)return;
+ var name=document.getElementById('sheet').value.replace('.jpg','')+'-traces.geojson';
+ fetch('/api/save',{method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({kind:'trace',name:name,data:tracesGeoJSON()})})
+ .then(function(r){return r.json();})
+ .then(function(j){tstat(j.ok?('✓ saved <b>'+traces.length+'</b> to <code>'+j.path+'</code>'):('save error: '+j.error));})
+ .catch(function(){tstat('⚠ saving server not reachable — run <code>python3 farm-map/serve.py</code>. Traces kept in this page.');});
+}
+
+// Restore previously traced features for this sheet (image-space pixels stored in props).
+function restoreTraces(name){
+ traces=[];cur=null;
+ fetch('../source-data/traces/'+name.replace('.jpg','')+'-traces.geojson',{cache:'no-store'})
+  .then(function(r){return r.ok?r.json():null;})
+  .then(function(g){
+   if(g&&Array.isArray(g.features))g.features.forEach(function(f){
+    var d=defByKey(f.properties&&f.properties.label),px=f.properties&&f.properties.pixels;
+    if(d&&Array.isArray(px)&&px.length)traces.push({def:d,pixels:px.map(function(p){return [p[0],p[1]];})});
+   });
+   if(mode==='trace')buildTraceList();draw();
+  })
+  .catch(function(){if(mode==='trace')buildTraceList();draw();});
+}
+
+document.getElementById('modeGcp').onclick=function(){setMode('gcp');};
+document.getElementById('modeTrace').onclick=function(){setMode('trace');};
+document.getElementById('tlabel').onchange=function(){curDef=defByKey(this.value);cv.classList.toggle('arm',mode==='trace'&&!!curDef);};
+document.getElementById('tfinish').onclick=finishFeature;
+document.getElementById('tundo').onclick=function(){if(cur&&cur.pixels.length){cur.pixels.pop();if(!cur.pixels.length)cur=null;draw();}};
+document.getElementById('tcancel').onclick=function(){cur=null;draw();};
+document.getElementById('tshow').onchange=draw;
+buildLabelSelect();
 
 // ============================================================================
 // Boot

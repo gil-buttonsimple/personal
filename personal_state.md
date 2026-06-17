@@ -1,7 +1,68 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-17 (session 24)
+Last Updated: 2026-06-17 (session 25)
 Status: Active
+
+---
+
+## Session 25 Notes (2026-06-17)
+
+Farm-map: stopped guessing at extraction and did the source read FIRST. Walked Gil
+through all seven sheets; he said what each actually shows. Captured as the authoritative
+**farm-map/source-map.md** (feature -> source sheet -> method). Key reframings:
+- Most high-value features (lake boundary, rivers, road shoulders, power lines, electric-coop
+  easement, emergency spillway, fences, flood area, woods/open) are SHARP UNIFORM black lines
+  on the clean base -- colour can't separate them. They need HAND-TRACING with Gil labeling
+  which line is which. Auto colour-extraction only works where a feature is its own colour
+  (red stands on 04, orange/green road+trail network on 03/02).
+- The blue "water" highlighter is NOT a water source -- it overlays creek/contour lines
+  available cleaner elsewhere. The real water data is the base linework. The earlier
+  sheet-03-blue water extraction (built this session, three tries: points -> creek-lines)
+  was DROPPED. Water reverted to the sheet 06 lake blob as a rough INTERIM, pending a
+  hand-traced lake from sheet 07 (the cleanest base, already georeferenced).
+- Sheet 07 is the master hand-trace base. Sheet 04 base is unusable (uniform shading, many
+  meanings). Sheet 02 green = some roads (not "trails"); 03 orange = roads/trails.
+- Road/trail tiers must be classified, not lumped: Main road (to barn) / dirt road /
+  2-track-ATV / foot trail. Public roads stay from OSM; these are the internal network OSM lacks.
+
+Built the tool for this: **digitizer tracing mode** (farm-map/digitizer/index.html). New
+"Trace features" mode alongside the georeference mode: pick a label (taxonomy of 14 across
+Roads&trails / Water / Infrastructure / Land cover / Point), click along a feature on a
+georeferenced sheet, machine projects each click through the sheet homography. Lines for
+roads/creeks/fences/power; polygons (auto-closed) for lake/flood/woods; points for POI.
+Finish/undo/cancel, per-feature delete, auto-save to source-data/traces/<sheet>-traces.geojson
+via serve.py (kind:trace), and restore-on-reload. Demo (demo/index.html) gains a dynamic
+"Traced features" section that loads any *-traces.geojson, grouped by label, coloured per
+feature. Full save round-trip verified headless (POST -> file -> demo renders grouped toggles).
+
+Also finalized extract_all.py to a consistent state: dropped sheet-03 water, restored sheet-06
+lake as interim water.geojson, relabeled the fused 02+03 network "roads & trails (unclassified)"
+(tiers come from hand-tracing). Stands (52) and food plots (34) unchanged.
+
+Tried then DROPPED a "vectorize sheet 07 + deduce every line's class from the other
+registered sheets (colour votes)" approach -- bunk: water massively over-claimed (washy
+sheet-06 blue + big match radius), ~7200 text/fragment pieces. Boundary is already known
+(deed traverse + county parcel), so it was never needed from this. Founder's call: go
+FEATURE BY FEATURE from the best source, compare sheets, and learn.
+
+Roads & paths (roads_compare.py): extracted the network from each colour sheet separately
+(NOT fused) + clear_border to drop the wood-table band -- this fixed sheet 03 (2645 noisy
+fragments -> 410 clean). Verdict on the satellite: SHEET 03 ORANGE is the accurate, complete
+network and lands on real tracks; sheet 02 green is partial (central/north only); sheet 05
+brown is unusable (blends into aged paper). So roads = sheet 03. Shown as a "Roads by source
+-- compare" section in the demo (toggle one at a time).
+
+Key features to build (founder, s25), each from its best source: lake surface, waterways/
+creeks, roads & paths (=sheet 03), POWER LINES, BUILDINGS (important -- barn + cabins/sheds),
+deer stands (done, sheet 04), + food plots, fences/gates, dam+spillway, fields (open/woods).
+Method split: colour-auto for roads (03) and stands (04); HAND-TRACE (digitizer tracing tool,
+built this session) for buildings, lake surface, power lines, fences -- few, precise, clean
+base lines. Creeks TBD (GIS/USGS NHD or trace).
+
+LESSON (banked in source-map.md): walk the founder through what each source shows, and go
+feature by feature from the best source -- don't auto-deduce everything at once. Next:
+nail roads from sheet 03 (de-fragment/smooth), then move to the next feature (likely creeks
+or buildings). Farm = personal issue #4.
 
 ---
 
