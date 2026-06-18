@@ -1,7 +1,36 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-17 (session 25)
+Last Updated: 2026-06-18 (session 26)
 Status: Active
+
+---
+
+## Session 26 Notes (2026-06-18)
+
+Farm-map screensaver + a placement tool.
+
+- **Lake fix**: replaced the bad sheet-06 blob water with the authoritative USGS NHD
+  impoundment polygon (24.5 ac, perennial LakePond) in farm-map/source-data/derived/water.geojson;
+  old blob kept as water-old.geojson. (committed ee07798)
+- **natgeo.html** reworked into the screensaver: smooth continuous-drift flyover (5 patterns,
+  one zoom-in excursion), progressive layer reveals (boundary, paved roads = OSM, trails =
+  sheet 03 dashed, lake) each pulsing in and building a key, then all POI pins drop in a ~1s
+  cascade, then the documentary "pages" (one morphing survey-sheet plate + sourced facts).
+  Privacy-scrubbed (no surname, acreage, dollars). Real facts captured in
+  farm-map/screensaver-facts.md (cited). Global 3x slow time-scale (TS, tunable; ?speed= to preview).
+  POIs are point-only and load from farm-map/source-data/traces/poi-points.geojson (priority-1
+  set: front gate, barn, dam, dock, boat put-in).
+- **place-points.html** (new): web tool to locate points. Long prioritized list (18 across 3
+  tiers), click-to-place + drag, auto-saves to source-data/traces/poi-points.geojson. All
+  basemaps (Sentinel-2, USGS high-res aerial, USGS topo, USGS aerial+labels, OSM, OpenTopoMap),
+  all reference layers, and the 7 georeferenced 1995 survey sheets as onion-skin overlays.
+- **KNOWN BUG (unresolved)**: in place-points.html on the 4K / 2x-scaled Firefox display, the
+  placed marker lands offset from the click, growing southward toward the bottom of the map.
+  Not reproduced in headless chromium at dpr 1 or 2 (roundtrip + sizes consistent). Likely a
+  Firefox-on-HiDPI click-vs-canvas scaling mismatch. map.resize() + ResizeObserver added but did
+  not fix it; the diagnostic instrumentation was removed before commit. The points already
+  placed may be off (drag to correct). Next: reproduce in Firefox, compare e.point vs raw
+  pointer offset under fractional/2x dpr.
 
 ---
 

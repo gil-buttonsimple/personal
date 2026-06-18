@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>K-Farm, a Piedmont documentary</title>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+  :root{--gold:#c8a24a;--ink:#ece7d8;--dim:#9aa08c;--panel:#161b15;--edge:#2c3528;
+        --bnd:#ffd86b;--water:#4da3ff;--stand:#ff5a4d}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:
+    radial-gradient(120% 90% at 50% 0%,#1c241b,#0e120f 58%,#080a07);
+    color:var(--ink);font:14px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif;cursor:default}
+
+  /* live flythrough: full-bleed in flight, shrinks to a centered hero in pages mode */
+  #map{position:absolute;top:0;left:0;right:0;bottom:0;z-index:1;
+    transition:top 1.6s cubic-bezier(.6,.02,.2,1),left 1.6s cubic-bezier(.6,.02,.2,1),
+               right 1.6s cubic-bezier(.6,.02,.2,1),bottom 1.6s cubic-bezier(.6,.02,.2,1),
+               border-radius 1.6s ease, box-shadow 1.6s ease}
+  body.pages #map{top:5%;bottom:5%;left:28%;right:28%;
+    border:2px solid var(--gold);border-radius:8px;box-shadow:0 16px 60px rgba(0,0,0,.7)}
+  .maplibregl-ctrl-top-left,.maplibregl-ctrl-top-right{display:none}
+  .maplibregl-ctrl-attrib{opacity:.25;font-size:10px}
+
+  .vignette{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:1;transition:opacity 1.4s ease;
+    box-shadow:inset 0 0 260px 70px rgba(0,0,0,.6);
+    background:linear-gradient(180deg,rgba(0,0,0,.32),transparent 16%,transparent 80%,rgba(0,0,0,.5))}
+  body.pages .vignette{opacity:.35}
+
+  /* title card: shown opening + during flight, hidden in pages */
+  .att{position:absolute;left:46px;bottom:60px;z-index:4;pointer-events:none;text-shadow:0 2px 18px #000;
+    opacity:0;transition:opacity 2s ease}
+  .att.show{opacity:1} body.pages .att{opacity:0!important}
+  .att .k{color:var(--gold);letter-spacing:4px;font-size:13px;text-transform:uppercase}
+  .att h1{margin:3px 0 0;font:600 40px/1 "Iowan Old Style",Georgia,serif;letter-spacing:1px}
+  .att .sub{color:#cfd6e0;font-size:13px;margin-top:8px;letter-spacing:.5px}
+
+  /* toast: the brief layer/fact label that appears, holds, then fades as the key grows */
+  .toast{position:absolute;left:50%;bottom:96px;transform:translate(-50%,14px);z-index:5;
+    min-width:340px;max-width:620px;text-align:center;pointer-events:none;
+    background:linear-gradient(180deg,rgba(18,22,16,.82),rgba(12,15,11,.92));
+    border:1px solid var(--edge);border-radius:12px;padding:13px 22px;
+    box-shadow:0 14px 50px rgba(0,0,0,.6);opacity:0;transition:opacity .7s ease,transform .7s cubic-bezier(.6,.02,.2,1)}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  body.pages .toast{opacity:0!important}
+  .toast .tk{color:var(--gold);letter-spacing:3px;font-size:11px;text-transform:uppercase}
+  .toast .tt{margin-top:3px;font-size:16.5px;color:var(--ink)}
+
+  /* the key: builds itself as layers reveal; bottom-left in flight, moves into the panel in pages */
+  .key{position:absolute;right:46px;bottom:54px;z-index:4;
+    background:linear-gradient(180deg,rgba(18,22,16,.7),rgba(12,15,11,.8));
+    border:1px solid var(--edge);border-radius:10px;padding:11px 14px;min-width:172px;
+    opacity:0;transition:opacity 1s ease;backdrop-filter:blur(2px)}
+  .key.show{opacity:1}
+  .key h2{margin:0 0 7px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .key .row{display:flex;align-items:center;gap:9px;font-size:13px;margin:5px 0;
+    opacity:0;transform:translateX(-8px);transition:opacity .6s ease,transform .6s cubic-bezier(.6,.02,.2,1)}
+  .key .row.in{opacity:1;transform:none}
+  .key .sw{width:13px;height:13px;border-radius:3px;flex:none;box-shadow:0 0 0 1px rgba(255,255,255,.15)}
+  /* in pages the key tucks under the right panel */
+  body.pages .key{left:auto;right:26px;bottom:26px;background:transparent;border:0;backdrop-filter:none;padding:0}
+
+  /* documentary side panels: off-screen in flight, slide in on pages */
+  .side{position:absolute;top:0;bottom:0;z-index:3;width:28%;display:flex;flex-direction:column;
+    gap:13px;padding:26px 24px;opacity:0;transition:transform 1.6s cubic-bezier(.6,.02,.2,1),opacity 1.2s ease}
+  .side.left{left:0;transform:translateX(-40px)}
+  .side.right{right:0;transform:translateX(40px)}
+  body.pages .side{opacity:1;transform:none}
+
+  .title .kicker{color:var(--gold);letter-spacing:3px;font-size:12px;text-transform:uppercase}
+  .title h1{margin:2px 0 0;font:600 36px/1 "Iowan Old Style",Georgia,serif}
+  .title h1 b{color:var(--gold)}
+  .title .sub{color:var(--dim);font-size:13px;margin-top:6px}
+
+  /* ONE morphing plate: survey sheets cross-fade in place */
+  .plate{flex:1;min-height:0;border:1px solid var(--edge);border-radius:6px;overflow:hidden;position:relative;background:#0a0c08}
+  .plate img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.05);
+    opacity:0;transition:opacity 1.5s ease}
+  .plate img.on{opacity:1}
+  .plate .cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:7px 12px;font-size:12px;
+    background:linear-gradient(transparent,rgba(8,10,7,.92));letter-spacing:.3px;
+    transition:opacity .6s ease}
+  .plate .cap b{color:var(--gold);font-weight:600}
+
+  .card{border:1px solid var(--edge);border-radius:6px;background:var(--panel);padding:12px 14px}
+  .card h2{margin:0 0 8px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .facts .f{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #20271c;font-size:13px}
+  .facts .f:last-child{border-bottom:0}.facts .f b{color:var(--gold)}.facts .f span{color:var(--dim)}
+  /* rotating documentary fact */
+  #doc{position:relative;min-height:112px}
+  #doc .d{position:absolute;inset:0;opacity:0;transition:opacity 1s ease}
+  #doc .d.on{opacity:1}
+  #doc .dk{color:var(--gold);letter-spacing:2px;font-size:11px;text-transform:uppercase}
+  #doc .dt{font-size:13.5px;color:#cfd3c4;margin-top:4px;line-height:1.5}
+  .poilist .p{display:flex;gap:9px;align-items:baseline;padding:6px 0;border-bottom:1px solid #20271c;cursor:pointer}
+  .poilist .p:last-child{border-bottom:0}
+  .poilist .p:hover .nm{color:var(--gold)}
+  .poilist .dot{width:9px;height:9px;border-radius:50%;background:var(--gold);flex:none;align-self:center;box-shadow:0 0 0 3px rgba(200,162,74,.2)}
+  .poilist .nm{font-size:13.5px}.poilist .ds{color:var(--dim);font-size:11.5px}
+
+  /* POI map pins: a unique icon each; they drop out of the sky when their key row appears.
+     MapLibre positions the outer marker element and writes inline transform/opacity on it, so the
+     drop animation lives on an INNER element (.pindrop) it never touches. */
+  .pindrop{opacity:0;will-change:transform}
+  .pindrop.drop{animation:drop 1.35s cubic-bezier(.2,.72,.3,1) forwards}
+  @keyframes drop{
+    0%{transform:translateY(-360px);opacity:0}
+    45%{opacity:1}
+    66%{transform:translateY(0)}
+    79%{transform:translateY(-17px)}
+    89%{transform:translateY(0)}
+    95%{transform:translateY(-5px)}
+    100%{transform:translateY(0);opacity:1} }
+  .pin{position:relative;width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+    background:rgba(20,25,31,.96);border:2px solid #fff;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 9px 20px rgba(0,0,0,.55);cursor:pointer}
+  .pin b{transform:rotate(45deg);font-size:15px;line-height:1;font-weight:400}
+  .poilist .ic{font-size:15px;flex:none;align-self:center;width:18px;text-align:center}
+  .maplibregl-popup-content{background:#1c2128;color:var(--ink);border:1px solid var(--edge);border-radius:10px;padding:11px 13px;max-width:230px}
+  .maplibregl-popup-content h3{margin:0 0 4px;font-size:14px;color:var(--gold)}
+  .maplibregl-popup-content p{margin:0;font-size:12px;color:#c2c9d4}
+  .maplibregl-popup-tip{border-top-color:#1c2128!important;border-bottom-color:#1c2128!important}
+</style>
+</head>
+<body class="flight">
+<div id="map"></div>
+<div class="vignette"></div>
+
+<div class="att" id="att">
+  <div class="k">Chester County · South Carolina</div>
+  <h1>K&#8209;Farm</h1>
+  <div class="sub">A Piedmont impoundment, read off the land</div>
+</div>
+
+<div class="toast" id="toast"><div class="tk" id="toastK"></div><div class="tt" id="toastT"></div></div>
+
+<div class="key" id="key"><h2>Key</h2><div id="keyrows"></div></div>
+
+<!-- documentary frame (pages mode) -->
+<div class="side left">
+  <div class="title"><div class="kicker">Chester County · South Carolina</div>
+    <h1>K&#8209;<b>Farm</b></h1><div class="sub">Surveyed off seven 1995 sheets · read against the satellite</div></div>
+  <div class="plate" id="plate"><div class="cap" id="plateCap"></div></div>
+</div>
+
+<div class="side right">
+  <div class="card facts"><h2>By the numbers</h2>
+    <div class="f"><span>The lake</span><b>24.5 ac</b></div>
+    <div class="f"><span>Vertical relief</span><b>169 ft</b></div>
+    <div class="f"><span>Lake surface</span><b>~518 ft</b></div>
+    <div class="f"><span>Annual rainfall</span><b>45.9 in</b></div>
+    <div class="f"><span>1995 survey sheets</span><b>7</b></div>
+  </div>
+  <div class="card doc"><h2>Field notes</h2><div id="doc"></div></div>
+  <div class="card poilist"><h2>Points of interest</h2><div id="pois"></div></div>
+</div>
+
+<script>
+// ---------- geography ----------
+const SOUTH=34.6455, WEST=-81.1655, NORTH=34.6770, EAST=-81.1445;
+const C0=(WEST+EAST)/2, C1=(SOUTH+NORTH)/2;
+const EST=[-81.1556,34.6548];   // south end of the lake
+const DAM=[-81.1505,34.6660];   // dam / spillway, NE up the lake
+const RIDGE=[-81.1470,34.6600]; // high ground east
+
+// reworked, non-private points of interest (real, on the land)
+// POINT POIs only (polygons/lines are shown as layers, not pins). Built at load from the
+// points you place in place-points.html (source-data/traces/poi-points.geojson). Until placed,
+// there are simply no pins. Only the priority-1 set is shown for now: gate, barn, dam, dock, put-in.
+let POIS=[];
+const POI_DESC={front_gate:'The driveway entrance off the public road.', barn:'The main barn.',
+  dam:'Earthen dam and spillway holding the lake.', dock:'The dock on the lake shore.',
+  boat_putin:'Where boats and canoes launch.'};
+const POI_COL={front_gate:'#c8a24a', barn:'#e0b878', dam:'#9fd0ff', dock:'#8fd0ff', boat_putin:'#7bbf6a'};
+
+// rotating documentary "field notes" (pages); every line traces to screensaver-facts.md
+const DOCS=[
+  ['The red clay', 'A century of cotton stripped ~7 inches of topsoil off the Southern Piedmont, one of the most eroded farm regions in the country. The red is the Cecil clay left behind.'],
+  ['Old-field pine', 'Worn-out fields came back in loblolly, the "old-field pine," under an oak-hickory canopy of white oak, post oak and mockernut hickory.'],
+  ['First people', 'This is Catawba country: Ye Iswa, "people of the river." The Nation was federally restored in 1993; its reservation sits east, in York County.'],
+  ['1780', 'A few miles south, Tarleton surprised and routed Thomas Sumter, "the Carolina Gamecock," at Fishing Creek, where it meets the Catawba.'],
+  ['The divide', 'The farm rides the divide between the Catawba and Broad river drainages; Sandy River and Fishing Creek carry the runoff.'],
+  ['Weather', '~45.9 inches of rain a year, mean temperature 60.4 °F, humid-subtropical, with a growing season from April into November.'],
+  ['The wild', 'White-tailed deer, wild turkey, bobcat and beaver work the woods; wood ducks, South Carolina’s state duck, and bass and bream hold the pond.'],
+];
+
+// survey-sheet plate morph (pages), one frame, cross-fading in place
+const PLATES=[
+  ['demo/rectified/07-deed-survey-kasparek.png', 'Deed survey · 1995 · the georeference anchor'],
+  ['demo/rectified/01-base-plat-clean.png',      'Base plat · the clean linework'],
+  ['demo/rectified/05-habitat-full-color.png',   'Habitat &amp; cover · woods and open ground'],
+  ['demo/rectified/06-master-legend-1995.png',   'Master legend · 1995'],
+  ['demo/rectified/03-trails-orange-water-blue.png','Roads &amp; trails · the internal network'],
+];
+
+// five distinct ~1-minute flight patterns over the lake/dam/ridge
+// Smooth continuous drift patterns (no jerky leg-to-leg easing): the camera glides on a
+// gentle ellipse with a slow bearing spin. Layer reveals never disturb it; the only camera
+// move is a deliberate zoom-in excursion (below).
+const DRIFTS=[
+  {lon:-81.1535,lat:34.6600,rx:0.0018,ry:0.0016,zoom:14.3,pitch:66,bearing:25, spin:0.018},
+  {lon:-81.1520,lat:34.6622,rx:0.0016,ry:0.0014,zoom:14.4,pitch:70,bearing:135,spin:-0.016},
+  {lon:-81.1546,lat:34.6582,rx:0.0020,ry:0.0017,zoom:14.2,pitch:64,bearing:300,spin:0.020},
+  {lon:-81.1531,lat:34.6606,rx:0.0014,ry:0.0016,zoom:14.5,pitch:72,bearing:80, spin:0.015},
+  {lon:-81.1540,lat:34.6594,rx:0.0019,ry:0.0015,zoom:14.3,pitch:68,bearing:200,spin:-0.018},
+];
+// the "zoom into a part of the property" highlight, rotated each cycle
+const EXCURS=[
+  {ll:DAM,                zoom:15.4,pitch:68,k:'Closer',t:'The dam &amp; spillway, north end of the lake'},
+  {ll:[-81.1535,34.6600], zoom:15.5,pitch:66,k:'Closer',t:'Along the lake edge'},
+  {ll:RIDGE,              zoom:15.2,pitch:74,k:'Closer',t:'Up onto the high ridge'},
+];
+
+// ---------- map ----------
+const map = new maplibregl.Map({
+  container:'map', maxPitch:82, fadeDuration:0, attributionControl:false,
+  style:{ version:8,
+    sources:{
+      sat:{ type:'raster', tileSize:256, maxzoom:14,
+        tiles:['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg'],
+        attribution:'Sentinel-2 cloudless 2024 by EOX (s2maps.eu) CC BY 4.0 · AWS Terrain Tiles · USGS NHD' },
+      dem:{ type:'raster-dem', tileSize:256, maxzoom:14, encoding:'terrarium',
+        tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'] },
+    },
+    layers:[
+      { id:'bg', type:'background', paint:{'background-color':'#06080c'} },
+      { id:'sat', type:'raster', source:'sat', paint:{'raster-saturation':0.1} },
+    ],
+    sky:{ 'sky-color':'#4a79b0','sky-horizon-blend':0.6,'horizon-color':'#e2eaf3','horizon-fog-blend':0.55,'fog-color':'#bdc9d8','fog-ground-blend':0.35 },
+  },
+  center:[C0,C1], zoom:5.6, pitch:0, bearing:0,
+});
+map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
+
+let ring=null;
+map.on('load', async () => {
+  map.setTerrain({source:'dem', exaggeration:2.2});
+
+  // --- overlay layers, all added HIDDEN with slow opacity transitions ---
+  try{
+    const b=await (await fetch('source-data/sheet07-boundary.geojson')).json();
+    const poly=b.features.find(f=>f.geometry.type==='Polygon'); ring=poly.geometry.coordinates[0];
+    map.addSource('bnd',{type:'geojson',data:poly});
+    map.addLayer({id:'bnd-glow',type:'line',source:'bnd',
+      paint:{'line-color':'#ffe39a','line-width':6,'line-blur':4,'line-opacity':0,
+             'line-opacity-transition':{duration:1800},'line-width-transition':{duration:1400}}});
+    map.addLayer({id:'bnd',type:'line',source:'bnd',
+      paint:{'line-color':'#ffd86b','line-width':1.8,'line-opacity':0,
+             'line-opacity-transition':{duration:1800},'line-color-transition':{duration:1400},'line-width-transition':{duration:1400}}});
+  }catch(e){}
+  try{
+    const w=await (await fetch('source-data/derived/water.geojson')).json();
+    map.addSource('water',{type:'geojson',data:w});
+    map.addLayer({id:'water',type:'fill',source:'water',
+      paint:{'fill-color':'#4da3ff','fill-opacity':0,'fill-opacity-transition':{duration:1800},'fill-outline-color':'#9fd0ff'}});
+    map.addLayer({id:'water-edge',type:'line',source:'water',
+      paint:{'line-color':'#bfe0ff','line-width':1.4,'line-opacity':0,
+             'line-opacity-transition':{duration:1800},'line-color-transition':{duration:1400},'line-width-transition':{duration:1400}}});
+  }catch(e){}
+  try{   // PAVED public roads (OSM): solid, cased, white — one layer
+    const pv=await (await fetch('source-data/reference/osm-roads.geojson')).json();
+    map.addSource('paved',{type:'geojson',data:pv});
+    map.addLayer({id:'paved-case',type:'line',source:'paved',layout:{'line-cap':'round','line-join':'round'},
+      paint:{'line-color':'#0c1016','line-width':6,'line-opacity':0,'line-opacity-transition':{duration:1400}}});
+    map.addLayer({id:'paved',type:'line',source:'paved',layout:{'line-cap':'round','line-join':'round'},
+      paint:{'line-color':'#e9eef5','line-width':2.6,'line-opacity':0,
+             'line-opacity-transition':{duration:1400},'line-width-transition':{duration:1200},'line-color-transition':{duration:1200}}});
+  }catch(e){}
+  try{   // internal TRAILS (sheet-03 network): dashed, dirt-tan — a separate layer (deer stands hidden for now)
+    const rd=await (await fetch('source-data/derived/roads.geojson')).json();
+    map.addSource('trails',{type:'geojson',data:rd});
+    map.addLayer({id:'trails',type:'line',source:'trails',layout:{'line-cap':'butt','line-join':'round'},
+      paint:{'line-color':'#e3bd80','line-width':1.8,'line-dasharray':[2.2,1.6],'line-opacity':0,
+             'line-opacity-transition':{duration:1400},'line-width-transition':{duration:1200},'line-color-transition':{duration:1200}}});
+  }catch(e){}
+
+  // --- POI map pins, built from the placed points (priority-1 only) ---
+  try{
+    const pj=await (await fetch('source-data/traces/poi-points.geojson',{cache:'no-store'})).json();
+    POIS=(pj.features||[]).filter(f=>(f.properties||{}).pri===1).map(f=>({
+      ll:f.geometry.coordinates, t:f.properties.name, icon:f.properties.icon,
+      d:POI_DESC[f.properties.id]||'', col:POI_COL[f.properties.id]||'#c8a24a'}));
+  }catch(e){ POIS=[]; }
+  const listEl=document.getElementById('pois');
+  POIS.forEach((p)=>{
+    const wrap=document.createElement('div');                 // outer: MapLibre positions this
+    p.pinEl=document.createElement('div'); p.pinEl.className='pindrop';   // inner: we animate this
+    const pin=document.createElement('div'); pin.className='pin'; pin.style.borderColor=p.col;
+    pin.innerHTML='<b>'+p.icon+'</b>'; p.pinEl.appendChild(pin); wrap.appendChild(p.pinEl);
+    const popup=new maplibregl.Popup({offset:18,closeButton:false}).setHTML('<h3>'+p.t+'</h3><p>'+p.d+'</p>');
+    p.marker=new maplibregl.Marker({element:wrap,anchor:'bottom'}).setLngLat(p.ll).setPopup(popup).addTo(map);
+    const row=document.createElement('div'); row.className='p';
+    row.innerHTML='<span class="ic">'+p.icon+'</span><span><span class="nm">'+p.t+'</span><br><span class="ds">'+p.d+'</span></span>';
+    row.onclick=()=>{ map.flyTo({center:p.ll,zoom:15.3,pitch:64,duration:2200}); p.marker.togglePopup(); };
+    listEl.appendChild(row);
+  });
+
+  // build the morph plate
+  const plateEl=document.getElementById('plate');
+  PLATES.forEach(([src])=>{ const im=document.createElement('img'); im.src=src; plateEl.insertBefore(im,plateEl.firstChild); });
+
+  // opening descent (slowed from the first moment), then start the loop
+  setTimeout(()=>document.getElementById('att').classList.add('show'), D(900));
+  map.flyTo({center:EST, zoom:14.2, pitch:72, bearing:28, duration:D(2800), curve:1.5, essential:true});
+  map.once('moveend', ()=>runLoop());
+});
+
+// ---------- helpers ----------
+let gen=0;                                  // generation token, bumps on every phase change
+const SPD=Math.max(1,+(new URLSearchParams(location.search).get('speed')||1));  // ?speed=10 to preview fast
+const TS=3/SPD;             // global time-scale: 3x slower than before, from the first moment (tunable)
+const D=(ms)=>ms*TS;        // scale any duration/delay
+const wait=(ms)=>new Promise(r=>setTimeout(r,ms));
+function ease(o){ return new Promise(res=>{ map.easeTo({...o,essential:true}); map.once('moveend',res); }); }
+function resizeDuring(ms){ const end=performance.now()+ms;(function l(){ map.resize(); if(performance.now()<end) requestAnimationFrame(l); })(); }
+
+// toast: brief label that appears, holds, fades
+const toastEl=document.getElementById('toast');
+async function toast(k,t,hold){
+  document.getElementById('toastK').textContent=k;
+  document.getElementById('toastT').innerHTML=t;
+  toastEl.classList.add('show'); await wait(D(hold)); toastEl.classList.remove('show'); await wait(D(600));
+}
+// key chips build up; pass an icon (emoji) instead of a colour for point features
+function keyAdd(color,label,icon){
+  const r=document.createElement('div'); r.className='row';
+  const sw = icon ? '<span class="sw" style="background:none;box-shadow:none;font-size:14px;line-height:13px;text-align:center">'+icon+'</span>'
+                  : '<span class="sw" style="background:'+color+'"></span>';
+  r.innerHTML=sw+label;
+  document.getElementById('keyrows').appendChild(r);
+  document.getElementById('key').classList.add('show');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>r.classList.add('in')));
+}
+function keyClear(){ document.getElementById('keyrows').innerHTML=''; document.getElementById('key').classList.remove('show'); }
+// POI pins drop from the sky
+function dropPin(p){ p.pinEl.classList.add('drop'); }
+function resetPins(){ POIS.forEach(p=>p.pinEl.classList.remove('drop')); }
+function allPinsDown(){ POIS.forEach(p=>p.pinEl.classList.add('drop')); }
+// drop every pin in one quick staggered cascade lasting about a second
+function dropAllPins(){ const n=POIS.length; POIS.forEach((p,i)=>setTimeout(()=>dropPin(p), n>1? Math.round(i*1000/(n-1)) : 0)); }
+
+// reveal layers (fade in via paint transitions)
+const setOp=(id,prop,v)=>{ if(map.getLayer(id)) map.setPaintProperty(id,prop,v); };
+// reveal pulse: flash a layer bright so the eye catches it, then settle to its normal look
+function pulse(id,props){            // props: {paintProp:[bright, settled]}
+  if(!map.getLayer(id)) return;
+  for(const p in props){ map.setPaintProperty(id,p+'-transition',{duration:240}); map.setPaintProperty(id,p,props[p][0]); }
+  setTimeout(()=>{ if(!map.getLayer(id))return;
+    for(const p in props){ map.setPaintProperty(id,p+'-transition',{duration:1500}); map.setPaintProperty(id,p,props[p][1]); }
+  }, 850);
+}
+function showBoundary(){ setOp('bnd-glow','line-opacity',0.22); setOp('bnd','line-opacity',0.85);
+  pulse('bnd-glow',{'line-opacity':[0.65,0.22],'line-width':[16,6]});
+  pulse('bnd',{'line-color':['#ffffff','#ffd86b'],'line-width':[4.5,1.8]}); }
+function showLake(){ setOp('water','fill-opacity',0.34);
+  pulse('water',{'fill-opacity':[0.62,0.34]});
+  pulse('water-edge',{'line-opacity':[1,0.85],'line-color':['#ffffff','#bfe0ff'],'line-width':[5,1.4]}); }
+function showPaved(){ setOp('paved-case','line-opacity',0.7);
+  pulse('paved',{'line-opacity':[1,0.95],'line-color':['#ffffff','#e9eef5'],'line-width':[5,2.6]}); }
+function showTrails(){
+  pulse('trails',{'line-opacity':[1,0.9],'line-color':['#fff0d0','#e3bd80'],'line-width':[4.5,1.8]}); }
+function hideOverlays(){ setOp('bnd-glow','line-opacity',0); setOp('bnd','line-opacity',0);
+  setOp('water','fill-opacity',0); setOp('water-edge','line-opacity',0);
+  setOp('paved','line-opacity',0); setOp('paved-case','line-opacity',0); setOp('trails','line-opacity',0); }
+
+// ---------- the loop: flight (smooth drift + layer reveals) <-> pages ----------
+let patternIx=0, docIx=0, plateIx=0, docTimer=null, plateTimer=null;
+let mode='boot', camF=0, drift=DRIFTS[0], pagesBrg=0;
+
+// ONE continuous camera driver: the flyover glides and never jerks; layer reveals don't touch it.
+function camFrame(){
+  camF++;
+  if(mode==='flight'){
+    const a=camF*0.010/TS;
+    map.jumpTo({center:[drift.lon+drift.rx*Math.sin(a), drift.lat+drift.ry*Math.cos(a*0.8)],
+      zoom:drift.zoom+0.14*Math.sin(a*0.5), pitch:drift.pitch+3*Math.sin(a*0.4),
+      bearing:drift.bearing+camF*drift.spin/TS});
+  } else if(mode==='pages'){
+    const a=camF*0.006/TS;
+    map.jumpTo({center:[C0+0.0013*Math.sin(a*0.8), C1+0.0017*Math.cos(a*0.7)],
+      zoom:14.15+0.09*Math.sin(a*0.6), pitch:53+3*Math.sin(a*0.5), bearing:pagesBrg+camF*0.02/TS});
+  }
+  requestAnimationFrame(camFrame);
+}
+requestAnimationFrame(camFrame);
+
+// the one deliberate camera move during flight: a smooth zoom-in to a feature, then back to the drift
+async function excursion(myGen, ex){
+  if(gen!==myGen) return;
+  mode='zoom';
+  await ease({center:ex.ll, zoom:ex.zoom, pitch:ex.pitch, bearing:map.getBearing(), duration:D(2600)});
+  if(gen!==myGen) return;
+  toast(ex.k, ex.t, 1700);
+  await wait(D(1700)); if(gen!==myGen) return;
+  await ease({center:[drift.lon, drift.lat+drift.ry], zoom:drift.zoom, pitch:drift.pitch, bearing:drift.bearing, duration:D(2600)});
+  if(gen!==myGen) return;
+  camF=0; mode='flight';   // hand control back to the drift, seamlessly from its a=0 pose
+}
+
+async function runLoop(){
+  if(new URLSearchParams(location.search).get('start')==='pages') await runPages();  // preview the documentary frame directly
+  while(true){ await runFlight(); await runPages(); }
+}
+
+async function runFlight(){
+  const myGen=++gen;
+  document.body.classList.remove('pages'); document.body.classList.add('flight');
+  resizeDuring(1700);
+  keyClear(); hideOverlays(); resetPins();   // pins lift back into the sky for this cycle
+  document.getElementById('att').classList.add('show');
+
+  // pick the next smooth drift + its zoom-in highlight, then glide in and hand to the driver
+  mode='boot';
+  drift=DRIFTS[patternIx%DRIFTS.length];
+  const ex=EXCURS[patternIx%EXCURS.length]; patternIx++;
+  await ease({center:[drift.lon,drift.lat+drift.ry],zoom:drift.zoom,pitch:drift.pitch,bearing:drift.bearing,duration:D(1400)});
+  if(gen!==myGen) return;
+  camF=0; mode='flight';
+
+  // reveal sequence: each layer paints + labels + compresses into the key; then each POI pin
+  // drops out of the sky exactly as its key row appears.
+  await wait(D(350)); if(gen!==myGen)return; showBoundary(); keyAdd('#ffd86b','Property boundary');
+    await toast('The line','Property boundary, the 1995 survey',1300); if(gen!==myGen)return;
+  showPaved(); keyAdd('#e9eef5','Paved roads');
+    await toast('Paved','Public roads, Great Falls Hwy &amp; Hinton Rd',1300); if(gen!==myGen)return;
+  showTrails(); keyAdd('#e3bd80','Trails');
+    await toast('Trails','Internal farm tracks, from the 1995 survey',1300); if(gen!==myGen)return;
+  showLake(); keyAdd('#4da3ff','Lake &amp; edge');                 // the lake, right before the pins
+    await toast('Water','The lake, a 24.5-acre impoundment',1300); if(gen!==myGen)return;
+  dropAllPins();                                                   // every pin falls in a ~1s cascade
+    if(POIS.length) await toast('Points of interest','Gate, barn, dam, dock and put-in',1500);
+    if(gen!==myGen)return;
+  await excursion(myGen, ex);               // the one deliberate zoom-in
+  await wait(D(1400));                       // brief dwell, then the documentary pages
+}
+
+async function runPages(){
+  const myGen=++gen;
+  document.getElementById('att').classList.remove('show');
+  document.body.classList.remove('flight'); document.body.classList.add('pages');
+  allPinsDown();   // any pin not yet dropped (e.g. ?start=pages preview) lands now
+  resizeDuring(1800);
+  // settle smoothly onto the whole property (driver idle), then hand to the continuous drift
+  mode='boot';
+  await ease({center:[C0,C1],zoom:14.15,pitch:53,bearing:map.getBearing(),duration:D(1600)});
+  if(gen!==myGen) return;
+  pagesBrg=map.getBearing(); camF=0; mode='pages';
+
+  // rotate the documentary field-note + the survey-sheet plate
+  const docEl=document.getElementById('doc');
+  if(!docEl.children.length) DOCS.forEach(([k,t])=>{ const d=document.createElement('div'); d.className='d';
+    d.innerHTML='<div class="dk">'+k+'</div><div class="dt">'+t+'</div>'; docEl.appendChild(d); });
+  const plateImgs=document.querySelectorAll('#plate img'); const capEl=document.getElementById('plateCap');
+  const showDoc=(i)=>{ docEl.querySelectorAll('.d').forEach((d,n)=>d.classList.toggle('on',n===i%DOCS.length)); };
+  const showPlate=(i)=>{ plateImgs.forEach((im,n)=>im.classList.toggle('on',n===i%plateImgs.length));
+    capEl.innerHTML='<b>'+PLATES[i%PLATES.length][1].split(' · ')[0]+'</b> &middot; '+(PLATES[i%PLATES.length][1].split(' · ').slice(1).join(' · ')||''); };
+  showDoc(docIx); showPlate(plateIx);
+  clearInterval(docTimer); clearInterval(plateTimer);
+  docTimer=setInterval(()=>{ if(gen!==myGen){clearInterval(docTimer);return;} docIx++; showDoc(docIx); },D(1500));
+  plateTimer=setInterval(()=>{ if(gen!==myGen){clearInterval(plateTimer);return;} plateIx++; showPlate(plateIx); },D(1300));
+
+  await wait(D(6000));   // pages dwell, then back to a fresh flight
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+{
+ "type": "FeatureCollection",
+ "_doc": "K-Farm POI points placed via place-points.html",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "front_gate",
+    "name": "Front gate",
+    "icon": "\ud83d\udeaa",
+    "pri": 1
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -81.16018667032299,
+     34.65736386596805
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "barn",
+    "name": "The barn",
+    "icon": "\ud83c\udfda",
+    "pri": 1
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -81.15463442493088,
+     34.66089033153834
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "dam",
+    "name": "Dam & spillway",
+    "icon": "\ud83e\uddf1",
+    "pri": 1
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -81.15248073560718,
+     34.66349211413926
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "dock",
+    "name": "Dock",
+    "icon": "\u2693",
+    "pri": 1
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -81.1536449511262,
+     34.65990376376283
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "boat_putin",
+    "name": "Boat / canoe put-in",
+    "icon": "\ud83d\udef6",
+    "pri": 1
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -81.15394410281722,
+     34.65999116633408
+    ]
+   }
+  }
+ ]
+}
