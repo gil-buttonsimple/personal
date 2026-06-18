@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>K-Farm Map — Layer Contact Sheet</title>
+<style>
+  :root {
+    --bg: #14171c; --panel: #1c2128; --edge: #2b323c;
+    --ink: #e6e9ee; --dim: #8b94a3; --accent: #c8a24a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  }
+  header {
+    padding: 28px 32px 18px; border-bottom: 1px solid var(--edge);
+    position: sticky; top: 0; background: rgba(20,23,28,.92);
+    backdrop-filter: blur(6px); z-index: 5;
+  }
+  header h1 { margin: 0; font-size: 22px; letter-spacing: .3px; }
+  header h1 span { color: var(--accent); }
+  header p { margin: 6px 0 0; color: var(--dim); font-size: 13px; }
+  main { padding: 8px 32px 60px; }
+  section { margin-top: 34px; }
+  h2 {
+    font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--accent); margin: 0 0 4px; font-weight: 600;
+  }
+  .sub { color: var(--dim); font-size: 13px; margin: 0 0 16px; }
+  .grid {
+    display: grid; gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+  .grid.wide { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .card {
+    background: var(--panel); border: 1px solid var(--edge); border-radius: 10px;
+    overflow: hidden; display: flex; flex-direction: column;
+    transition: transform .12s ease, border-color .12s ease;
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .thumb {
+    aspect-ratio: 4 / 3; background: #0d1014; display: flex;
+    align-items: center; justify-content: center; overflow: hidden;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb svg { width: 100%; height: 100%; display: block; }
+  a.card { text-decoration: none; color: inherit; }
+  .meta { padding: 10px 12px 12px; }
+  .meta .name { font-weight: 600; font-size: 13.5px; }
+  .meta .desc { color: var(--dim); font-size: 12px; margin-top: 3px; }
+  .tag {
+    display: inline-block; font-size: 10.5px; letter-spacing: .4px;
+    text-transform: uppercase; color: #0d1014; background: var(--accent);
+    border-radius: 4px; padding: 1px 6px; margin-top: 8px; font-weight: 700;
+  }
+  .tag.muted { background: var(--dim); }
+  .muted-section { opacity: .8; }
+  .count { color: var(--accent); font-weight: 700; }
+  footer { color: var(--dim); font-size: 12px; padding: 0 32px 40px; }
+  .legend-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+</style>
+</head>
+<body>
+<header>
+  <h1><span>K-Farm</span> Map — Layer Contact Sheet</h1>
+  <p>Kasparek family farm, ~409 ac SE of Chester, S.C. — every source scan, rectified sheet, and extracted vector layer at a glance.</p>
+</header>
+<main>
+
+  <section>
+    <h2>Source scans</h2>
+    <p class="sub">The seven photographed 1995 survey plats (Ashmark Land Surveyors). Untouched originals — click to open full size.</p>
+    <div class="grid" id="scans"></div>
+  </section>
+
+  <section>
+    <h2>Rectified sheets</h2>
+    <p class="sub">Each scan warped into the shared world frame via its saved homography. These are what the demo onion-skins.</p>
+    <div class="grid" id="rectified"></div>
+  </section>
+
+  <section>
+    <h2>Vector layers</h2>
+    <p class="sub">
+      Extracted / traced features, each rendered live in one shared world frame with the property boundary behind for context.
+      <span style="margin-left:10px"><span class="legend-dot" style="background:#e8d8a0"></span>boundary</span>
+    </p>
+    <div class="grid wide" id="vectors"></div>
+  </section>
+
+  <section class="muted-section">
+    <h2>Composite &amp; working images</h2>
+    <p class="sub">The all-layers composite plus the debug / scratch renders kept from extraction runs.</p>
+    <div class="grid" id="working"></div>
+  </section>
+
+</main>
+<footer id="footer">Loading layer counts…</footer>
+
+<script>
+const SHEETS = {
+  '01-base-plat-clean':        ['Base plat (clean)', 'Lake boundary, spillway, shoulders, power lines, rivers, fences; woods/open marks'],
+  '02-trails-green':           ['Trails (green)', 'Green lines = some roads; circled hand numbers. Base too faded to use'],
+  '03-trails-orange-water-blue':['Orange + blue', 'Orange = roads/trails (very clear); flood area; blue highlighter is not a water source'],
+  '04-deer-stands':            ['Deer stands (red)', 'Red dots = deer stands. Base unusable (uniform shading)'],
+  '05-habitat-full-color':     ['Habitat (full colour)', 'Green = open, brown = roads. Demo support, low priority'],
+  '06-master-legend-1995':     ['Master legend (1995)', 'Shaded: blue lake, green open, creeks. Annotation rosetta stone'],
+  '07-deed-survey-kasparek':   ['Deed survey', 'Cleanest base. NAD83 / SC grid — the georeference anchor'],
+};
+
+// degrees to rotate each raw scan so true north points up (derived from each
+// sheet's saved pixel->world homography). 0 / 90 / 180 only on these seven.
+const NORTH_UP = {
+  '01-base-plat-clean': 180, '02-trails-green': 0, '03-trails-orange-water-blue': 90,
+  '04-deer-stands': 180, '05-habitat-full-color': 180, '06-master-legend-1995': 0,
+  '07-deed-survey-kasparek': 180,
+};
+
+// raster sections
+function rasterCard(href, src, title, desc, tag, rot) {
+  const a = document.createElement('a');
+  a.className = 'card'; a.href = href; a.target = '_blank';
+  // rotate to north-up; the 90deg case also scales to keep the box covered
+  let style = '';
+  if (rot) {
+    const scale = (rot % 180 === 90) ? ' scale(1.34)' : '';
+    style = ` style="transform: rotate(${rot}deg)${scale}"`;
+  }
+  a.innerHTML = `<div class="thumb"><img loading="lazy" src="${src}" alt="${title}"${style}></div>
+    <div class="meta"><div class="name">${title}</div><div class="desc">${desc}</div>
+    ${tag ? `<span class="tag ${tag.muted?'muted':''}">${tag.label}</span>`:''}</div>`;
+  return a;
+}
+
+const scans = document.getElementById('scans');
+const rect = document.getElementById('rectified');
+for (const [key, [title, desc]] of Object.entries(SHEETS)) {
+  const n = key.slice(0,2);
+  const rot = NORTH_UP[key] || 0;
+  const scanDesc = rot ? `${desc} · shown north-up (raw scan rotated ${rot}°)` : desc;
+  scans.appendChild(rasterCard(`source-art/${key}.jpg`, `source-art/${key}.jpg`, `${n} · ${title}`, scanDesc, {label:'JPG scan'}, rot));
+  rect.appendChild(rasterCard(`demo/rectified/${key}.png`, `demo/rectified/${key}.png`, `${n} · ${title}`, 'Rectified into shared frame', {label:'rectified'}));
+}
+
+// working / composite section
+const working = document.getElementById('working');
+working.appendChild(rasterCard('extraction-pass-1-layers.png','extraction-pass-1-layers.png','Extraction pass 1 — composite','All extracted layers over OSM roads + boundary',{label:'composite'}));
+const dbg = [
+  ['demo/_dbg-04-stands.png','dbg · stands (04)'],
+  ['demo/_dbg-03-trails.png','dbg · trails (03)'],
+  ['demo/_dbg-02-trails.png','dbg · trails (02)'],
+  ['demo/_dbg-06-classified.png','dbg · classified (06)'],
+  ['demo/_dbg-roads-02.png','dbg · roads (02)'],
+  ['demo/_dbg-roads-03.png','dbg · roads (03)'],
+  ['demo/_dbg-roads-05.png','dbg · roads (05)'],
+  ['demo/_tmp-stands04-all.png','tmp · stands 04 all'],
+  ['demo/_tmp-stand-xcheck.png','tmp · stand cross-check'],
+  ['demo/_tmp-water-xcheck.png','tmp · water cross-check'],
+  ['demo/_tmp-trails03.png','tmp · trails 03'],
+  ['demo/_tmp-outliers.png','tmp · outliers'],
+];
+for (const [src, title] of dbg)
+  working.appendChild(rasterCard(src, src, title, 'Working render', {label:'debug', muted:true}));
+
+// ---- vector layers: render each geojson as an SVG in a shared world frame ----
+const VECTORS = [
+  {file:'source-data/derived/stands.geojson',      name:'Deer stands',  desc:'Confirmed point layer (sheet 04, red dots)', color:'#ff5a4d', kind:'point'},
+  {file:'source-data/derived/water.geojson',       name:'Water',        desc:'Lake / drainage (interim, sheet 06)',        color:'#4da3ff', kind:'poly'},
+  {file:'source-data/derived/food-plots.geojson',  name:'Food plots',   desc:'Numbered plots / woods (sheet 06)',          color:'#5fd07a', kind:'poly'},
+  {file:'source-data/derived/roads-compare.geojson',name:'Roads & trails',desc:'Internal network comparison (sheet 03)',   color:'#f0a020', kind:'line'},
+  {file:'source-data/derived/trails.geojson',      name:'Trails (raw)', desc:'Faint pencil fragments — low confidence',    color:'#9aa3b2', kind:'line'},
+];
+
+const W = 360, H = 300, PAD = 14;
+let counts = {scans:14};
+
+(async function () {
+  // load boundary first
+  let boundaryPoly = null, pob = null;
+  let bbox = {minx:Infinity,miny:Infinity,maxx:-Infinity,maxy:-Infinity};
+  const layers = [];
+
+  async function load(file){ const r = await fetch(file); if(!r.ok) throw new Error(file); return r.json(); }
+  function grow(b, lon, lat){ b.minx=Math.min(b.minx,lon); b.maxx=Math.max(b.maxx,lon); b.miny=Math.min(b.miny,lat); b.maxy=Math.max(b.maxy,lat); }
+  function eachCoord(geom, fn){
+    const t = geom.type, c = geom.coordinates;
+    if (t==='Point') fn(c);
+    else if (t==='LineString'||t==='MultiPoint') c.forEach(fn);
+    else if (t==='Polygon'||t==='MultiLineString') c.forEach(r=>r.forEach(fn));
+    else if (t==='MultiPolygon') c.forEach(p=>p.forEach(r=>r.forEach(fn)));
+  }
+
+  try {
+    const b = await load('source-data/sheet07-boundary.geojson');
+    for (const f of b.features) {
+      if (f.geometry.type === 'Polygon') boundaryPoly = f.geometry.coordinates[0];
+      if (f.geometry.type === 'Point') pob = f.geometry.coordinates;
+      eachCoord(f.geometry, c => grow(bbox, c[0], c[1]));
+    }
+  } catch(e){ console.warn('boundary failed', e); }
+
+  for (const v of VECTORS) {
+    try {
+      const gj = await load(v.file);
+      const feats = gj.features || [gj];
+      feats.forEach(f => f.geometry && eachCoord(f.geometry, c => grow(bbox, c[0], c[1])));
+      layers.push({...v, feats});
+    } catch(e){ console.warn(v.file, 'failed', e); layers.push({...v, feats:[]}); }
+  }
+
+  // projection: equirectangular with latitude scaling, fit to W×H with padding
+  const meanLat = (bbox.miny + bbox.maxy)/2 * Math.PI/180;
+  const kx = Math.cos(meanLat);
+  const gw = (bbox.maxx - bbox.minx) * kx, gh = (bbox.maxy - bbox.miny);
+  const s = Math.min((W-2*PAD)/gw, (H-2*PAD)/gh);
+  const offx = (W - gw*s)/2, offy = (H - gh*s)/2;
+  const px = (lon,lat) => [ offx + (lon - bbox.minx)*kx*s, H - (offy + (lat - bbox.miny)*s) ];
+
+  function pathFromRing(ring){ return ring.map((c,i)=>{const p=px(c[0],c[1]); return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1);}).join(' '); }
+  const boundaryPath = boundaryPoly ? pathFromRing(boundaryPoly)+' Z' : '';
+
+  function renderGeom(geom, v){
+    const parts = [];
+    const t = geom.type, c = geom.coordinates;
+    if (t==='Point') { const p=px(c[0],c[1]); parts.push(`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.4" fill="${v.color}"/>`); }
+    else if (t==='LineString') parts.push(`<path d="${pathFromRing(c)}" fill="none" stroke="${v.color}" stroke-width="0.8" stroke-opacity="0.85"/>`);
+    else if (t==='MultiLineString') c.forEach(r=>parts.push(`<path d="${pathFromRing(r)}" fill="none" stroke="${v.color}" stroke-width="0.8" stroke-opacity="0.85"/>`));
+    else if (t==='Polygon') parts.push(`<path d="${c.map(pathFromRing).join(' ')+' Z'}" fill="${v.color}" fill-opacity="0.30" stroke="${v.color}" stroke-width="1"/>`);
+    else if (t==='MultiPolygon') c.forEach(poly=>parts.push(`<path d="${poly.map(pathFromRing).join(' ')+' Z'}" fill="${v.color}" fill-opacity="0.30" stroke="${v.color}" stroke-width="1"/>`));
+    return parts.join('');
+  }
+
+  const container = document.getElementById('vectors');
+
+  // boundary as its own card first
+  if (boundaryPath) {
+    const pobMark = pob ? (p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="#e8d8a0"/>`)(px(pob[0],pob[1])) : '';
+    container.appendChild(vectorCard('Property boundary',
+      `Exact 43-course traverse — 409.258 ac, closes 0.00 ft`, 1,
+      `<path d="${boundaryPath}" fill="#e8d8a0" fill-opacity="0.10" stroke="#e8d8a0" stroke-width="1.4"/>${pobMark}`));
+  }
+
+  let total = 0;
+  layers.forEach((v, i) => {
+    const body = v.feats.map(f => f.geometry ? renderGeom(f.geometry, v) : '').join('');
+    total += v.feats.length;
+    const cid = 'clip' + i;
+    // everything outside the property boundary is hidden in the viz (data untouched)
+    const inner = boundaryPath
+      ? `<defs><clipPath id="${cid}"><path d="${boundaryPath}"/></clipPath></defs>
+         <path d="${boundaryPath}" fill="none" stroke="#e8d8a0" stroke-opacity="0.35" stroke-width="1"/>
+         <g clip-path="url(#${cid})">${body}</g>`
+      : body;
+    container.appendChild(vectorCard(v.name, v.desc, v.feats.length, inner));
+  });
+
+  function vectorCard(name, desc, count, inner){
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<div class="thumb"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+        <rect width="${W}" height="${H}" fill="#0d1014"/>${inner}</svg></div>
+      <div class="meta"><div class="name">${name}</div><div class="desc">${desc}</div>
+      <span class="tag"><span class="count">${count}</span> ${count===1?'feature':'features'}</span></div>`;
+    return card;
+  }
+
+  document.getElementById('footer').textContent =
+    `7 source scans · 7 rectified sheets · ${layers.length+1} vector layers · ${total.toLocaleString()} vector features total · ${dbg.length+1} working images`;
+})();
+</script>
+</body>
+</html>

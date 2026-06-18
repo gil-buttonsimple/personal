@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>K-Farm — Screensaver Technique Demos</title>
+<style>
+  :root{--bg:#0e120f;--panel:#161b15;--edge:#2c3528;--ink:#ece7d8;--dim:#9aa08c;--gold:#c8a24a}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:radial-gradient(120% 80% at 50% 0%,#1c241b,#0e120f 60%,#080a07);
+    color:var(--ink);font:16px/1.6 -apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  header{padding:48px 40px 8px;text-align:center}
+  header .k{color:var(--gold);letter-spacing:4px;font-size:13px;text-transform:uppercase}
+  header h1{margin:6px 0 0;font:600 34px/1.1 "Iowan Old Style",Georgia,serif}
+  header p{color:var(--dim);max-width:680px;margin:12px auto 0;font-size:15px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;
+    max-width:1100px;margin:34px auto;padding:0 32px}
+  a.card{text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--edge);
+    border-radius:12px;overflow:hidden;display:flex;flex-direction:column;
+    transition:transform .14s ease,border-color .14s ease}
+  a.card:hover{transform:translateY(-3px);border-color:var(--gold)}
+  .num{font:700 13px/1 -apple-system,sans-serif;color:#0d1014;background:var(--gold);
+    border-radius:0 0 10px 0;padding:6px 11px;align-self:flex-start}
+  .body{padding:6px 18px 20px}
+  .body h2{margin:8px 0 2px;font-size:19px}
+  .body .tag{color:var(--gold);font-size:12px;letter-spacing:1px;text-transform:uppercase}
+  .body p{color:var(--dim);font-size:14px;margin:8px 0 0}
+  .foot{max-width:1100px;margin:10px auto 60px;padding:0 32px;color:var(--dim);font-size:13.5px;text-align:center}
+  .foot b{color:var(--ink)}
+  .ref{margin-top:14px}
+  .ref a{color:var(--gold);text-decoration:none;margin:0 8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="k">Kasparek Family Farm</div>
+  <h1>Screensaver — technique demos</h1>
+  <p>Three ways to put a tall, north-up property on a 16:9 TV. North stays up in all three;
+     none rotate the map. Open one, then press <b>F11</b> for full-screen.</p>
+</header>
+
+<div class="grid">
+  <a class="card" href="presentation.html">
+    <span class="num">01</span>
+    <div class="body"><div class="tag">Designed plate</div>
+      <h2>Map + side imagery</h2>
+      <p>The map runs vertically down the center; the flanks carry title, legend, survey
+         plates, facts, and a live locator. Dead space becomes design. Most informative.</p></div>
+  </a>
+  <a class="card" href="screensaver-pan.html">
+    <span class="num">02</span>
+    <div class="body"><div class="tag">Vertical Ken-Burns</div>
+      <h2>Cinematic pan</h2>
+      <p>The full-color survey, larger than the screen, drifts slowly along its
+         north-south length with a gentle zoom. Pure, calm, documentary. Most cinematic 2D.</p></div>
+  </a>
+  <a class="card" href="screensaver-3d.html">
+    <span class="num">03</span>
+    <div class="body"><div class="tag">3D topo flythrough</div>
+      <h2>Survey on real terrain</h2>
+      <p>The 1995 survey draped over real elevation, oblique camera flying north up the
+         land. The tilt fills the wide frame for free. Most "Nat Geo." (Camera still tuning.)</p></div>
+  </a>
+</div>
+
+<div class="foot">
+  All open-source, no Esri. The 3D demo uses MapLibre + open AWS terrain tiles.
+  <div class="ref">Reference / for expansion:
+    <a href="contact-sheet.html">Layer contact sheet</a> ·
+    <a href="flyover.html">3D flyover (with controls)</a> ·
+    <a href="presentation-stack-research.md">Full stack research</a>
+  </div>
+</div>
+</body>
+</html>

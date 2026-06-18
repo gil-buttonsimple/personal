@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>K-Farm — Mesmerizing Flythrough</title>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+  html,body{margin:0;height:100%;background:#06080c;overflow:hidden;
+    font:14px/1.4 -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#eef1f6}
+  #map{position:absolute;inset:0}
+  .maplibregl-ctrl-group,.maplibregl-ctrl-top-right,.maplibregl-ctrl-top-left{display:none}
+  .maplibregl-ctrl-attrib{opacity:.35;font-size:10px}
+  .vignette{position:absolute;inset:0;z-index:2;pointer-events:none;
+    box-shadow:inset 0 0 260px 70px rgba(0,0,0,.6);
+    background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 16%,transparent 80%,rgba(0,0,0,.5))}
+  .title{position:absolute;left:40px;bottom:38px;z-index:3;pointer-events:none;
+    text-shadow:0 2px 18px #000;opacity:0;transition:opacity 3s ease}
+  .title.show{opacity:1}
+  .title .k{color:#c8a24a;letter-spacing:4px;font-size:13px;text-transform:uppercase}
+  .title h1{margin:3px 0 0;font:600 34px/1 "Iowan Old Style",Georgia,serif;letter-spacing:1px}
+  .title .s{color:#cfd6e0;font-size:14px;margin-top:6px}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="vignette"></div>
+<div class="title" id="title"><div class="k">Chester County · South Carolina</div>
+  <h1>K&#8209;Farm</h1><div class="s">409 acres · held since 1994</div></div>
+
+<script>
+const SOUTH=34.6455, WEST=-81.1655, NORTH=34.6770, EAST=-81.1445;
+const C0=(WEST+EAST)/2, C1=(SOUTH+NORTH)/2;
+
+const map = new maplibregl.Map({
+  container:'map', interactive:false, maxPitch:82, fadeDuration:0,
+  style:{
+    version:8,
+    sources:{
+      sat:{ type:'raster', tileSize:256, maxzoom:14,
+        tiles:['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg'],
+        attribution:'Sentinel-2 cloudless 2024 by EOX (s2maps.eu) CC BY 4.0 · AWS Terrain Tiles' },
+      dem:{ type:'raster-dem', tileSize:256, maxzoom:14, encoding:'terrarium',
+        tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'] },
+    },
+    layers:[
+      { id:'bg', type:'background', paint:{'background-color':'#06080c'} },
+      { id:'sat', type:'raster', source:'sat', paint:{'raster-saturation':0.12,'raster-contrast':0.06} },
+    ],
+    sky:{ 'sky-color':'#4a79b0','sky-horizon-blend':0.6,'horizon-color':'#e2eaf3','horizon-fog-blend':0.55,'fog-color':'#bdc9d8','fog-ground-blend':0.35 },
+  },
+  center:[C0,C1], zoom:5.5, pitch:0, bearing:0,
+});
+
+map.on('load', async () => {
+  map.setTerrain({source:'dem', exaggeration:2.2});
+
+  // a single understated boundary glow for orientation; nothing else, let the land carry it
+  try{
+    const b=await (await fetch('source-data/sheet07-boundary.geojson')).json();
+    const poly=b.features.find(f=>f.geometry.type==='Polygon');
+    map.addSource('bnd',{type:'geojson',data:poly});
+    map.addLayer({id:'bnd-glow',type:'line',source:'bnd',
+      paint:{'line-color':'#ffe39a','line-width':6,'line-opacity':0.22,'line-blur':4}});
+    map.addLayer({id:'bnd',type:'line',source:'bnd',
+      paint:{'line-color':'#ffd86b','line-width':1.6,'line-opacity':0.6}});
+  }catch(e){}
+
+  // cinematic descent from altitude, then perpetual drift
+  map.flyTo({center:[C0,C1], zoom:14.0, pitch:66, bearing:-20, duration:6000, curve:1.4, essential:true});
+  setTimeout(()=>{ flying=true; t=0; }, 6200);
+  const ttl=document.getElementById('title');
+  setTimeout(()=>ttl.classList.add('show'), 1500);
+  setTimeout(()=>ttl.classList.remove('show'), 12000);
+  // re-surface the title briefly every couple minutes
+  setInterval(()=>{ ttl.classList.add('show'); setTimeout(()=>ttl.classList.remove('show'),9000); }, 130000);
+});
+
+// ---- perpetual cinematic motion: slow orbit + drifting center + breathing zoom/pitch ----
+// continuous (never stops), gently quasi-random via offset sine periods so it doesn't loop visibly
+let flying=false, t=0, bearing=-20;
+function frame(){
+  if(flying){
+    t += 0.0016;
+    bearing += 0.035;                                   // slow continuous orbit (~1 turn / 3 min)
+    const lon = C0 + 0.0050*Math.sin(t*0.23) + 0.0022*Math.sin(t*0.61);
+    const lat = C1 + 0.0066*Math.sin(t*0.17) + 0.0030*Math.sin(t*0.43);
+    const pitch = 63 + 9*Math.sin(t*0.45);              // 54..72
+    const zoom  = 13.95 + 0.5*Math.sin(t*0.31);         // gentle push/pull
+    map.jumpTo({center:[lon,lat], zoom, pitch, bearing});
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

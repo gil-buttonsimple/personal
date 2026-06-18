@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>K-Farm Screensaver — 3D Topo Flythrough</title>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+  html,body{margin:0;height:100%;background:#0b0f14;overflow:hidden;
+    font:14px/1.4 -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#ece7d8}
+  #map{position:absolute;inset:0}
+  .maplibregl-control-container{display:none}   /* clean screensaver: no UI */
+  .title{position:absolute;left:34px;bottom:30px;z-index:3;text-shadow:0 2px 16px #000;pointer-events:none}
+  .title .k{color:#c8a24a;letter-spacing:3px;font-size:13px;text-transform:uppercase}
+  .title h1{margin:2px 0 0;font:600 30px/1 "Iowan Old Style",Georgia,serif;letter-spacing:1px}
+  .title .s{color:#cdd2c2;font-size:13px;margin-top:5px}
+  .compass{position:absolute;top:24px;right:28px;z-index:3;width:46px;height:46px;opacity:.92;pointer-events:none}
+  .vignette{position:absolute;inset:0;z-index:2;pointer-events:none;box-shadow:inset 0 0 220px 50px rgba(0,0,0,.6)}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="vignette"></div>
+<svg class="compass" viewBox="0 0 100 100" aria-hidden="true">
+  <circle cx="50" cy="50" r="46" fill="rgba(8,10,7,.5)" stroke="#c8a24a" stroke-width="2"/>
+  <polygon points="50,10 58,50 50,42 42,50" fill="#c8a24a"/>
+  <polygon points="50,90 42,50 50,58 58,50" fill="#6b7358"/>
+  <text x="50" y="27" text-anchor="middle" font-size="15" fill="#ece7d8" font-weight="700">N</text>
+</svg>
+<div class="title"><div class="k">Chester County, South Carolina</div>
+  <h1>K&#8209;Farm</h1><div class="s">409.258 acres · 1995 survey draped on real terrain</div></div>
+
+<script>
+const SOUTH=34.6455, WEST=-81.1655, NORTH=34.6770, EAST=-81.1445;
+const CX=(WEST+EAST)/2;
+
+const map = new maplibregl.Map({
+  container:'map',
+  interactive:false,                 // screensaver: no input
+  style:{
+    version:8,
+    sources:{
+      dem:{ type:'raster-dem',
+        tiles:['https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png'],
+        encoding:'terrarium', tileSize:256, maxzoom:14, attribution:'AWS Terrain Tiles' },
+      art:{ type:'image', url:'demo/rectified/06-master-legend-1995.png',
+        coordinates:[[WEST,NORTH],[EAST,NORTH],[EAST,SOUTH],[WEST,SOUTH]] },
+    },
+    layers:[
+      { id:'bg', type:'background', paint:{'background-color':'#11160e'} },
+      { id:'hill', type:'hillshade', source:'dem',
+        paint:{'hillshade-shadow-color':'#070a05','hillshade-highlight-color':'#46582f','hillshade-exaggeration':0.75} },
+      { id:'art', type:'raster', source:'art', paint:{'raster-opacity':0.7,'raster-fade-duration':0} },
+    ],
+    sky:{ 'sky-color':'#5f86b3','sky-horizon-blend':0.6,'horizon-color':'#d4ddE6','horizon-fog-blend':0.6,'fog-color':'#aeb9c6','fog-ground-blend':0.45 },
+  },
+  center:[CX, SOUTH+0.002], zoom:13.7, pitch:74, bearing:0,
+});
+
+function pip(pt, ring){ let x=pt[0],y=pt[1],o=false;
+  for(let i=0,j=ring.length-1;i<ring.length;j=i++){const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
+    if(((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))o=!o;} return o;}
+
+map.on('load', async () => {
+  map.setTerrain({source:'dem', exaggeration:2.0});      // SC relief is gentle; exaggerate for topo feel
+  let ring=null;
+  try{
+    const b=await (await fetch('source-data/sheet07-boundary.geojson')).json();
+    const poly=b.features.find(f=>f.geometry.type==='Polygon'); ring=poly.geometry.coordinates[0];
+    map.addSource('bnd',{type:'geojson',data:poly});
+    map.addLayer({id:'bnd',type:'line',source:'bnd',paint:{'line-color':'#ffd86b','line-width':2.5,'line-opacity':0.85}});
+  }catch(e){}
+  try{
+    const s=await (await fetch('source-data/derived/stands.geojson')).json();
+    const inside={type:'FeatureCollection',features:s.features.filter(f=>!ring||pip(f.geometry.coordinates,ring))};
+    map.addSource('stands',{type:'geojson',data:inside});
+    map.addLayer({id:'stands',type:'circle',source:'stands',
+      paint:{'circle-radius':4.5,'circle-color':'#ff5a4d','circle-stroke-color':'#fff','circle-stroke-width':1}});
+  }catch(e){}
+});
+
+// slow oblique flythrough north up the property, looping (pitch high = horizon = fills 16:9)
+let t=0;
+function frame(){
+  t += 0.0013;
+  const u = 0.5 - 0.5*Math.cos((Math.sin(t)*0.5+0.5)*Math.PI); // smooth ping-pong ease
+  const lat = (SOUTH+0.002) + u*((NORTH-0.005)-(SOUTH+0.002));
+  const zoom = 13.7 + 0.25*Math.sin(t*1.3);                    // subtle breathing
+  map.jumpTo({center:[CX,lat], zoom, pitch:74, bearing:0});
+  requestAnimationFrame(frame);
+}
+map.on('load',()=>requestAnimationFrame(frame));
+</script>
+</body>
+</html>

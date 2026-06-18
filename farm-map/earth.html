@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>K-Farm — Real Terrain (what's possible)</title>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+  html,body{margin:0;height:100%;background:#06080c;overflow:hidden;
+    font:14px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#e9ecf1}
+  #map{position:absolute;inset:0}
+  .panel{position:absolute;top:16px;left:16px;z-index:4;width:248px;
+    background:rgba(12,16,22,.86);border:1px solid #2b323c;border-radius:11px;
+    padding:13px 15px;backdrop-filter:blur(7px)}
+  .panel h1{margin:0 0 1px;font-size:15px}.panel h1 span{color:#c8a24a}
+  .panel .sub{color:#8b94a3;font-size:11.5px;margin:0 0 11px}
+  .grp{border-top:1px solid #232a33;padding-top:9px;margin-top:9px}
+  .grp:first-of-type{border-top:0;margin-top:0;padding-top:0}
+  label.row{display:flex;align-items:center;gap:8px;font-size:13px;margin:6px 0;cursor:pointer}
+  label.row input{accent-color:#c8a24a}
+  .sw{width:11px;height:11px;border-radius:3px;flex:none}
+  .slider{margin:9px 0 3px}.slider .lab{font-size:11.5px;color:#aeb6c2;display:flex;justify-content:space-between}
+  input[type=range]{width:100%;accent-color:#c8a24a;margin-top:3px}
+  .btns{display:flex;gap:7px;margin-top:11px}
+  button{flex:1;background:#c8a24a;color:#0d1014;border:0;border-radius:7px;padding:7px;
+    font-weight:700;font-size:12px;cursor:pointer}
+  button.ghost{background:transparent;color:#c8a24a;border:1px solid #c8a24a}
+  .hint{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:4;
+    background:rgba(12,16,22,.8);border:1px solid #2b323c;border-radius:20px;
+    padding:6px 15px;font-size:12.5px;color:#aeb6c2}
+  .hint b{color:#e9ecf1}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div class="panel">
+  <h1><span>K-Farm</span> · real terrain</h1>
+  <p class="sub">Sentinel-2 satellite on 3D elevation. All open data, no Esri.</p>
+
+  <div class="grp">
+    <label class="row"><input type="checkbox" id="sat" checked><span class="sw" style="background:#3c6e47"></span>Satellite imagery (now)</label>
+    <div class="slider"><div class="lab"><span>1995 survey (then)</span><span id="artv">35%</span></div>
+      <input type="range" id="art" min="0" max="100" value="35"></div>
+  </div>
+
+  <div class="grp">
+    <label class="row"><input type="checkbox" id="bnd" checked><span class="sw" style="background:#ffd86b"></span>Property boundary</label>
+    <label class="row"><input type="checkbox" id="stands" checked><span class="sw" style="background:#ff5a4d"></span>Deer stands</label>
+    <label class="row"><input type="checkbox" id="water" checked><span class="sw" style="background:#4da3ff"></span>Lake &amp; drainage</label>
+    <label class="row"><input type="checkbox" id="plots"><span class="sw" style="background:#5fd07a"></span>Food plots</label>
+  </div>
+
+  <div class="grp">
+    <div class="slider"><div class="lab"><span>Terrain relief</span><span id="exagv">2.0×</span></div>
+      <input type="range" id="exag" min="0" max="400" value="200"></div>
+    <div class="btns"><button id="orbit">Pause orbit</button><button class="ghost" id="home">Fly home</button></div>
+  </div>
+</div>
+
+<div class="hint">Drag to fly · right-drag to tilt &amp; rotate · scroll to zoom. Auto-orbit resumes when you let go.</div>
+
+<script>
+const SOUTH=34.6455, WEST=-81.1655, NORTH=34.6770, EAST=-81.1445;
+const C=[(WEST+EAST)/2,(SOUTH+NORTH)/2];
+
+const map = new maplibregl.Map({
+  container:'map',
+  maxPitch:80,
+  style:{
+    version:8,
+    sources:{
+      sat:{ type:'raster', tileSize:256, maxzoom:14,
+        tiles:['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg'],
+        attribution:'Sentinel-2 cloudless 2024 by EOX (s2maps.eu), CC BY 4.0' },
+      dem:{ type:'raster-dem', tileSize:256, maxzoom:14, encoding:'terrarium',
+        tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+        attribution:'AWS Terrain Tiles' },
+      art:{ type:'image', url:'demo/rectified/06-master-legend-1995.png',
+        coordinates:[[WEST,NORTH],[EAST,NORTH],[EAST,SOUTH],[WEST,SOUTH]] },
+    },
+    layers:[
+      { id:'bg', type:'background', paint:{'background-color':'#06080c'} },
+      { id:'sat', type:'raster', source:'sat' },
+      { id:'art', type:'raster', source:'art', paint:{'raster-opacity':0.35,'raster-fade-duration':0} },
+    ],
+    sky:{ 'sky-color':'#4f7fb5','sky-horizon-blend':0.55,'horizon-color':'#dfe8f1','horizon-fog-blend':0.55,'fog-color':'#b9c6d6','fog-ground-blend':0.4 },
+  },
+  center:[C[0],C[1]], zoom:5, pitch:0, bearing:0,
+});
+map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'top-right');
+map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
+
+function pip(p,r){let x=p[0],y=p[1],o=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const xi=r[i][0],yi=r[i][1],xj=r[j][0],yj=r[j][1];if(((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))o=!o;}return o;}
+
+map.on('load', async () => {
+  map.setTerrain({source:'dem', exaggeration:2.0});
+
+  let ring=null;
+  try{
+    const b=await (await fetch('source-data/sheet07-boundary.geojson')).json();
+    const poly=b.features.find(f=>f.geometry.type==='Polygon'); ring=poly.geometry.coordinates[0];
+    map.addSource('s_bnd',{type:'geojson',data:poly});
+    map.addLayer({id:'l_bnd',type:'line',source:'s_bnd',paint:{'line-color':'#ffd86b','line-width':3,'line-opacity':0.9,'line-blur':0.4}});
+  }catch(e){}
+  try{
+    const w=await (await fetch('source-data/derived/water.geojson')).json();
+    map.addSource('s_water',{type:'geojson',data:w});
+    map.addLayer({id:'l_water',type:'fill',source:'s_water',paint:{'fill-color':'#4da3ff','fill-opacity':0.4,'fill-outline-color':'#9fd0ff'}});
+  }catch(e){}
+  try{
+    const p=await (await fetch('source-data/derived/food-plots.geojson')).json();
+    map.addSource('s_plots',{type:'geojson',data:p});
+    map.addLayer({id:'l_plots',type:'fill',source:'s_plots',layout:{visibility:'none'},paint:{'fill-color':'#5fd07a','fill-opacity':0.35,'fill-outline-color':'#bdf0cc'}});
+  }catch(e){}
+  try{
+    const s=await (await fetch('source-data/derived/stands.geojson')).json();
+    const inside={type:'FeatureCollection',features:s.features.filter(f=>!ring||pip(f.geometry.coordinates,ring))};
+    map.addSource('s_stands',{type:'geojson',data:inside});
+    map.addLayer({id:'l_stands',type:'circle',source:'s_stands',
+      paint:{'circle-radius':5,'circle-color':'#ff5a4d','circle-stroke-color':'#fff','circle-stroke-width':1.3}});
+  }catch(e){}
+
+  // cinematic intro: drop from orbit altitude onto the property, then start orbiting
+  map.flyTo({center:C, zoom:14.1, pitch:68, bearing:-25, duration:4500, curve:1.5, essential:true});
+  setTimeout(()=>{ orbiting=true; }, 4700);
+});
+
+// ---- gentle auto-orbit (the "wow"); pauses on interaction, resumes after idle ----
+let orbiting=false, idle;
+function tick(){ if(orbiting){ map.setBearing(map.getBearing()+0.07); } requestAnimationFrame(tick); }
+requestAnimationFrame(tick);
+function pause(){ orbiting=false; document.getElementById('orbit').textContent='Resume orbit';
+  clearTimeout(idle); idle=setTimeout(()=>{ orbiting=true; document.getElementById('orbit').textContent='Pause orbit'; }, 7000); }
+['mousedown','touchstart','wheel'].forEach(ev=>map.getCanvas().addEventListener(ev,pause,{passive:true}));
+
+// ---- layer controls (Google-Earth-style toggles) ----
+const vis=(id,on)=>map.getLayer(id)&&map.setLayoutProperty(id,'visibility',on?'visible':'none');
+document.getElementById('sat').onchange   =e=>vis('sat',e.target.checked);
+document.getElementById('bnd').onchange   =e=>vis('l_bnd',e.target.checked);
+document.getElementById('stands').onchange=e=>vis('l_stands',e.target.checked);
+document.getElementById('water').onchange =e=>vis('l_water',e.target.checked);
+document.getElementById('plots').onchange =e=>vis('l_plots',e.target.checked);
+document.getElementById('art').oninput=e=>{map.setPaintProperty('art','raster-opacity',e.target.value/100);document.getElementById('artv').textContent=e.target.value+'%';};
+document.getElementById('exag').oninput=e=>{map.setTerrain({source:'dem',exaggeration:e.target.value/100});document.getElementById('exagv').textContent=(e.target.value/100).toFixed(1)+'×';};
+document.getElementById('orbit').onclick=()=>{orbiting=!orbiting;document.getElementById('orbit').textContent=orbiting?'Pause orbit':'Resume orbit';clearTimeout(idle);};
+document.getElementById('home').onclick=()=>map.flyTo({center:C,zoom:14.1,pitch:68,bearing:-25,duration:2500});
+</script>
+</body>
+</html>

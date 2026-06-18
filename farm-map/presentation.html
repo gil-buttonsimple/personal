@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>K-Farm — Presentation Plate</title>
+<style>
+  :root{ --bg:#0e120f; --panel:#161b15; --edge:#2c3528; --ink:#ece7d8; --dim:#9aa08c; --gold:#c8a24a; }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#000;color:var(--ink);
+    font:16px/1.5 "Iowan Old Style",Georgia,"Times New Roman",serif;overflow:hidden}
+  /* fixed 16:9 stage, letterboxed to any TV/window */
+  #stage{position:absolute;inset:0;margin:auto;aspect-ratio:16/9;max-width:100vw;max-height:100vh;
+    background:
+      radial-gradient(120% 90% at 50% 0%, #1c241b 0%, #0e120f 55%, #080a07 100%);
+    display:grid;grid-template-columns:1.05fr 0.78fr 1.05fr;gap:22px;padding:28px 30px;
+    box-shadow:inset 0 0 220px rgba(0,0,0,.75)}
+  .col{display:flex;flex-direction:column;gap:16px;min-height:0}
+  /* ---- center: the vertical map ---- */
+  .hero{position:relative;flex:1;min-height:0;border:2px solid var(--gold);border-radius:6px;
+    overflow:hidden;background:#0a0c08;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+  .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+    opacity:0;transition:opacity 2.2s ease;animation:drift 40s ease-in-out infinite alternate}
+  .hero img.on{opacity:1}
+  @keyframes drift{from{transform:scale(1.0)}to{transform:scale(1.06)}}
+  .hero .cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:10px 14px;
+    font-size:13px;color:var(--ink);background:linear-gradient(transparent,rgba(8,10,7,.92));
+    letter-spacing:.3px}
+  .compass{position:absolute;top:10px;right:12px;z-index:2;width:42px;height:42px;opacity:.9}
+  /* ---- side cards ---- */
+  .title{padding:4px 2px}
+  .title .kicker{color:var(--gold);letter-spacing:3px;font-size:12px;text-transform:uppercase;
+    font-family:-apple-system,Segoe UI,sans-serif}
+  .title h1{margin:2px 0 0;font-size:40px;letter-spacing:1px;line-height:1}
+  .title h1 b{color:var(--gold)}
+  .title .sub{color:var(--dim);font-size:14px;margin-top:6px}
+  .plate{flex:1;min-height:0;border:1px solid var(--edge);border-radius:6px;overflow:hidden;
+    position:relative;background:#0a0c08}
+  .plate img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.05)}
+  .plate .cap{position:absolute;left:0;right:0;bottom:0;padding:7px 11px;font-size:12px;
+    color:var(--ink);background:linear-gradient(transparent,rgba(8,10,7,.9));
+    font-family:-apple-system,Segoe UI,sans-serif;letter-spacing:.3px}
+  .card{border:1px solid var(--edge);border-radius:6px;background:var(--panel);padding:13px 15px}
+  .card h2{margin:0 0 9px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);
+    font-family:-apple-system,Segoe UI,sans-serif;font-weight:600}
+  .legend div{display:flex;align-items:center;gap:9px;font-size:14px;margin:5px 0}
+  .sw{width:13px;height:13px;border-radius:3px;flex:none;border:1px solid rgba(255,255,255,.2)}
+  .sw.line{height:3px;border-radius:2px}
+  .facts{font-family:-apple-system,Segoe UI,sans-serif}
+  .facts .f{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #20271c;font-size:13.5px}
+  .facts .f:last-child{border-bottom:0}
+  .facts .f b{color:var(--gold);font-weight:700;white-space:nowrap}
+  .facts .f span{color:var(--dim)}
+  .mini{flex:1;min-height:0;border:1px solid var(--edge);border-radius:6px;background:#0a0c08;overflow:hidden}
+  .mini svg{width:100%;height:100%;display:block}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- LEFT -->
+  <div class="col">
+    <div class="title">
+      <div class="kicker">Chester County · South Carolina</div>
+      <h1>K&#8209;<b>FARM</b></h1>
+      <div class="sub">Kasparek family farm · 409.258 surveyed acres · est. 1994</div>
+    </div>
+    <div class="plate"><img src="demo/rectified/07-deed-survey-kasparek.png" alt="deed survey">
+      <div class="cap">Deed survey (1995) · the georeference anchor</div></div>
+    <div class="plate"><img src="demo/rectified/03-trails-orange-water-blue.png" alt="trails">
+      <div class="cap">Roads &amp; trails · sheet 03</div></div>
+  </div>
+
+  <!-- CENTER: the vertical map -->
+  <div class="col">
+    <div class="hero" id="hero">
+      <svg class="compass" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="46" fill="rgba(8,10,7,.55)" stroke="#c8a24a" stroke-width="2"/>
+        <polygon points="50,10 58,50 50,42 42,50" fill="#c8a24a"/>
+        <polygon points="50,90 42,50 50,58 58,50" fill="#6b7358"/>
+        <text x="50" y="26" text-anchor="middle" font-size="15" fill="#ece7d8" font-family="sans-serif" font-weight="700">N</text>
+      </svg>
+      <div class="cap" id="herocap">Habitat &amp; cover · 1995 survey</div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="col">
+    <div class="card legend">
+      <h2>Legend</h2>
+      <div><span class="sw" style="background:#ff5a4d"></span>Deer stands</div>
+      <div><span class="sw" style="background:#4da3ff"></span>Lake &amp; drainage</div>
+      <div><span class="sw" style="background:#5fd07a"></span>Food plots</div>
+      <div><span class="sw line" style="background:#f0a020"></span>Roads &amp; trails</div>
+      <div><span class="sw line" style="background:#e8d8a0"></span>Property boundary</div>
+    </div>
+    <div class="card facts">
+      <h2>By the numbers</h2>
+      <div class="f"><span>Surveyed acreage</span><b>409.258 ac</b></div>
+      <div class="f"><span>County deeded</span><b>604.69 ac</b></div>
+      <div class="f"><span>Deer stands mapped</span><b>52</b></div>
+      <div class="f"><span>Food plots</span><b>34</b></div>
+      <div class="f"><span>Acquired</span><b>1994</b></div>
+      <div class="f"><span>Lake topo maps miss</span><b>1</b></div>
+    </div>
+    <div class="mini" id="mini"></div>
+  </div>
+
+</div>
+
+<script>
+// ---- center hero: slow documentary cross-fade between the full-colour sheets ----
+const HERO = [
+  ['demo/rectified/05-habitat-full-color.png','Habitat &amp; cover · 1995 survey'],
+  ['demo/rectified/06-master-legend-1995.png','Master legend · 1995 (rev. 1996)'],
+  ['demo/rectified/03-trails-orange-water-blue.png','Roads, trails &amp; water · sheet 03'],
+];
+const hero = document.getElementById('hero'), cap = document.getElementById('herocap');
+const imgs = HERO.map(([src],i)=>{ const im=new Image(); im.src=src; im.className='hero-img'; im.alt='';
+  im.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity 2.2s ease;animation:drift 40s ease-in-out infinite alternate';
+  hero.insertBefore(im, hero.firstChild); return im; });
+let h=0; imgs[0].style.opacity=1;
+setInterval(()=>{ imgs[h].style.opacity=0; h=(h+1)%imgs.length; imgs[h].style.opacity=1;
+  cap.innerHTML=HERO[h][1]; }, 11000);
+
+// ---- right-column mini locator: boundary + water + stands, clipped to boundary ----
+(async function(){
+  const mini=document.getElementById('mini');
+  function grow(b,x,y){b.minx=Math.min(b.minx,x);b.maxx=Math.max(b.maxx,x);b.miny=Math.min(b.miny,y);b.maxy=Math.max(b.maxy,y);}
+  function each(g,fn){const t=g.type,c=g.coordinates;
+    if(t==='Point')fn(c);else if(t==='LineString'||t==='MultiPoint')c.forEach(fn);
+    else if(t==='Polygon'||t==='MultiLineString')c.forEach(r=>r.forEach(fn));
+    else if(t==='MultiPolygon')c.forEach(p=>p.forEach(r=>r.forEach(fn)));}
+  try{
+    const bnd=await (await fetch('source-data/sheet07-boundary.geojson')).json();
+    const poly=bnd.features.find(f=>f.geometry.type==='Polygon').geometry.coordinates[0];
+    const water=(await (await fetch('source-data/derived/water.geojson')).json()).features;
+    const stands=(await (await fetch('source-data/derived/stands.geojson')).json()).features;
+    const bb={minx:1e9,miny:1e9,maxx:-1e9,maxy:-1e9}; poly.forEach(c=>grow(bb,c[0],c[1]));
+    const W=300,H=440,P=16, k=Math.cos((bb.miny+bb.maxy)/2*Math.PI/180);
+    const gw=(bb.maxx-bb.minx)*k, gh=(bb.maxy-bb.miny);
+    const s=Math.min((W-2*P)/gw,(H-2*P)/gh), ox=(W-gw*s)/2, oy=(H-gh*s)/2;
+    const px=(lon,lat)=>[ox+(lon-bb.minx)*k*s, H-(oy+(lat-bb.miny)*s)];
+    const ring=r=>r.map((c,i)=>{const p=px(c[0],c[1]);return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1);}).join(' ');
+    function inside(pt){let x=pt[0],y=pt[1],o=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))o=!o;}return o;}
+    const bpath=ring(poly)+' Z';
+    const wpaths=water.map(f=>`<path d="${f.geometry.coordinates.map(ring).join(' ')} Z" fill="#4da3ff" fill-opacity="0.45" stroke="#4da3ff" stroke-width="1"/>`).join('');
+    const spts=stands.filter(f=>inside(f.geometry.coordinates)).map(f=>{const p=px(...f.geometry.coordinates);return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="#ff5a4d"/>`;}).join('');
+    mini.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+      <rect width="${W}" height="${H}" fill="#0a0c08"/>
+      <defs><clipPath id="mc"><path d="${bpath}"/></clipPath></defs>
+      <path d="${bpath}" fill="#e8d8a0" fill-opacity="0.05" stroke="#e8d8a0" stroke-width="1.6"/>
+      <g clip-path="url(#mc)">${wpaths}${spts}</g></svg>`;
+  }catch(e){ mini.innerHTML='<div style="color:#9aa08c;font:13px sans-serif;padding:14px">locator unavailable</div>'; }
+})();
+</script>
+</body>
+</html>

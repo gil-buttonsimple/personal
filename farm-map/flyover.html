@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>K-Farm — 3D Flyover Spike</title>
+<!-- MapLibre GL JS: open-source (BSD-3). CDN for the spike; self-host for the offline TV build. -->
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+  html,body{margin:0;height:100%;background:#0b0f14;font:14px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#e6e9ee;overflow:hidden}
+  #map{position:absolute;inset:0}
+  .panel{
+    position:absolute;left:18px;bottom:18px;z-index:3;background:rgba(16,20,26,.82);
+    border:1px solid #2b323c;border-radius:10px;padding:12px 14px;backdrop-filter:blur(6px);
+    max-width:280px;
+  }
+  .panel h1{margin:0 0 2px;font-size:15px}
+  .panel h1 span{color:#c8a24a}
+  .panel p{margin:0 0 10px;color:#8b94a3;font-size:12px}
+  .row{display:flex;align-items:center;gap:8px;margin-top:8px}
+  .row label{font-size:12px;color:#aeb6c2;min-width:64px}
+  input[type=range]{flex:1;accent-color:#c8a24a}
+  button{
+    background:#c8a24a;color:#0d1014;border:0;border-radius:6px;padding:6px 11px;
+    font-weight:700;font-size:12px;cursor:pointer
+  }
+  button.ghost{background:transparent;color:#c8a24a;border:1px solid #c8a24a}
+  .badge{position:absolute;top:16px;left:18px;z-index:3;font-size:12px;color:#8b94a3;
+    background:rgba(16,20,26,.7);border:1px solid #2b323c;border-radius:20px;padding:4px 12px}
+  .maplibregl-popup-content{background:#1c2128;color:#e6e9ee;border:1px solid #2b323c;border-radius:10px;padding:12px 14px;max-width:240px}
+  .maplibregl-popup-content h3{margin:0 0 4px;font-size:14px;color:#c8a24a}
+  .maplibregl-popup-content p{margin:0;font-size:12px;color:#c2c9d4}
+  .maplibregl-popup-tip{border-top-color:#1c2128 !important;border-bottom-color:#1c2128 !important}
+  .poi{width:16px;height:16px;border-radius:50%;background:#c8a24a;border:2px solid #fff;
+    box-shadow:0 0 0 4px rgba(200,162,74,.35);cursor:pointer;animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 3px rgba(200,162,74,.5)}70%{box-shadow:0 0 0 12px rgba(200,162,74,0)}100%{box-shadow:0 0 0 3px rgba(200,162,74,0)}}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="badge" id="mode">▶ Attract mode — flying north up the property</div>
+<div class="panel">
+  <h1><span>K-Farm</span> — 3D flyover spike</h1>
+  <p>Oblique camera, north up, draped 1995 survey over real terrain. Proves the TV-aspect answer: look across the land, not down at it.</p>
+  <div class="row"><label>1995 art</label><input id="art" type="range" min="0" max="100" value="80"></div>
+  <div class="row"><label>terrain</label><input id="exag" type="range" min="0" max="300" value="160"></div>
+  <div class="row">
+    <button id="toggle">Pause</button>
+    <button class="ghost" id="reset">Reframe</button>
+  </div>
+</div>
+
+<script>
+// Exact rectified frame (from warp_sheets.py): [S, W, N, E]
+const SOUTH=34.6455, WEST=-81.1655, NORTH=34.6770, EAST=-81.1445;
+const CENTER=[(WEST+EAST)/2,(SOUTH+NORTH)/2];
+
+const map = new maplibregl.Map({
+  container:'map',
+  style:{
+    version:8,
+    // no glyphs/sprite needed: labels are HTML markers, no third-party basemap
+    sources:{
+      dem:{ type:'raster-dem',
+        tiles:['https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png'],
+        encoding:'terrarium', tileSize:256, maxzoom:14, attribution:'AWS Terrain Tiles' },
+      art:{ type:'image', url:'demo/rectified/07-deed-survey-kasparek.png',
+        coordinates:[[WEST,NORTH],[EAST,NORTH],[EAST,SOUTH],[WEST,SOUTH]] },
+    },
+    layers:[
+      { id:'bg', type:'background', paint:{'background-color':'#1d241c'} },
+      { id:'hill', type:'hillshade', source:'dem',
+        paint:{'hillshade-shadow-color':'#0a0d08','hillshade-highlight-color':'#3a4a32','hillshade-exaggeration':0.6} },
+      { id:'art', type:'raster', source:'art', paint:{'raster-opacity':0.8,'raster-fade-duration':0} },
+    ],
+    sky:{ 'sky-color':'#6b8cb0','sky-horizon-blend':0.5,'horizon-color':'#cfd8e3','horizon-fog-blend':0.6,'fog-color':'#aab6c4','fog-ground-blend':0.5 },
+  },
+  center:[CENTER[0],SOUTH+0.002], zoom:13.2, pitch:68, bearing:0,
+  attributionControl:{compact:true},
+});
+
+map.addControl(new maplibregl.NavigationControl({visualizePitch:true}), 'top-right');
+
+function pip(pt, ring){ // ray-cast point in polygon
+  let x=pt[0], y=pt[1], inside=false;
+  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+    const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
+    if(((yi>y)!=(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi)) inside=!inside;
+  }
+  return inside;
+}
+
+map.on('load', async () => {
+  map.setTerrain({source:'dem', exaggeration:1.6});
+
+  // boundary + stands (stands clipped to inside-boundary per the viz rule)
+  let ring=null;
+  try{
+    const b=await (await fetch('source-data/sheet07-boundary.geojson')).json();
+    const poly=b.features.find(f=>f.geometry.type==='Polygon');
+    ring=poly.geometry.coordinates[0];
+    map.addSource('bnd',{type:'geojson',data:poly});
+    map.addLayer({id:'bnd-line',type:'line',source:'bnd',
+      paint:{'line-color':'#ffd86b','line-width':2.5,'line-opacity':0.9}});
+  }catch(e){console.warn('boundary',e);}
+
+  try{
+    const s=await (await fetch('source-data/derived/stands.geojson')).json();
+    const inside={type:'FeatureCollection',features:s.features.filter(f=>!ring||pip(f.geometry.coordinates,ring))};
+    map.addSource('stands',{type:'geojson',data:inside});
+    map.addLayer({id:'stands',type:'circle',source:'stands',
+      paint:{'circle-radius':5,'circle-color':'#ff5a4d','circle-stroke-color':'#fff','circle-stroke-width':1.2}});
+  }catch(e){console.warn('stands',e);}
+
+  // demo POI bubbles (placeholder content; real ones come from the POI registry)
+  const POIS=[
+    {lngLat:[-81.1548,34.6585], title:'The lake', body:'The impoundment the modern topo maps miss. Shown on sheet 06; to be hand-traced from sheet 07.'},
+    {lngLat:[-81.1505,34.6660], title:'Dam / spillway', body:'Earthen dam with emergency spillway. A shared tie-point across sheets.'},
+    {lngLat:[-81.1600,34.6505], title:'South apex (POB)', body:'Point of Beginning of the 43-course deed traverse. Sits by the Great Falls Hwy junction.'},
+    {lngLat:[-81.1560,34.6700], title:'Cabin & pole barn', body:'2008 metal cabin (1 bed/1 bath) and pole barn — the only improvements on record.'},
+  ];
+  for(const p of POIS){
+    const el=document.createElement('div'); el.className='poi';
+    new maplibregl.Marker({element:el}).setLngLat(p.lngLat)
+      .setPopup(new maplibregl.Popup({offset:14,closeButton:false})
+        .setHTML(`<h3>${p.title}</h3><p>${p.body}</p>`))
+      .addTo(map);
+  }
+});
+
+// ---- attract mode: slow vertical flythrough, north up, looping ----
+let playing=true, t=0;
+const modeEl=document.getElementById('mode');
+function frame(){
+  if(playing){
+    t += 0.0016;
+    const u=(Math.sin(t)*0.5+0.5);              // 0..1 ease in/out
+    const lat=SOUTH+0.002 + u*( (NORTH-0.004) - (SOUTH+0.002) );
+    map.jumpTo({center:[CENTER[0],lat], zoom:13.2, pitch:68, bearing:0});
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+function setMode(on){
+  playing=on;
+  document.getElementById('toggle').textContent = on?'Pause':'Resume';
+  modeEl.textContent = on ? '▶ Attract mode — flying north up the property'
+                          : '✋ Interactive — drag to explore, click a bubble';
+}
+document.getElementById('toggle').onclick=()=>setMode(!playing);
+document.getElementById('reset').onclick=()=>{t=0;map.easeTo({center:[CENTER[0],SOUTH+0.002],zoom:13.2,pitch:68,bearing:0,duration:1200});};
+
+// kiosk loop: any interaction pauses attract; idle 60s resumes it
+let idle;
+map.on('dragstart',()=>{setMode(false);clearTimeout(idle);idle=setTimeout(()=>setMode(true),60000);});
+document.getElementById('art').oninput=e=>map.setPaintProperty('art','raster-opacity',e.target.value/100);
+document.getElementById('exag').oninput=e=>map.setTerrain({source:'dem',exaggeration:e.target.value/100});
+</script>
+</body>
+</html>
