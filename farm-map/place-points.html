@@ -46,7 +46,7 @@
   .psec .opt input[type=radio],.psec .opt input[type=checkbox]{margin-right:7px;vertical-align:middle}
   .psec .opt input[type=range]{vertical-align:middle}
   /* draggable pin: a center-anchored circle so the marker centre is exactly the clicked point */
-  .pin{position:relative;width:28px;height:28px;border-radius:50%;
+  .pin{position:absolute;width:28px;height:28px;border-radius:50%;
     background:rgba(20,25,31,.96);border:2px solid #fff;display:flex;align-items:center;justify-content:center;
     box-shadow:0 4px 12px rgba(0,0,0,.5);cursor:grab}
   .pin b{font-size:15px;line-height:1}
@@ -71,29 +71,11 @@
 <script>
 // ---- the prioritized list of points to locate (long; do Priority 1 first) ----
 const GROUPS=[
-  ['Priority 1 — name & access (do these first)', [
+  ['Farm points', [
     {id:'front_gate', name:'Front gate', hint:'where the driveway meets the road', icon:'🚪'},
     {id:'barn',       name:'The barn', hint:'main barn building', icon:'🏚'},
-    {id:'dam',        name:'Dam & spillway', hint:'earthen dam at the lake', icon:'🧱'},
     {id:'dock',       name:'Dock', hint:'on the lake shore', icon:'⚓'},
     {id:'boat_putin', name:'Boat / canoe put-in', hint:'where you launch', icon:'🛶'},
-  ]],
-  ['Priority 2 — structures & water', [
-    {id:'cabin',     name:'Cabin', hint:'', icon:'🏕'},
-    {id:'shed',      name:'Shed / pole barn', hint:'', icon:'🧰'},
-    {id:'well',      name:'Well / spring', hint:'', icon:'💧'},
-    {id:'beaver1',   name:'Beaver dam', hint:'on the inlet creek', icon:'🦫'},
-    {id:'powerline', name:'Power line crossing', hint:'', icon:'⚡'},
-    {id:'culvert',   name:'Bridge / culvert', hint:'', icon:'🌉'},
-    {id:'ford',      name:'Creek crossing / ford', hint:'', icon:'🪨'},
-  ]],
-  ['Priority 3 — land & corners', [
-    {id:'parking',  name:'Parking / pull-off', hint:'', icon:'🅿'},
-    {id:'camp',     name:'Camp / fire pit', hint:'', icon:'🔥'},
-    {id:'foodplot', name:'Food plot', hint:'', icon:'🌽'},
-    {id:'pob',      name:'Survey corner (POB)', hint:'point of beginning', icon:'📐'},
-    {id:'bigtree',  name:'Landmark tree', hint:'', icon:'🌳'},
-    {id:'mailbox',  name:'Mailbox', hint:'', icon:'📬'},
   ]],
 ];
 const ALL=GROUPS.flatMap(g=>g[1]);

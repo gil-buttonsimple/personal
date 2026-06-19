@@ -24,13 +24,22 @@ Farm-map screensaver + a placement tool.
   tiers), click-to-place + drag, auto-saves to source-data/traces/poi-points.geojson. All
   basemaps (Sentinel-2, USGS high-res aerial, USGS topo, USGS aerial+labels, OSM, OpenTopoMap),
   all reference layers, and the 7 georeferenced 1995 survey sheets as onion-skin overlays.
-- **KNOWN BUG (unresolved)**: in place-points.html on the 4K / 2x-scaled Firefox display, the
-  placed marker lands offset from the click, growing southward toward the bottom of the map.
-  Not reproduced in headless chromium at dpr 1 or 2 (roundtrip + sizes consistent). Likely a
-  Firefox-on-HiDPI click-vs-canvas scaling mismatch. map.resize() + ResizeObserver added but did
-  not fix it; the diagnostic instrumentation was removed before commit. The points already
-  placed may be off (drag to correct). Next: reproduce in Firefox, compare e.point vs raw
-  pointer offset under fractional/2x dpr.
+- **Marker offset bug -- RESOLVED**: the placed marker landing south of the click was NOT a
+  HiDPI/Firefox scaling issue (that earlier guess was wrong). Cause: place-points.html defined
+  `.pin{position:relative}` in its `<style>`, loaded after MapLibre's stylesheet at equal
+  specificity, overriding MapLibre's `.maplibregl-marker{position:absolute}`. Because the custom
+  marker element IS the `.pin` element, the marker root fell out of absolute positioning, so
+  MapLibre's placement transform was added on top of the element's normal document-flow position
+  (which runs downward = south). Confirmed MapLibre never sets `position` inline -- it relies
+  solely on that class. Fix: `.pin{position:absolute}` (one line); the `::after` centre dot still
+  anchors correctly (the pin is still a positioned ancestor). Plain clicks had always saved the
+  true coordinate (display-only bug), so previously-placed points were correct on reload.
+  natgeo.html and flyover.html were checked and are unaffected (their `.pin` is a nested child /
+  uses a non-overriding class).
+- **Placement list trimmed** to the 4 points actually wanted: front gate, barn, dock, boat
+  put-in. Removed dam/spillway, cabin, shed, and the 9 other unplaced candidates (well, beaver
+  dam, power line, culvert, ford, parking, camp, food plot, POB, landmark tree, mailbox); all
+  recoverable from git history if re-added later. poi-points.geojson trimmed to the same 4.
 
 ---
 
