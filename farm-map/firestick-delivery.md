@@ -49,10 +49,21 @@ model first.
   URL to test the full Firestick flow now. The stick config does not change when we
   cut over -- only where the URL resolves.
 
-## Still to do (page side)
+## TV-tuning pass (done, session 28)
 
-A TV-tuning pass on natgeo.html before it lives on a TV:
-- Larger type sized for couch viewing distance.
-- Hide the cursor entirely.
-- Network-failure fallback (graceful behavior if tiles or live data fail to load
-  while running unattended).
+The screensaver/kiosk variant of natgeo.html is built. Open it as
+`natgeo.html?tv=1` (plain `natgeo.html` is unchanged for desktop review):
+- **Couch type:** `?tv=1` scales the documentary type up for living-room distance.
+- **Cursor:** auto-hides after 3s of stillness, returns on mouse movement (so it
+  is invisible when unattended but still clickable on a desktop).
+- **Network-failure fallback:** if MapLibre or its tiles cannot load, a calm
+  slideshow of the local 1995 survey plates (demo/rectified/) plus the title and
+  rotating field notes takes over, all from local files, no network. A 12s
+  watchdog triggers it if the live map never comes up, and a guard catches the
+  case where the MapLibre library itself (CDN) fails to load.
+
+Remaining nuance:
+- Mid-run tile loss *after* a successful load is not yet caught (the watchdog only
+  covers startup). Low priority for a generally-online TV.
+- The MapLibre library still loads from the unpkg CDN. For a truly offline-robust
+  kiosk, vendor maplibre-gl.js + .css locally so there is no remote dependency.

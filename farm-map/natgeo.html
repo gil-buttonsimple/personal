@@ -122,6 +122,48 @@
   .maplibregl-popup-content h3{margin:0 0 4px;font-size:14px;color:var(--gold)}
   .maplibregl-popup-content p{margin:0;font-size:12px;color:#c2c9d4}
   .maplibregl-popup-tip{border-top-color:#1c2128!important;border-bottom-color:#1c2128!important}
+
+  /* cursor auto-hide (kiosk/screensaver): hidden after stillness, returns on movement */
+  body.nocursor, body.nocursor *{cursor:none!important}
+
+  /* TV / couch mode (?tv=1): scale documentary type up for living-room viewing distance */
+  body.tv .att .k{font-size:18px;letter-spacing:5px}
+  body.tv .att h1{font-size:58px}
+  body.tv .att .sub{font-size:18px}
+  body.tv .toast{min-width:460px;max-width:820px;padding:18px 30px}
+  body.tv .toast .tk{font-size:15px;letter-spacing:4px}
+  body.tv .toast .tt{font-size:23px}
+  body.tv .key{min-width:220px;padding:14px 18px}
+  body.tv .key h2{font-size:14px}
+  body.tv .key .row{font-size:17px}
+  body.tv .key .sw{width:16px;height:16px}
+  body.tv .title .kicker{font-size:15px}
+  body.tv .title h1{font-size:46px}
+  body.tv .title .sub{font-size:16px}
+  body.tv .card h2{font-size:14px}
+  body.tv .facts .f{font-size:16px}
+  body.tv #doc .dk{font-size:13px}
+  body.tv #doc .dt{font-size:16.5px}
+  body.tv .poilist .nm{font-size:16px}
+  body.tv .poilist .ds{font-size:13px}
+
+  /* offline / network-failure fallback: all-local survey plates + title, needs no network */
+  #fallback{position:absolute;inset:0;z-index:50;display:none;
+    background:radial-gradient(120% 90% at 50% 0%,#1c241b,#0e120f 58%,#080a07);
+    align-items:center;justify-content:center;flex-direction:column;text-align:center}
+  #fallback.on{display:flex}
+  #fallback .fbimg{position:absolute;inset:8% 14%;border:2px solid var(--gold);border-radius:8px;overflow:hidden;
+    box-shadow:0 16px 60px rgba(0,0,0,.7)}
+  #fallback .fbimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
+    transition:opacity 1.6s ease;filter:saturate(1.05)}
+  #fallback .fbimg img.on{opacity:1}
+  #fallback .fbcap{position:relative;z-index:2;margin-top:auto;margin-bottom:7%;
+    background:linear-gradient(180deg,rgba(18,22,16,.82),rgba(12,15,11,.92));
+    border:1px solid var(--edge);border-radius:12px;padding:16px 26px;max-width:760px}
+  #fallback .fbk{color:var(--gold);letter-spacing:4px;font-size:13px;text-transform:uppercase}
+  #fallback .fbt{font:600 34px/1 "Iowan Old Style",Georgia,serif;margin:6px 0 0}
+  #fallback .fbn{color:#cfd3c4;font-size:15px;margin-top:12px;line-height:1.5}
+  body.tv #fallback .fbt{font-size:48px} body.tv #fallback .fbk{font-size:17px} body.tv #fallback .fbn{font-size:19px}
 </style>
 </head>
 <body class="flight">
@@ -155,6 +197,16 @@
   </div>
   <div class="card doc"><h2>Field notes</h2><div id="doc"></div></div>
   <div class="card poilist"><h2>Points of interest</h2><div id="pois"></div></div>
+</div>
+
+<!-- offline / network-failure fallback (all-local; shown if the live map cannot load) -->
+<div id="fallback">
+  <div class="fbimg" id="fbimg"></div>
+  <div class="fbcap">
+    <div class="fbk">Chester County · South Carolina</div>
+    <div class="fbt">K&#8209;Farm</div>
+    <div class="fbn" id="fbn"></div>
+  </div>
 </div>
 
 <script>
@@ -213,6 +265,35 @@ const EXCURS=[
   {ll:RIDGE,              zoom:15.2,pitch:74,k:'Closer',t:'Up onto the high ridge'},
 ];
 
+// ---------- screensaver tuning: TV type scale, cursor auto-hide, offline fallback ----------
+const QS=new URLSearchParams(location.search);
+if(QS.get('tv')==='1'||QS.get('kiosk')==='1') document.body.classList.add('tv');
+
+// cursor auto-hide: vanish after 3s still, reappear on movement (kiosk-friendly, harmless on desktop)
+let curT; const hideCur=()=>document.body.classList.add('nocursor');
+const pokeCur=()=>{ document.body.classList.remove('nocursor'); clearTimeout(curT); curT=setTimeout(hideCur,3000); };
+window.addEventListener('mousemove',pokeCur); curT=setTimeout(hideCur,3000);
+
+// offline / network-failure fallback: a calm local survey-plate slideshow + title + rotating
+// field note. Uses only local demo/rectified plates and the DOCS text, so it needs no network.
+let fbOn=false, fbT1, fbT2;
+function triggerFallback(){
+  if(fbOn) return; fbOn=true;
+  const box=document.getElementById('fbimg'), note=document.getElementById('fbn');
+  PLATES.forEach(([src],i)=>{ const im=document.createElement('img'); im.src=src; if(i===0) im.classList.add('on'); box.appendChild(im); });
+  const imgs=box.querySelectorAll('img'); let pi=0, di=0;
+  const showNote=()=>{ note.innerHTML='<b style="color:var(--gold)">'+DOCS[di%DOCS.length][0]+'</b> &middot; '+DOCS[di%DOCS.length][1]; };
+  showNote();
+  document.getElementById('fallback').classList.add('on');
+  fbT1=setInterval(()=>{ pi++; imgs.forEach((im,n)=>im.classList.toggle('on',n===pi%imgs.length)); },6000);
+  fbT2=setInterval(()=>{ di++; showNote(); },7000);
+}
+// watchdog: if the live map never loads (lib/CDN/tiles unreachable), fall back gracefully.
+let mapReady=false;
+const fbWatch=setTimeout(()=>{ if(!mapReady) triggerFallback(); }, 12000);
+// guard: if the MapLibre library itself failed to load, show the fallback and stop here.
+if(typeof maplibregl==='undefined'){ triggerFallback(); throw new Error('maplibregl unavailable; offline fallback shown'); }
+
 // ---------- map ----------
 const map = new maplibregl.Map({
   container:'map', maxPitch:82, fadeDuration:0, attributionControl:false,
@@ -236,6 +317,7 @@ map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right')
 
 let ring=null;
 map.on('load', async () => {
+  mapReady=true; clearTimeout(fbWatch);
   map.setTerrain({source:'dem', exaggeration:2.2});
 
   // --- overlay layers, all added HIDDEN with slow opacity transitions ---
