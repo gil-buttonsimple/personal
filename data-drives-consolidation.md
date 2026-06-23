@@ -9,32 +9,36 @@ once their content is safely landed and verified.
 Sibling project: [data-google-cleanup.md](data-google-cleanup.md) — both land data in
 the same place. This file owns the shared **Target storage** decision below.
 
-Status: **stub** — content review not yet started.
+Status: **active** — sources pulled, deduped, and staged at `/home/gil/drive-archive`
+on baobab; a pre-upload trim/compression pass is underway before the off-site push.
 
 ---
 
 ## Target storage (shared end-state)
 
-The canonical destination both this project and the Google cleanup consolidate into.
-Decisions TBD — fill in before bulk moves:
+The canonical destination both this project and the Google cleanup consolidate into:
 
-- **Cloud (canonical home):** which service? (Google Drive on `tgk@`, or other?) — TBD
-- **Offline backup:** medium + standard. Aim for **3-2-1** (3 copies, 2 media, 1 off-site). — TBD
-- **Folder taxonomy:** how consolidated data is organized at the destination — TBD
+- **Cloud (canonical home):** Google Drive on `tgk@`.
+- **Off-site backup:** **Backblaze B2** (see personal #14) — the "1 off-site" of 3-2-1,
+  on a different provider than Google. ~$6/TB/mo, restore-friendly.
+- **Folder taxonomy:** how the staged archive is organized before/at the destination —
+  **OPEN** (raised s27). Current staging keeps each source under its own top-level
+  folder (`72097`, `tgk`, `copper`, `gk-usb`); a cleaner cross-source taxonomy is TBD.
 
 ---
 
-## The drives
+## The drives (staged at `/home/gil/drive-archive`)
 
-| # | Label / id | Capacity | Connection | Contents (first pass) | State |
-|---|---|---|---|---|---|
-| 1 | TBD | — | — | — | not yet reviewed |
-| 2 | TBD | — | — | — | not yet reviewed |
-| 3 | TBD | — | — | — | not yet reviewed |
-| 4? | TBD | — | — | — | not yet reviewed |
-| 5? | TBD | — | — | — | not yet reviewed |
+| Source | Origin | Size (post-dedup) | State |
+|---|---|---|---|
+| `72097` | hard drive | 251 GB | pulled, deduped; mining for portfolio content pending |
+| `tgk` | Google Drive/Photos export (`tgk@`) | 100 GB | pulled, deduped |
+| `copper` | hard drive | 5.4 GB | pulled, deduped |
+| `gk-usb` | USB | ~1 MB | pulled |
 
-(Exact count is 3–5; fill in as each drive is mounted.)
+Total ~356 GB after an rmlint dedup pass (2026-06-12). Original estimate was 3–5
+drives; confirm whether any sources are still outstanding before treating the pull
+as complete (#14).
 
 ---
 
@@ -53,8 +57,32 @@ Decisions TBD — fill in before bulk moves:
 
 ---
 
+## Pre-upload trim / compression pass (s27, 2026-06-22)
+
+Goal: shrink the staged archive before pushing to B2 — don't pay to back up junk or
+over-bitrated video. Reversible by design: removed items are staged to
+`/home/gil/drive-archive/_TRASH` (not hard-deleted) until a final confirm.
+
+Done this session:
+- **Batch-1 junk staged (~32 GB):** old software installers/ISOs, `placelogic_OBSOLETE`,
+  PlaceLogic Postgres `db/base` dumps, commercial DVD rips (`VIDEO_TS`/`.VOB`).
+- **OS cruft purged:** 13,449 `Thumbs.db` / `.DS_Store` / `._*` / `desktop.ini` files
+  hard-deleted; 5,926 empty dirs removed; `.Picasa3Temp` caches (1.2 GB, incl. a
+  commercial movie rip) staged.
+- **GoPro re-encode (H.264 → HEVC, CRF 24):** 144 clips, **54.2 GB → 10.3 GB** (~44 GB
+  saved), 0 duration mismatches, originals kept in place pending spot-check + swap.
+  HEVC set mirrored at `/home/gil/drive-archive/_gopro_hevc`.
+- **Non-GoPro video re-encode (H.264 → HEVC, CRF 20):** ~52 GB across 432 H.264 files
+  (mostly `tgk` Google Photos export family video; originals remain in Google) — IN
+  PROGRESS. ~101 already-HEVC files skipped. Est. save ~25–30 GB. CRF 20 (not 24)
+  because these are irreplaceable memories.
+
+Projected: archive ~356 GB → **~135 GB** before B2.
+
 ## Active Todos
 
-- [ ] Locate and label all drives; fill in the drive table (count, capacity, connection).
-- [ ] Decide Target storage (cloud + offline backup standard) above.
-- [ ] First-pass catalog of drive 1 to learn scope before committing a full method.
+- [ ] Spot-check GoPro HEVC, then swap originals → `_TRASH`; empty `_TRASH` for good.
+- [ ] Finish non-GoPro H.264 → HEVC (CRF 20) pass; spot-check; swap.
+- [ ] Decide folder taxonomy (organize before upload — open).
+- [ ] Mine `72097` (Egypt-PC, CD-archive, Magento) for portfolio content before trimming.
+- [ ] Install rclone; create Backblaze B2 bucket; push the slimmed archive; verify hashes (#14).

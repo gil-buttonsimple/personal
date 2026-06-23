@@ -1,7 +1,26 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-18 (session 26)
+Last Updated: 2026-06-22 (session 27)
 Status: Active
+
+---
+
+## Session 27 Notes (2026-06-22)
+
+Files project — pre-upload trim/compression pass on the staged `/home/gil/drive-archive`
+(356 GB, 4 sources, deduped) before the Backblaze B2 push (#9, #14). Everything removed
+is staged to `_TRASH` (reversible) until a final confirm; details in
+[data-drives-consolidation.md](data-drives-consolidation.md).
+- **Junk:** ~32 GB Batch-1 (installers/ISOs, `placelogic_OBSOLETE`, Postgres db dumps,
+  DVD rips) staged; 13,449 OS-cruft files deleted; 5,926 empty dirs removed; Picasa
+  caches (1.2 GB) staged.
+- **GoPro H.264 → HEVC CRF 24:** 144 clips, **54.2 → 10.3 GB** (~44 GB saved), 0
+  mismatches; spot-check page built; originals kept pending swap.
+- **Non-GoPro H.264 → HEVC CRF 20:** ~52 GB / 432 files (mostly tgk Google Photos family
+  video; Google holds originals) in progress; ~25–30 GB est. save. CRF 20 for memories.
+- Open: folder taxonomy (organize before upload?); mine `72097` for portfolio first;
+  then rclone → B2.
+- Projected archive: ~356 GB → **~135 GB** before cloud.
 
 ---
 
