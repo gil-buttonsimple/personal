@@ -1,6 +1,6 @@
 # Data — Hard Drive Consolidation
 
-**Last Updated:** 2026-06-04
+**Last Updated:** 2026-06-23
 
 **Goal:** 3–5 hard drives of mixed/random content → review, catalog, dedup, and
 consolidate into one canonical home (cloud + offline backup). Retire the loose drives
@@ -11,6 +11,7 @@ the same place. This file owns the shared **Target storage** decision below.
 
 Status: **active** — sources pulled, deduped, and staged at `/home/gil/drive-archive`
 on baobab; a pre-upload trim/compression pass is underway before the off-site push.
+The non-GoPro HEVC re-encode is **paused mid-run, resumable** (see below).
 
 ---
 
@@ -72,17 +73,25 @@ Done this session:
 - **GoPro re-encode (H.264 → HEVC, CRF 24):** 144 clips, **54.2 GB → 10.3 GB** (~44 GB
   saved), 0 duration mismatches, originals kept in place pending spot-check + swap.
   HEVC set mirrored at `/home/gil/drive-archive/_gopro_hevc`.
-- **Non-GoPro video re-encode (H.264 → HEVC, CRF 20):** ~52 GB across 432 H.264 files
-  (mostly `tgk` Google Photos export family video; originals remain in Google) — IN
-  PROGRESS. ~101 already-HEVC files skipped. Est. save ~25–30 GB. CRF 20 (not 24)
-  because these are irreplaceable memories.
+- **Non-GoPro video re-encode (H.264 → HEVC, CRF 20):** **PAUSED 2026-06-23 at ~180 of
+  544 candidates encoded (~20 GB out so far); ~115 skipped** (already HEVC / non-target).
+  Mostly `tgk` Google Photos export family video; originals remain in Google. CRF 20 (not
+  24) because these are irreplaceable memories.
+  **Resume:** run `/home/gil/drive-archive/_proof/resume_encode.sh` — idempotent (skips
+  done files via a valid-output `ffprobe` check) and re-applies a 4-of-16-core cgroup CPU
+  cap (heavy multicore drops baobab's Bluetooth trackball; see infrastructure.md). The
+  bare batch is `_proof/encode_video.sh` (runs unthrottled).
+  **Mismatches:** 3 `DUR-MISMATCH` outputs flagged in `_video_hevc/encode.log`. Review ALL
+  mismatches at the very end (after the batch completes), before swapping any originals —
+  `grep DUR-MISMATCH _video_hevc/encode.log`.
 
 Projected: archive ~356 GB → **~135 GB** before B2.
 
 ## Active Todos
 
 - [ ] Spot-check GoPro HEVC, then swap originals → `_TRASH`; empty `_TRASH` for good.
-- [ ] Finish non-GoPro H.264 → HEVC (CRF 20) pass; spot-check; swap.
+- [ ] Resume + finish non-GoPro H.264 → HEVC (CRF 20) pass (`_proof/resume_encode.sh`);
+      then review all `DUR-MISMATCH` files; spot-check; swap.
 - [ ] Decide folder taxonomy (organize before upload — open).
 - [ ] Mine `72097` (Egypt-PC, CD-archive, Magento) for portfolio content before trimming.
 - [ ] Install rclone; create Backblaze B2 bucket; push the slimmed archive; verify hashes (#14).
