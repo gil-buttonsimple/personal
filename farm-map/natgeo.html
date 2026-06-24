@@ -217,6 +217,29 @@ const EST=[-81.1556,34.6548];   // south end of the lake
 const DAM=[-81.1505,34.6660];   // dam / spillway, NE up the lake
 const RIDGE=[-81.1470,34.6600]; // high ground east
 
+// ---------- tile prefetch ----------
+// Warm the property's satellite + terrain tiles up front so the FIRST flyover loop
+// is sharp. Without this, tiles stream in cold (the blink / low-res first pass); they
+// cache after the first loop. Fire-and-forget into the browser HTTP/disk cache; the
+// kiosk profile keeps a persistent disk cache so this stays warm across launches.
+(function preloadTiles(){
+  const lon2x=(lon,n)=>Math.floor((lon+180)/360*n);
+  const lat2y=(lat,n)=>{const r=lat*Math.PI/180;return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n);};
+  const sat=(z,x,y)=>`https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/${z}/${y}/${x}.jpg`;
+  const dem=(z,x,y)=>`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`;
+  const urls=[];
+  for(let z=11; z<=14; z++){               // sat/dem maxzoom is 14; the flyover overzooms past it
+    const n=2**z;
+    const x0=lon2x(WEST,n)-1, x1=lon2x(EAST,n)+1;
+    const y0=lat2y(NORTH,n)-1, y1=lat2y(SOUTH,n)+1;   // north edge has the smaller y
+    for(let x=x0;x<=x1;x++) for(let y=y0;y<=y1;y++){ urls.push(sat(z,x,y)); urls.push(dem(z,x,y)); }
+  }
+  let i=0; const CAP=6;                     // gentle concurrency so we don't hammer the tile hosts
+  const next=()=>{ if(i>=urls.length) return; const u=urls[i++];
+    fetch(u,{mode:'no-cors',cache:'force-cache'}).catch(()=>{}).finally(next); };
+  for(let k=0;k<CAP;k++) next();
+})();
+
 // reworked, non-private points of interest (real, on the land)
 // POINT POIs only (polygons/lines are shown as layers, not pins). Built at load from the
 // points you place in place-points.html (source-data/traces/poi-points.geojson). Until placed,
