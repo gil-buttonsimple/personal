@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>K-Farm VR — Smoke Test (scale-grab)</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#0b1020;font-family:system-ui,sans-serif}
+  #info{position:fixed;top:10px;left:10px;right:10px;color:#cdd6e6;font-size:14px;line-height:1.4;max-width:680px;text-shadow:0 1px 2px #000;pointer-events:none}
+  #info b{color:#fff}
+</style>
+</head>
+<body>
+<div id="info">
+  <b>K-Farm VR — smoke test (milestone 1).</b><br>
+  On the Quest: tap <b>ENTER VR</b>. Squeeze <b>BOTH</b> grip triggers and move your hands
+  apart / together to <b>zoom</b> (scale-grab); the world stays anchored under your hands.
+  Squeeze <b>one</b> grip to drag the world around. On desktop: drag to orbit (preview only,
+  no headset). This is a placeholder scene to prove the headset path + the core zoom verb
+  before the real terrain goes under it.
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
+import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.xr.enabled = true;
+document.body.appendChild(renderer.domElement);
+document.body.appendChild(VRButton.createButton(renderer));
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b1020);
+scene.fog = new THREE.Fog(0x0b1020, 30, 160);
+
+const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 4000);
+camera.position.set(0, 1.6, 4);
+
+const orbit = new OrbitControls(camera, renderer.domElement);
+orbit.target.set(0, 0.8, 0);
+orbit.update();
+
+scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x1a2028, 1.1));
+const sun = new THREE.DirectionalLight(0xffffff, 1.3);
+sun.position.set(6, 12, 4);
+scene.add(sun);
+
+// Everything grabbable lives under `world`. Scale-grab transforms this group.
+const world = new THREE.Group();
+scene.add(world);
+
+// --- placeholder "property": a two-tone green checker ground, no external asset ---
+function checkerTexture() {
+  const s = 512, c = document.createElement('canvas');
+  c.width = c.height = s;
+  const x = c.getContext('2d');
+  const n = 8, t = s / n;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    x.fillStyle = ((i + j) % 2) ? '#3f6b3a' : '#4f7d44';
+    x.fillRect(i * t, j * t, t, t);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(8, 8);
+  tex.anisotropy = 4;
+  return tex;
+}
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(40, 40),
+  new THREE.MeshStandardMaterial({ map: checkerTexture() })
+);
+ground.rotation.x = -Math.PI / 2;
+world.add(ground);
+
+// a "boundary" ring
+const ring = new THREE.Mesh(
+  new THREE.RingGeometry(17.6, 18, 64),
+  new THREE.MeshBasicMaterial({ color: 0xffe27a, side: THREE.DoubleSide })
+);
+ring.rotation.x = -Math.PI / 2;
+ring.position.y = 0.02;
+world.add(ring);
+
+// a translucent "lake"
+const lake = new THREE.Mesh(
+  new THREE.CircleGeometry(4.5, 48),
+  new THREE.MeshStandardMaterial({ color: 0x2f6fb0, transparent: true, opacity: 0.8 })
+);
+lake.rotation.x = -Math.PI / 2;
+lake.position.set(-6, 0.03, 5);
+world.add(lake);
+
+// placeholder landmarks (varying heights make scale legible)
+const palette = [0xb45f4d, 0xc9a14a, 0x6d8f5a, 0x8a7bb0, 0xd0d0d0];
+for (let i = 0; i < 24; i++) {
+  const w = 0.6 + Math.random() * 1.2;
+  const h = 0.6 + Math.random() * 4;
+  const box = new THREE.Mesh(
+    new THREE.BoxGeometry(w, h, w),
+    new THREE.MeshStandardMaterial({ color: palette[i % palette.length] })
+  );
+  const a = Math.random() * Math.PI * 2, r = 2 + Math.random() * 13;
+  box.position.set(Math.cos(a) * r, h / 2, Math.sin(a) * r);
+  world.add(box);
+}
+// one tall "barn/silo" landmark
+const silo = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.8, 0.8, 6, 20),
+  new THREE.MeshStandardMaterial({ color: 0xe8e2d4 })
+);
+silo.position.set(7, 3, -3);
+world.add(silo);
+
+// in-headset instruction panel (canvas text, floats in the scene)
+function textPanel(lines) {
+  const cw = 1024, ch = 256, c = document.createElement('canvas');
+  c.width = cw; c.height = ch;
+  const g = c.getContext('2d');
+  g.fillStyle = 'rgba(8,12,24,0.82)'; g.fillRect(0, 0, cw, ch);
+  g.fillStyle = '#dfe7f5'; g.font = '34px system-ui, sans-serif'; g.textBaseline = 'top';
+  lines.forEach((l, i) => g.fillText(l, 28, 24 + i * 46));
+  const tex = new THREE.CanvasTexture(c);
+  const m = new THREE.Mesh(
+    new THREE.PlaneGeometry(2, 0.5),
+    new THREE.MeshBasicMaterial({ map: tex, transparent: true })
+  );
+  return m;
+}
+const panel = textPanel([
+  'K-Farm VR — smoke test',
+  'BOTH grips + spread hands = zoom (scale-grab)',
+  'ONE grip = drag the world'
+]);
+panel.position.set(0, 1.5, -2.2);
+scene.add(panel); // not in `world` — stays put as you scale the property
+
+// --- controllers ---
+const controllers = [0, 1].map((i) => {
+  const c = renderer.xr.getController(i);
+  c.userData.squeezing = false;
+  c.addEventListener('squeezestart', () => { c.userData.squeezing = true; });
+  c.addEventListener('squeezeend', () => { c.userData.squeezing = false; });
+  scene.add(c);
+  return c;
+});
+const factory = new XRControllerModelFactory();
+[0, 1].forEach((i) => {
+  const grip = renderer.xr.getControllerGrip(i);
+  grip.add(factory.createControllerModel(grip));
+  scene.add(grip);
+});
+
+// --- scale-grab logic ---
+let grab = null;
+const _v = new THREE.Vector3(), _l = new THREE.Vector3(), _r = new THREE.Vector3();
+const cpos = (c) => c.getWorldPosition(new THREE.Vector3());
+
+function updateGrab() {
+  const active = controllers.filter((c) => c.userData.squeezing);
+  const mode = active.length >= 2 ? 'scale' : active.length === 1 ? 'drag' : null;
+
+  if (!mode) { grab = null; return; }
+
+  // (re)initialize whenever the active set changes
+  if (!grab || grab.mode !== mode) {
+    world.updateMatrixWorld(true);
+    if (mode === 'scale') {
+      _l.copy(cpos(active[0])); _r.copy(cpos(active[1]));
+      const mid = _l.clone().add(_r).multiplyScalar(0.5);
+      grab = { mode, d0: _l.distanceTo(_r), scale0: world.scale.x, anchor: world.worldToLocal(mid.clone()) };
+    } else {
+      _v.copy(cpos(active[0]));
+      grab = { mode, anchor: world.worldToLocal(_v.clone()) };
+    }
+    return;
+  }
+
+  if (mode === 'scale') {
+    _l.copy(cpos(active[0])); _r.copy(cpos(active[1]));
+    const mid = _l.clone().add(_r).multiplyScalar(0.5);
+    const d = _l.distanceTo(_r);
+    const s = THREE.MathUtils.clamp(grab.scale0 * (d / grab.d0), 0.02, 60);
+    world.scale.setScalar(s);
+    world.updateMatrixWorld(true);
+    const cur = world.localToWorld(grab.anchor.clone());
+    world.position.add(mid.sub(cur));
+  } else {
+    world.updateMatrixWorld(true);
+    const cur = world.localToWorld(grab.anchor.clone());
+    world.position.add(cpos(active[0]).sub(cur));
+  }
+}
+
+renderer.setAnimationLoop(() => {
+  updateGrab();
+  renderer.render(scene, camera);
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
