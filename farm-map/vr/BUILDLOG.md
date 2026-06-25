@@ -28,7 +28,25 @@ Capture VR progress HERE as it happens (lost-knowledge audit, s411).
   POIs as labeled billboards.
 - M4 — locomotion (flap-wings fly, swim over water) + the giant-intro descent.
 
-## How to run it on the Quest
+## How to run it on the Quest  — one command: `./quest.sh [page]`
+
+`vr/quest.sh` is the captured recipe (serve + bridge + wake-check + QR + launch).
+Run it instead of rediscovering the steps. The hard-won gotchas:
+
+- **#1 gotcha: the headset must be AWAKE / worn.** If `mWakefulness=Asleep`
+  (`adb shell dumpsys power | grep mWakefulness`), the display is OFF, NOTHING renders,
+  and adb/CDP probes come back empty even though launches "succeed". Put the headset on
+  (the proximity sensor wakes it). This was the 2026-06-25 "don't see it" blocker.
+- **Reliable way IN = a QR code**, not adb panel-launch. `am start ... OculusLauncherActivity`
+  often leaves the browser running with no visible panel (0 pages in CDP). `quest.sh`
+  writes `qr.html`; open `http://localhost:8099/vr/qr.html` on the monitor and scan it
+  into the Quest. (USB-bridge QR works while tethered; tailnet QR needs Tailscale on the Quest.)
+- Bridge: `adb reverse tcp:8099 tcp:8099` (Quest localhost:8099 -> baobab); serve `farm-map/`
+  on baobab `127.0.0.1:8099`.
+- **Inspection: `adb screencap` is DRM-blocked** on the Quest (VR compositor) — returns an
+  empty PNG, can't screenshot the headset view. Read page state via CDP instead:
+  `adb forward tcp:9222 localabstract:chrome_devtools_remote && curl -s localhost:9222/json/list`
+  (browser = `com.oculus.browser`; socket = `@chrome_devtools_remote`).
 - **USB / adb-reverse (no install on the Quest):** `adb reverse tcp:8099 tcp:8099`; serve
   `farm-map/` locally on baobab :8099; open `http://localhost:8099/vr/` in the Quest
   browser (localhost = secure context); tap ENTER VR. Push the URL from the host:
