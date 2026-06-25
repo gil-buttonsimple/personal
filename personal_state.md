@@ -413,6 +413,9 @@ Personal issue-board triage (all changes live in GitHub Issues, not files):
   priority: now / type: infra. Dedicated thread to pressure-test the rationale
   (~30 min VR may beat the burdensome monitor/kbd/mouse rig; may supersede the
   deferred van display/input item), then procure (leaning Quest).
+  [Update: Quest 3 procured s307; VR work env live s393 (Sunshine/Moonlight + WebXR
+  PoC of the app). Hardware now documented in gov architecture/infrastructure.md
+  (Electronics / Computing) and tech_stack.md. app#94 closed.]
 
 Open meta-decision (acute): business tasks are scattered across buttonsimple-app
 issues, button-simple-governance issues (stale), and the stale org project board
