@@ -47,6 +47,36 @@ Run it instead of rediscovering the steps. The hard-won gotchas:
   empty PNG, can't screenshot the headset view. Read page state via CDP instead:
   `adb forward tcp:9222 localabstract:chrome_devtools_remote && curl -s localhost:9222/json/list`
   (browser = `com.oculus.browser`; socket = `@chrome_devtools_remote`).
+
+## Cable-free on the Quest (tailnet) — THE METHOD THAT WORKS
+
+Got this working 2026-06-25. USB is for SETUP only; daily use is cable-free over the tailnet.
+
+**One-time setup (done):**
+1. Put the Quest on the tailnet:
+   - Sideload Tailscale: `adb install tailscale-android-universal-<ver>.apk`
+     (official, https://pkgs.tailscale.com/stable/ — F-Droid's build is stale, don't use it).
+   - Open the app → **Log in**. It opens a device-auth web page in the Quest browser
+     (`login.tailscale.com/a/<code>`).
+   - **Do NOT sign in inside the headset** — typing the Google (gil@buttonsimple.com) password
+     in VR is the wall. Instead, **approve the device from the PHONE**, where Dashlane autofills:
+     scan the QR that the Tailscale login page itself shows ("use a QR code") with the phone
+     camera, or open `login.tailscale.com/a/<code>` on the phone. Log in there, tap Approve.
+   - The Quest joins as node **`quest-3`** (100.78.164.36). Membership is persistent — one-time.
+2. Phone (`pixel10pro`) and Quest are now tailnet nodes with the rest of the fleet.
+
+**Daily use (no cable):**
+- In the Quest browser, open the tailnet URL (valid HTTPS → WebXR works):
+  `https://mesquite.tailff9d96.ts.net/vr/terrain.html` — **bookmark it on the Quest** so it's one tap.
+
+**Lessons — do NOT repeat:**
+- A link shown in the desktop/TV chat is USELESS for a phone task — Gil can't retype a long URL
+  into the phone. For anything the phone must open: deliver it TO the phone (a QR the phone
+  scans, or push it), never as desktop chat text. (Showing a QR on his own TV to scan was goofy
+  but the on-page Tailscale QR scanned by the phone is the clean version.)
+- The painful Google-password-on-new-device problem is general (recurs across threads). Durable
+  fix worth doing once: add a **passkey** to gil@buttonsimple.com (Dashlane holds passkeys) →
+  future logins become a phone tap, never a typed password.
 - **USB / adb-reverse (no install on the Quest):** `adb reverse tcp:8099 tcp:8099`; serve
   `farm-map/` locally on baobab :8099; open `http://localhost:8099/vr/` in the Quest
   browser (localhost = secure context); tap ENTER VR. Push the URL from the host:
