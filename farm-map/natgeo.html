@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>K-Farm, a Piedmont documentary</title>
-<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
 <style>
   :root{--gold:#c8a24a;--ink:#ece7d8;--dim:#9aa08c;--panel:#161b15;--edge:#2c3528;
         --bnd:#ffd86b;--water:#4da3ff;--stand:#ff5a4d}
@@ -29,24 +29,22 @@
     background:linear-gradient(180deg,rgba(0,0,0,.32),transparent 16%,transparent 80%,rgba(0,0,0,.5))}
   body.pages .vignette{opacity:.35}
 
-  /* title card: shown opening + during flight, hidden in pages */
-  .att{position:absolute;left:46px;bottom:60px;z-index:4;pointer-events:none;text-shadow:0 2px 18px #000;
-    opacity:0;transition:opacity 2s ease}
-  .att.show{opacity:1} body.pages .att{opacity:0!important}
-  .att .k{color:var(--gold);letter-spacing:4px;font-size:13px;text-transform:uppercase}
-  .att h1{margin:3px 0 0;font:600 40px/1 "Iowan Old Style",Georgia,serif;letter-spacing:1px}
-  .att .sub{color:#cfd6e0;font-size:13px;margin-top:8px;letter-spacing:.5px}
+  /* unified subtitle: bottom-centered, center-justified, movie-yellow. Drives the cosmic
+     descent beats AND the in-flight layer/POI labels. No panel -- just captioned text. */
+  #sub{position:absolute;left:50%;bottom:8%;transform:translate(-50%,12px);z-index:6;
+    max-width:80%;text-align:center;pointer-events:none;
+    font:700 25px/1.35 -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#ffe24a;letter-spacing:.3px;
+    text-shadow:0 0 2px #000,0 2px 5px #000,1px 1px 0 #000,-1px 1px 0 #000;
+    opacity:0;transition:opacity .85s ease,transform .85s cubic-bezier(.6,.02,.2,1)}
+  #sub.show{opacity:1;transform:translate(-50%,0)}
+  body.pages #sub{opacity:0!important}
 
-  /* toast: the brief layer/fact label that appears, holds, then fades as the key grows */
-  .toast{position:absolute;left:50%;bottom:96px;transform:translate(-50%,14px);z-index:5;
-    min-width:340px;max-width:620px;text-align:center;pointer-events:none;
-    background:linear-gradient(180deg,rgba(18,22,16,.82),rgba(12,15,11,.92));
-    border:1px solid var(--edge);border-radius:12px;padding:13px 22px;
-    box-shadow:0 14px 50px rgba(0,0,0,.6);opacity:0;transition:opacity .7s ease,transform .7s cubic-bezier(.6,.02,.2,1)}
-  .toast.show{opacity:1;transform:translate(-50%,0)}
-  body.pages .toast{opacity:0!important}
-  .toast .tk{color:var(--gold);letter-spacing:3px;font-size:11px;text-transform:uppercase}
-  .toast .tt{margin-top:3px;font-size:16.5px;color:var(--ink)}
+  /* compass rose, top-right. Hidden in space; fades in at the state level and tracks true north. */
+  .compass{position:absolute;top:18px;right:18px;z-index:6;width:76px;height:76px;
+    opacity:0;transition:opacity 1.3s ease;pointer-events:none;
+    filter:drop-shadow(0 2px 7px rgba(0,0,0,.6))}
+  .compass.show{opacity:.92}
+  #compassRose{width:100%;height:100%;transform-origin:50% 50%;transition:transform .3s linear}
 
   /* the key: builds itself as layers reveal; bottom-left in flight, moves into the panel in pages */
   .key{position:absolute;right:46px;bottom:54px;z-index:4;
@@ -127,12 +125,8 @@
   body.nocursor, body.nocursor *{cursor:none!important}
 
   /* TV / couch mode (?tv=1): scale documentary type up for living-room viewing distance */
-  body.tv .att .k{font-size:18px;letter-spacing:5px}
-  body.tv .att h1{font-size:58px}
-  body.tv .att .sub{font-size:18px}
-  body.tv .toast{min-width:460px;max-width:820px;padding:18px 30px}
-  body.tv .toast .tk{font-size:15px;letter-spacing:4px}
-  body.tv .toast .tt{font-size:23px}
+  body.tv #sub{font-size:34px;max-width:86%}
+  body.tv .compass{width:100px;height:100px;top:24px;right:24px}
   body.tv .key{min-width:220px;padding:14px 18px}
   body.tv .key h2{font-size:14px}
   body.tv .key .row{font-size:17px}
@@ -170,15 +164,19 @@
 <div id="map"></div>
 <div class="vignette"></div>
 
-<div class="att" id="att">
-  <div class="k">Chester County · South Carolina</div>
-  <h1>K&#8209;Farm</h1>
-  <div class="sub">A Piedmont impoundment, read off the land</div>
-</div>
+<div id="sub"></div>
 
-<div class="toast" id="toast"><div class="tk" id="toastK"></div><div class="tt" id="toastT"></div></div>
-
-<div class="key" id="key"><h2>Key</h2><div id="keyrows"></div></div>
+<div class="compass"><div id="compassRose">
+  <svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">
+    <circle cx="50" cy="50" r="45" fill="rgba(14,18,15,.5)" stroke="#c8a24a" stroke-width="1.4"/>
+    <polygon points="50,11 54.5,50 45.5,50" fill="#ff5a4d"/>
+    <polygon points="50,89 54.5,50 45.5,50" fill="#d8d2c0"/>
+    <polygon points="11,50 50,45.5 50,54.5" fill="#9aa08c"/>
+    <polygon points="89,50 50,45.5 50,54.5" fill="#9aa08c"/>
+    <circle cx="50" cy="50" r="4.5" fill="#0e120f" stroke="#c8a24a" stroke-width="1"/>
+    <text x="50" y="9" text-anchor="middle" font-size="11" font-weight="700" fill="#ffe24a" font-family="Georgia,serif">N</text>
+  </svg>
+</div></div>
 
 <!-- documentary frame (pages mode) -->
 <div class="side left">
@@ -253,11 +251,12 @@ const preloadDone=(function preloadTiles(){
 // POINT POIs only (polygons/lines are shown as layers, not pins). Built at load from the
 // points you place in place-points.html (source-data/traces/poi-points.geojson). Until placed,
 // there are simply no pins. Only the priority-1 set is shown for now: gate, barn, dam, dock, put-in.
-let POIS=[];
+let POIS=[], ROADS=[];
 const POI_DESC={front_gate:'The driveway entrance off the public road.', barn:'The main barn.',
-  dam:'Earthen dam and spillway holding the lake.', dock:'The dock on the lake shore.',
+  house:'The house.', dam:'Earthen dam and spillway holding the lake.', dock:'The dock on the lake shore.',
   boat_putin:'Where boats and canoes launch.'};
-const POI_COL={front_gate:'#c8a24a', barn:'#e0b878', dam:'#9fd0ff', dock:'#8fd0ff', boat_putin:'#7bbf6a'};
+const POI_COL={front_gate:'#c8a24a', barn:'#e0b878', house:'#f0d090', dam:'#9fd0ff', dock:'#8fd0ff', boat_putin:'#7bbf6a'};
+const POI_SHORT={front_gate:'the gate', barn:'the barn', house:'the house', dam:'the dam', dock:'the dock', boat_putin:'the put-in'};
 
 // rotating documentary "field notes" (pages); every line traces to screensaver-facts.md
 const DOCS=[
@@ -330,6 +329,7 @@ if(typeof maplibregl==='undefined'){ triggerFallback(); throw new Error('maplibr
 const map = new maplibregl.Map({
   container:'map', maxPitch:82, fadeDuration:0, attributionControl:false,
   style:{ version:8,
+    projection:{type:'globe'},
     sources:{
       sat:{ type:'raster', tileSize:256, maxzoom:14,
         tiles:['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg'],
@@ -343,7 +343,7 @@ const map = new maplibregl.Map({
     ],
     sky:{ 'sky-color':'#4a79b0','sky-horizon-blend':0.6,'horizon-color':'#e2eaf3','horizon-fog-blend':0.55,'fog-color':'#bdc9d8','fog-ground-blend':0.35 },
   },
-  center:[C0,C1], zoom:5.6, pitch:0, bearing:0,
+  center:[-96,42], zoom:1.4, pitch:0, bearing:0,
 });
 map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
 
@@ -373,15 +373,31 @@ map.on('load', async () => {
       paint:{'line-color':'#bfe0ff','line-width':1.4,'line-opacity':0,
              'line-opacity-transition':{duration:1800},'line-color-transition':{duration:1400},'line-width-transition':{duration:1400}}});
   }catch(e){}
-  try{   // PAVED public roads (OSM): solid, cased, white — one layer
-    const pv=await (await fetch('source-data/reference/osm-roads.geojson')).json();
-    map.addSource('paved',{type:'geojson',data:pv});
-    map.addLayer({id:'paved-case',type:'line',source:'paved',layout:{'line-cap':'round','line-join':'round'},
-      paint:{'line-color':'#0c1016','line-width':6,'line-opacity':0,'line-opacity-transition':{duration:1400}}});
-    map.addLayer({id:'paved',type:'line',source:'paved',layout:{'line-cap':'round','line-join':'round'},
-      paint:{'line-color':'#e9eef5','line-width':2.6,'line-opacity':0,
-             'line-opacity-transition':{duration:1400},'line-width-transition':{duration:1200},'line-color-transition':{duration:1200}}});
-  }catch(e){}
+  try{   // PAVED public roads (OSM): each road its own layer, so they reveal ONE AT A TIME.
+    // Pulled from the full OSM set, narrowed to the named roads nearest the property and
+    // ordered longest-first (so the highway you arrive on leads, then the side roads).
+    const ra=await (await fetch('source-data/reference/osm-roads-all.geojson')).json();
+    const cos=Math.cos(C1*Math.PI/180);
+    const measure=c=>{ let dmin=9,len=0,px=null;
+      for(const [x,y] of c){ const dx=(x-C0)*cos, dy=y-C1; dmin=Math.min(dmin,Math.hypot(dx,dy));
+        if(px) len+=Math.hypot((x-px[0])*cos,y-px[1]); px=[x,y]; }
+      return {dmin,len}; };
+    const named={};
+    for(const f of (ra.features||[])){ const nm=f.properties&&f.properties.name; if(!nm) continue;
+      const m=measure(f.geometry.coordinates);
+      if(!named[nm]||m.dmin<named[nm].dmin) named[nm]={nm,dmin:m.dmin,len:m.len,feat:f}; }
+    const pick=Object.values(named).filter(r=>r.dmin<0.016).sort((a,b)=>b.len-a.len).slice(0,5);
+    pick.forEach((r,i)=>{ const id='rd'+i;
+      map.addSource(id,{type:'geojson',data:r.feat});
+      map.addLayer({id:id+'-case',type:'line',source:id,layout:{'line-cap':'round','line-join':'round'},
+        paint:{'line-color':'#0c1016','line-width':6,'line-opacity':0,'line-opacity-transition':{duration:1200}}});
+      map.addLayer({id:id,type:'line',source:id,layout:{'line-cap':'round','line-join':'round'},
+        paint:{'line-color':'#e9eef5','line-width':2.6,'line-opacity':0,
+               'line-opacity-transition':{duration:1200},'line-width-transition':{duration:1000},'line-color-transition':{duration:1000}}});
+      ROADS.push({id, name:r.nm, show(){ setOp(id+'-case','line-opacity',0.7);
+        pulse(id,{'line-opacity':[1,.95],'line-color':['#ffffff','#e9eef5'],'line-width':[5,2.6]}); }});
+    });
+  }catch(e){ ROADS=[]; }
   try{   // internal TRAILS (sheet-03 network): dashed, dirt-tan — a separate layer (deer stands hidden for now)
     const rd=await (await fetch('source-data/derived/roads.geojson')).json();
     map.addSource('trails',{type:'geojson',data:rd});
@@ -394,7 +410,7 @@ map.on('load', async () => {
   try{
     const pj=await (await fetch('source-data/traces/poi-points.geojson',{cache:'no-store'})).json();
     POIS=(pj.features||[]).filter(f=>(f.properties||{}).pri===1).map(f=>({
-      ll:f.geometry.coordinates, t:f.properties.name, icon:f.properties.icon,
+      ll:f.geometry.coordinates, id:f.properties.id, t:f.properties.name, icon:f.properties.icon,
       d:POI_DESC[f.properties.id]||'', col:POI_COL[f.properties.id]||'#c8a24a'}));
   }catch(e){ POIS=[]; }
   const listEl=document.getElementById('pois');
@@ -418,11 +434,10 @@ map.on('load', async () => {
   // hold on the opening title until the close-range tiles are cached (cold start),
   // so the first descent + drift is sharp. Bounded by a 6s wall-clock cap so a slow
   // or absent network never hangs the opening; on a warm cache this resolves at once.
-  document.getElementById('att').classList.add('show');
-  await Promise.race([preloadDone, wait(6000)]);
-  // opening descent (slowed from the first moment), then start the loop
-  map.flyTo({center:EST, zoom:14.2, pitch:72, bearing:28, duration:D(2800), curve:1.5, essential:true});
-  map.once('moveend', ()=>runLoop());
+  // warm the close tiles briefly, then the cosmic descent (real-time ~12s), then the loop
+  await Promise.race([preloadDone, wait(5000)]);
+  await cosmicIntro();
+  runLoop();
 });
 
 // ---------- helpers ----------
@@ -430,28 +445,27 @@ let gen=0;                                  // generation token, bumps on every 
 const SPD=Math.max(1,+(new URLSearchParams(location.search).get('speed')||1));  // ?speed=10 to preview fast
 const TS=3/SPD;             // global time-scale: 3x slower than before, from the first moment (tunable)
 const D=(ms)=>ms*TS;        // scale any duration/delay
+const DI=(ms)=>ms/SPD;      // intro time-scale: real-time descent, NOT the 3x documentary slow
 const wait=(ms)=>new Promise(r=>setTimeout(r,ms));
 function ease(o){ return new Promise(res=>{ map.easeTo({...o,essential:true}); map.once('moveend',res); }); }
 function resizeDuring(ms){ const end=performance.now()+ms;(function l(){ map.resize(); if(performance.now()<end) requestAnimationFrame(l); })(); }
 
-// toast: brief label that appears, holds, fades
-const toastEl=document.getElementById('toast');
-async function toast(k,t,hold){
-  document.getElementById('toastK').textContent=k;
-  document.getElementById('toastT').innerHTML=t;
-  toastEl.classList.add('show'); await wait(D(hold)); toastEl.classList.remove('show'); await wait(D(600));
-}
-// key chips build up; pass an icon (emoji) instead of a colour for point features
-function keyAdd(color,label,icon){
-  const r=document.createElement('div'); r.className='row';
-  const sw = icon ? '<span class="sw" style="background:none;box-shadow:none;font-size:14px;line-height:13px;text-align:center">'+icon+'</span>'
-                  : '<span class="sw" style="background:'+color+'"></span>';
-  r.innerHTML=sw+label;
-  document.getElementById('keyrows').appendChild(r);
-  document.getElementById('key').classList.add('show');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>r.classList.add('in')));
-}
-function keyClear(){ document.getElementById('keyrows').innerHTML=''; document.getElementById('key').classList.remove('show'); }
+// unified yellow subtitle (bottom-center). setSub shows/replaces the line; clearSub fades it out.
+const subEl=document.getElementById('sub');
+function setSub(t){ subEl.innerHTML=t; subEl.classList.add('show'); }
+function clearSub(){ subEl.classList.remove('show'); }
+// toast: show a subtitle line, hold, fade. (k is kept for call-site compatibility; the line is t.)
+async function toast(k,t,hold){ setSub(t); await wait(D(hold)); clearSub(); await wait(D(450)); }
+// the legend/key is gone (replaced by subtitles); these stay as no-ops so call sites remain valid
+function keyAdd(){} function keyClear(){}
+// short POI roll-up line, built from whatever points are actually placed (so it can't lie)
+function poiSummary(){ const ns=POIS.map(p=>POI_SHORT[p.id]||p.t);
+  if(!ns.length) return ''; if(ns.length===1) return ns[0];
+  return ns.slice(0,-1).join(', ')+' and '+ns[ns.length-1]; }
+// compass rose: reveal at the state level, then keep it pointing at true north
+const compassEl=document.querySelector('.compass'), compassRoseEl=document.getElementById('compassRose');
+function showCompass(){ if(compassEl) compassEl.classList.add('show'); }
+function updateCompass(){ if(compassRoseEl) compassRoseEl.style.transform='rotate('+(-map.getBearing())+'deg)'; }
 // POI pins drop from the sky
 function dropPin(p){ p.pinEl.classList.add('drop'); }
 function resetPins(){ POIS.forEach(p=>p.pinEl.classList.remove('drop')); }
@@ -475,13 +489,11 @@ function showBoundary(){ setOp('bnd-glow','line-opacity',0.22); setOp('bnd','lin
 function showLake(){ setOp('water','fill-opacity',0.34);
   pulse('water',{'fill-opacity':[0.62,0.34]});
   pulse('water-edge',{'line-opacity':[1,0.85],'line-color':['#ffffff','#bfe0ff'],'line-width':[5,1.4]}); }
-function showPaved(){ setOp('paved-case','line-opacity',0.7);
-  pulse('paved',{'line-opacity':[1,0.95],'line-color':['#ffffff','#e9eef5'],'line-width':[5,2.6]}); }
 function showTrails(){
   pulse('trails',{'line-opacity':[1,0.9],'line-color':['#fff0d0','#e3bd80'],'line-width':[4.5,1.8]}); }
 function hideOverlays(){ setOp('bnd-glow','line-opacity',0); setOp('bnd','line-opacity',0);
-  setOp('water','fill-opacity',0); setOp('water-edge','line-opacity',0);
-  setOp('paved','line-opacity',0); setOp('paved-case','line-opacity',0); setOp('trails','line-opacity',0); }
+  setOp('water','fill-opacity',0); setOp('water-edge','line-opacity',0); setOp('trails','line-opacity',0);
+  ROADS.forEach(r=>{ setOp(r.id,'line-opacity',0); setOp(r.id+'-case','line-opacity',0); }); }
 
 // ---------- the loop: flight (smooth drift + layer reveals) <-> pages ----------
 let patternIx=0, docIx=0, plateIx=0, docTimer=null, plateTimer=null;
@@ -490,6 +502,7 @@ let mode='boot', camF=0, drift=DRIFTS[0], pagesBrg=0;
 // ONE continuous camera driver: the flyover glides and never jerks; layer reveals don't touch it.
 function camFrame(){
   camF++;
+  updateCompass();
   if(mode==='flight'){
     const a=camF*0.010/TS;
     map.jumpTo({center:[drift.lon+drift.rx*Math.sin(a), drift.lat+drift.ry*Math.cos(a*0.8)],
@@ -517,6 +530,27 @@ async function excursion(myGen, ex){
   camF=0; mode='flight';   // hand control back to the drift, seamlessly from its a=0 pose
 }
 
+// the cosmic open: globe in space -> North America -> US -> SC -> Chester County -> Chester ->
+// the property. ~12s real-time. No text but the yellow place-name beats; the compass appears at
+// the state level. Runs once, before the documentary loop.
+async function cosmicIntro(){
+  mode='boot';
+  setSub('North America');
+  await ease({center:[-96,42], zoom:2.4, pitch:0,  bearing:0,  duration:DI(2000)});
+  setSub('United States');
+  await ease({center:[-90,38], zoom:4.0, pitch:0,  bearing:0,  duration:DI(1700)});
+  showCompass();                                   // compass rose fades in at the state level
+  setSub('South Carolina');
+  await ease({center:[-81.0,34.0], zoom:6.4, pitch:15, bearing:0,  duration:DI(1900)});
+  setSub('Chester County');
+  await ease({center:[-81.16,34.70], zoom:9.4, pitch:30, bearing:8,  duration:DI(1700)});
+  setSub('Chester');                               // pass over the county seat, then glide SE to the farm
+  await ease({center:[-81.216,34.703], zoom:12.0, pitch:48, bearing:14, duration:DI(1700)});
+  setSub('K&#8209;Farm');
+  await ease({center:EST, zoom:14.2, pitch:72, bearing:28, duration:DI(2300)});
+  await wait(DI(800)); clearSub();
+}
+
 async function runLoop(){
   if(new URLSearchParams(location.search).get('start')==='pages') await runPages();  // preview the documentary frame directly
   while(true){ await runFlight(); await runPages(); }
@@ -527,7 +561,6 @@ async function runFlight(){
   document.body.classList.remove('pages'); document.body.classList.add('flight');
   resizeDuring(1700);
   keyClear(); hideOverlays(); resetPins();   // pins lift back into the sky for this cycle
-  document.getElementById('att').classList.add('show');
 
   // pick the next smooth drift + its zoom-in highlight, then glide in and hand to the driver
   mode='boot';
@@ -539,16 +572,17 @@ async function runFlight(){
 
   // reveal sequence: each layer paints + labels + compresses into the key; then each POI pin
   // drops out of the sky exactly as its key row appears.
-  await wait(D(350)); if(gen!==myGen)return; showBoundary(); keyAdd('#ffd86b','Property boundary');
-    await toast('The line','Property boundary, the 1995 survey',1300); if(gen!==myGen)return;
-  showPaved(); keyAdd('#e9eef5','Paved roads');
-    await toast('Paved','Public roads, Great Falls Hwy &amp; Hinton Rd',1300); if(gen!==myGen)return;
-  showTrails(); keyAdd('#e3bd80','Trails');
-    await toast('Trails','Internal farm tracks, from the 1995 survey',1300); if(gen!==myGen)return;
-  showLake(); keyAdd('#4da3ff','Lake &amp; edge');                 // the lake, right before the pins
-    await toast('Water','The lake, a 24.5-acre impoundment',1300); if(gen!==myGen)return;
+  await wait(D(350)); if(gen!==myGen)return;
+  showBoundary();
+    await toast('','The property line, surveyed 1995',1300); if(gen!==myGen)return;
+  for(const r of ROADS){ r.show();                                 // roads reveal ONE AT A TIME, each named
+    await toast('', r.name, 1000); if(gen!==myGen)return; }
+  showTrails();
+    await toast('','Old farm tracks',1100); if(gen!==myGen)return;
+  showLake();                                                      // the lake, right before the pins
+    await toast('','The lake, 24.5 acres',1300); if(gen!==myGen)return;
   dropAllPins();                                                   // every pin falls in a ~1s cascade
-    if(POIS.length) await toast('Points of interest','Gate, barn, dam, dock and put-in',1500);
+    if(POIS.length) await toast('', poiSummary(), 1500);
     if(gen!==myGen)return;
   await excursion(myGen, ex);               // the one deliberate zoom-in
   await wait(D(1400));                       // brief dwell, then the documentary pages
@@ -556,7 +590,7 @@ async function runFlight(){
 
 async function runPages(){
   const myGen=++gen;
-  document.getElementById('att').classList.remove('show');
+  clearSub();
   document.body.classList.remove('flight'); document.body.classList.add('pages');
   allPinsDown();   // any pin not yet dropped (e.g. ?start=pages preview) lands now
   resizeDuring(1800);

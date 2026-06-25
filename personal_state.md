@@ -1,7 +1,31 @@
 # Personal -- Current State
 
-Last Updated: 2026-06-22 (session 27)
+Last Updated: 2026-06-24 (session 28)
 Status: Active
+
+---
+
+## Session 28 Notes (2026-06-24)
+
+Farm-map screensaver (natgeo.html) — Baobab-version feedback pass. Tracked under gov#26.
+
+- **Cosmic open** (~12s, no text/no key): starts on a 3D globe in space, descends
+  North America → United States → South Carolina → Chester County → Chester → K-Farm.
+  Required **MapLibre v4.7 → v5** (globe projection is v5-only); confirmed rendering
+  headlessly. Old gold title card and the legend/key box removed entirely.
+- **Compass rose**, top-right: hidden in space, fades in at the South Carolina beat,
+  tracks true north (counter-rotates the flyover spin).
+- **All on-screen text → bottom-center yellow movie-subtitle style**, one short line
+  at a time, black-outlined, held to read slowly. The descent narrates itself.
+- **Roads reveal one at a time**: pulls the 5 named roads nearest the property from
+  osm-roads-all.geojson, longest-first (Great Falls Highway leads, then side roads),
+  each fading in under its own name. Replaces the single all-at-once paved layer.
+- **POI line now derives from placed points** (poiSummary), so the narration can't
+  claim a dam that isn't mapped (it was: code said "dam" but no pin existed).
+- **place-points.html**: added **Dam/spillway** (marked MAP FIRST) and **The house**
+  as priority-1 targets. Place them and they appear in the screensaver automatically.
+- Open: dock & put-in sit ~250 ft apart — check for pin collision once the dam lands.
+  Firestick copy is unaffected (separate hosted URL, not yet stood up).
 
 ---
 
