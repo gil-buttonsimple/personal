@@ -16,11 +16,14 @@ Capture VR progress HERE as it happens (lost-knowledge audit, s411).
   Mechanic: two-handed grip = scale-grab zoom anchored under the hands; one grip = drag.
   Verdict: the core zoom verb works on the Quest. Current tuning kept unless the founder
   flags a change (fold any into M2).
-- **M2 — terrain (NEXT):** real 3D terrain mesh for the property. Client-side path (no
-  server GDAL, nothing to install): the page loads a terrain-RGB / Terrarium DEM tile +
-  open satellite/NAIP imagery for the bbox and builds a displaced mesh in three.js, with
-  the boundary + lake draped on it. Reuses the georeferenced source-data. Open-source only
-  (no Esri — canon Open-Source First).
+- **M2 — terrain: BUILT (2026-06-25), in headset.** `vr/terrain.html`. z15 Terrarium
+  elevation displaced into a three.js mesh, draped with Sentinel-2 cloudless imagery (EOX,
+  open, CORS-clean, no Esri), boundary + lake (source-data geojson) laid on the surface.
+  Extent 2012×4024 m, ~56 m real relief, `?exag=` controls vertical exaggeration (default 2).
+  Tiles pre-fetched same-origin under `vr/tiles/` (16 tiles, 788K) so it is reliable/offline.
+  Reuses the M1 scale-grab. Headless build verified; in-headset tuning verdict (exag, initial
+  scale, imagery zoom) pending from the founder. Possible next tune: bump imagery to z16/z17
+  for crispness; raise mesh segments.
 - M3 — layers + POIs: wrist-menu toggles (boundary/roads/trails/lake/survey sheets/pins);
   POIs as labeled billboards.
 - M4 — locomotion (flap-wings fly, swim over water) + the giant-intro descent.
