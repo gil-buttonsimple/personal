@@ -9,10 +9,13 @@ once their content is safely landed and verified.
 Sibling project: [data-google-cleanup.md](data-google-cleanup.md) — both land data in
 the same place. This file owns the shared **Target storage** decision below.
 
-Status: **active** — sources pulled, deduped, and staged at `/home/gil/drive-archive`
-on baobab; the pre-upload trim/compression pass is **complete** (both HEVC re-encode
-passes finished 2026-06-24). Remaining before the off-site push: spot-check + swap
-originals → `_TRASH`, then create the B2 bucket and upload.
+Status: **uploading to B2** — sources pulled, deduped, trimmed, and HEVC-re-encoded;
+`_TRASH` emptied (archive now ~281 GB). Off-site push to Backblaze B2 **in progress**
+(launched 2026-06-25, 278.5 GiB / 203,563 objects). Bucket `gk-drive-archive`
+(region `us-east-005`, private, encryption on); rclone remote `b2archive:`; secret in
+`~/.config/rclone/rclone.conf` only. Filter excludes scratch dirs (`_proof`, `_analysis`,
+`_*_hevc`, root logs) at `_proof/b2_upload.filter`; sync log `_proof/b2_sync.log`.
+On completion run `rclone check` for parity, then this is the "1 off-site" of 3-2-1.
 
 ---
 
@@ -95,10 +98,12 @@ Projected: archive ~356 GB → **~135 GB** before B2.
 - [x] Spot-check GoPro HEVC (144/144 valid, audio intact, 0 mismatches) + swap all
       re-encoded originals → `_TRASH` — **done 2026-06-25** (431 swapped: 144 GoPro + 287
       non-GoPro; HEVC now in place; manifest at `_TRASH/swap_manifest_2026-06-25.log`).
-- [ ] **Empty `_TRASH` for good** (~114 GB recoverable originals staged) — drops
-      `drive-archive` 394 GB → ~280 GB. Do after a final confidence check; irreversible.
+- [x] **Empty `_TRASH` for good** — **done 2026-06-25** (113 GB reclaimed; `drive-archive`
+      394 GB → 281 GB). Swap manifest preserved at `_proof/swap_manifest_2026-06-25.log`.
 - [x] Resume + finish non-GoPro H.264 → HEVC (CRF 20) pass — **done 2026-06-24** (544/544);
       3 DUR-MISMATCH screencasts reviewed → kept H.264 originals, deleted bloated HEVC copies.
 - [ ] Decide folder taxonomy (organize before upload — open).
 - [ ] Mine `72097` (Egypt-PC, CD-archive, Magento) for portfolio content before trimming.
-- [ ] Install rclone; create Backblaze B2 bucket; push the slimmed archive; verify hashes (#14).
+- [~] Backblaze B2 off-site backup (#14): rclone installed, bucket `gk-drive-archive` +
+      key created, sync **launched 2026-06-25** (278.5 GiB in flight). Remaining: let it
+      finish, then `rclone check` parity, mark #14 done. Decide one-time vs scheduled cadence.
