@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>K-Farm VR — M2 terrain</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#8fb6e8;font-family:system-ui,sans-serif}
+  #info{position:fixed;top:10px;left:10px;right:10px;color:#fff;font-size:14px;line-height:1.4;max-width:680px;text-shadow:0 1px 3px #000;pointer-events:none}
+  #info b{color:#fff}
+</style>
+</head>
+<body>
+<div id="info">
+  <b>K-Farm VR — M2 (real terrain).</b> Loading USGS/Terrarium elevation + Sentinel-2 imagery…<br>
+  Tap <b>ENTER VR</b> on the Quest. Both grips + spread hands = zoom; one grip = drag.
+  <code>?exag=</code> sets vertical exaggeration (default 2).
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
+import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const params = new URLSearchParams(location.search);
+const EXAG = parseFloat(params.get('exag') || '2');
+
+// --- tile grid for the property (z15, fetched same-origin under tiles/) ---
+const Z = 15, XS = [8996, 8997], YS = [13015, 13016, 13017, 13018];
+const COLS = XS.length, ROWS = YS.length, TS = 256;
+const PXW = COLS * TS, PXH = ROWS * TS;
+
+// geographic extent of the tile grid
+const tile2lon = (x) => x / 2 ** Z * 360 - 180;
+const tile2lat = (y) => { const n = Math.PI - 2 * Math.PI * y / 2 ** Z; return THREE.MathUtils.radToDeg(Math.atan(Math.sinh(n))); };
+const WEST = tile2lon(XS[0]), EAST = tile2lon(XS[COLS - 1] + 1);
+const NORTH = tile2lat(YS[0]), SOUTH = tile2lat(YS[ROWS - 1] + 1);
+const midLat = (NORTH + SOUTH) / 2;
+const W_M = (EAST - WEST) * 111320 * Math.cos(THREE.MathUtils.degToRad(midLat));
+const H_M = (NORTH - SOUTH) * 111320;
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+renderer.xr.enabled = true;
+document.body.appendChild(renderer.domElement);
+document.body.appendChild(VRButton.createButton(renderer));
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x8fb6e8);
+const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.01, 5000);
+camera.position.set(0, 1.6, 2.5);
+const orbit = new OrbitControls(camera, renderer.domElement);
+orbit.target.set(0, 1, -1.2); orbit.update();
+
+scene.add(new THREE.HemisphereLight(0xcfe3ff, 0x33402e, 1.1));
+const sun = new THREE.DirectionalLight(0xfff4e0, 1.5); sun.position.set(-0.5, 1, 0.6); scene.add(sun);
+
+const world = new THREE.Group();
+world.position.set(0, 1.0, -1.2);
+scene.add(world);
+
+// --- helpers ---
+function loadImg(src) {
+  return new Promise((res, rej) => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = () => rej(new Error(src)); i.src = src; });
+}
+async function mosaic(dir, ext) {
+  const c = document.createElement('canvas'); c.width = PXW; c.height = PXH;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  await Promise.all(XS.flatMap((x, cx) => YS.map(async (y, ry) => {
+    const img = await loadImg(`tiles/${dir}/${x}_${y}.${ext}`);
+    g.drawImage(img, cx * TS, ry * TS, TS, TS);
+  })));
+  return c;
+}
+
+async function build() {
+  // elevation mosaic -> height field
+  const ec = await mosaic('elev', 'png');
+  const ed = ec.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, PXW, PXH).data;
+  const heights = new Float32Array(PXW * PXH);
+  let min = Infinity, max = -Infinity, sum = 0;
+  for (let i = 0; i < PXW * PXH; i++) {
+    const r = ed[i * 4], gg = ed[i * 4 + 1], b = ed[i * 4 + 2];
+    const h = (r * 256 + gg + b / 256) - 32768;
+    heights[i] = h; sum += h; if (h < min) min = h; if (h > max) max = h;
+  }
+  const mean = sum / (PXW * PXH);
+  // bilinear sampler in (u,v); v=1 is north (image top, row 0)
+  const elevAt = (u, v) => {
+    const px = THREE.MathUtils.clamp(u, 0, 1) * (PXW - 1);
+    const py = THREE.MathUtils.clamp(1 - v, 0, 1) * (PXH - 1);
+    const x0 = Math.floor(px), y0 = Math.floor(py), x1 = Math.min(x0 + 1, PXW - 1), y1 = Math.min(y0 + 1, PXH - 1);
+    const fx = px - x0, fy = py - y0;
+    const a = heights[y0 * PXW + x0], b = heights[y0 * PXW + x1], c = heights[y1 * PXW + x0], d = heights[y1 * PXW + x1];
+    return (a * (1 - fx) + b * fx) * (1 - fy) + (c * (1 - fx) + d * fx) * fy;
+  };
+  const localElev = (u, v) => (elevAt(u, v) - mean) * EXAG;
+
+  // imagery mosaic -> texture
+  const sc = await mosaic('sat', 'jpg');
+  const tex = new THREE.CanvasTexture(sc);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+  // displaced terrain mesh (built in local XY, z=elevation, then laid flat)
+  const SX = 255, SY = 511;
+  const geo = new THREE.PlaneGeometry(W_M, H_M, SX, SY);
+  const pos = geo.attributes.position, uv = geo.attributes.uv;
+  for (let i = 0; i < pos.count; i++) pos.setZ(i, localElev(uv.getX(i), uv.getY(i)));
+  geo.computeVertexNormals();
+  const terrain = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: tex, roughness: 1 }));
+  terrain.rotation.x = -Math.PI / 2; // lay flat, elevation -> world up
+  world.add(terrain);
+
+  // map a lon/lat to terrain LOCAL space (child of terrain, shares its transform)
+  const toLocal = (lon, lat, lift = 1.5) => {
+    const u = (lon - WEST) / (EAST - WEST), v = (lat - SOUTH) / (NORTH - SOUTH);
+    return new THREE.Vector3((u - 0.5) * W_M, (v - 0.5) * H_M, localElev(u, v) + lift);
+  };
+  async function overlayGeoJSON(url, color, lift, width) {
+    try {
+      const gj = await (await fetch(url)).json();
+      const mat = new THREE.LineBasicMaterial({ color });
+      const addRing = (ring) => {
+        const pts = ring.map(c => toLocal(c[0], c[1], lift));
+        terrain.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat));
+      };
+      const walk = (geom) => {
+        if (!geom) return;
+        if (geom.type === 'Polygon') geom.coordinates.forEach(addRing);
+        else if (geom.type === 'MultiPolygon') geom.coordinates.forEach(p => p.forEach(addRing));
+        else if (geom.type === 'LineString') addRing(geom.coordinates);
+      };
+      (gj.features || [gj]).forEach(f => walk(f.geometry || f));
+    } catch (e) { /* overlay optional */ }
+  }
+  // real property boundary (bright) + the lake outline if present
+  await overlayGeoJSON('source-data/sheet07-boundary.geojson', 0xffe24a, 3, 1);
+  await overlayGeoJSON('source-data/derived/water.geojson', 0x49b6ff, 2, 1);
+
+  // initial view: ~2.5 m "tabletop" in front of the user
+  world.scale.setScalar(2.5 / W_M);
+
+  document.getElementById('info').innerHTML =
+    `<b>K-Farm VR — M2 (real terrain).</b> ${W_M.toFixed(0)}×${H_M.toFixed(0)} m, ` +
+    `relief ${(max - min).toFixed(0)} m (×${EXAG}). Both grips+spread = zoom; one grip = drag. ENTER VR on the Quest.`;
+}
+build().catch(e => { document.getElementById('info').innerHTML = 'BUILD ERROR: ' + e.message; });
+
+// --- controllers + scale-grab (same mechanic as the M1 smoke test) ---
+const controllers = [0, 1].map((i) => {
+  const c = renderer.xr.getController(i);
+  c.userData.squeezing = false;
+  c.addEventListener('squeezestart', () => c.userData.squeezing = true);
+  c.addEventListener('squeezeend', () => c.userData.squeezing = false);
+  scene.add(c); return c;
+});
+const factory = new XRControllerModelFactory();
+[0, 1].forEach(i => { const grip = renderer.xr.getControllerGrip(i); grip.add(factory.createControllerModel(grip)); scene.add(grip); });
+
+let grab = null;
+const cpos = (c) => c.getWorldPosition(new THREE.Vector3());
+function updateGrab() {
+  const active = controllers.filter(c => c.userData.squeezing);
+  const mode = active.length >= 2 ? 'scale' : active.length === 1 ? 'drag' : null;
+  if (!mode) { grab = null; return; }
+  if (!grab || grab.mode !== mode) {
+    world.updateMatrixWorld(true);
+    if (mode === 'scale') {
+      const L = cpos(active[0]), R = cpos(active[1]), mid = L.clone().add(R).multiplyScalar(0.5);
+      grab = { mode, d0: L.distanceTo(R), scale0: world.scale.x, anchor: world.worldToLocal(mid.clone()) };
+    } else grab = { mode, anchor: world.worldToLocal(cpos(active[0]).clone()) };
+    return;
+  }
+  if (mode === 'scale') {
+    const L = cpos(active[0]), R = cpos(active[1]), mid = L.clone().add(R).multiplyScalar(0.5);
+    const s = THREE.MathUtils.clamp(grab.scale0 * (L.distanceTo(R) / grab.d0), 0.0005, 80);
+    world.scale.setScalar(s); world.updateMatrixWorld(true);
+    world.position.add(mid.sub(world.localToWorld(grab.anchor.clone())));
+  } else {
+    world.updateMatrixWorld(true);
+    world.position.add(cpos(active[0]).sub(world.localToWorld(grab.anchor.clone())));
+  }
+}
+
+renderer.setAnimationLoop(() => { updateGrab(); renderer.render(scene, camera); });
+addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+</script>
+</body>
+</html>
