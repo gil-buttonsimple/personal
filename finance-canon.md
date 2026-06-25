@@ -61,6 +61,9 @@ Chase Freedom 7878
 **Student Loan (Liabilities):**
 
 Edfinancial
+  Loan 1-01 Direct Parent PLUS — balance $10,719.98 @ 6.830% (recorded 2026-06-25)
+  Date on statement: 07/24/2026 (next payment due / balance-good-through — confirm which)
+  Total current balance across loans: $10,719.98 (this is the only loan)
 
 **Dropped/closed:**
 
