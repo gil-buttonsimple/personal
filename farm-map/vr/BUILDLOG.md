@@ -48,9 +48,18 @@ Run it instead of rediscovering the steps. The hard-won gotchas:
   `adb forward tcp:9222 localabstract:chrome_devtools_remote && curl -s localhost:9222/json/list`
   (browser = `com.oculus.browser`; socket = `@chrome_devtools_remote`).
 
-## Cable-free on the Quest (tailnet) — THE METHOD THAT WORKS
+## Cable-free on the Quest (tailnet) — THE METHOD (one step left)
 
-Got this working 2026-06-25. USB is for SETUP only; daily use is cable-free over the tailnet.
+USB is for SETUP only; daily use is meant to be cable-free over the tailnet.
+
+**STATUS at session 416 close — NOT fully finished.** `quest-3` joined the tailnet as a
+member (device-auth approved on the phone — that part worked), BUT the Tailscale app on the
+Quest is back on its "Welcome / Log in" screen and the VPN is NOT connected (`tailscale ping
+quest-3` from the fleet = "unknown peer"), so the tailnet farm URL does NOT load on the
+headset yet. **Remaining last step (next session):** in the Tailscale app on the Quest,
+finish Log in / **Connect** (turn the VPN toggle ON) and approve the Android "set up a VPN
+connection" system dialog. That dialog needs a controller tap in-headset (adb can't approve
+the VPN consent). Until then, use the USB / adb-reverse route (`quest.sh`), which is proven.
 
 **One-time setup (done):**
 1. Put the Quest on the tailnet:
