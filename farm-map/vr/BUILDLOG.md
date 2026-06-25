@@ -37,10 +37,22 @@ Run it instead of rediscovering the steps. The hard-won gotchas:
   (`adb shell dumpsys power | grep mWakefulness`), the display is OFF, NOTHING renders,
   and adb/CDP probes come back empty even though launches "succeed". Put the headset on
   (the proximity sensor wakes it). This was the 2026-06-25 "don't see it" blocker.
-- **Reliable way IN = a QR code**, not adb panel-launch. `am start ... OculusLauncherActivity`
-  often leaves the browser running with no visible panel (0 pages in CDP). `quest.sh`
-  writes `qr.html`; open `http://localhost:8099/vr/qr.html` on the monitor and scan it
-  into the Quest. (USB-bridge QR works while tethered; tailnet QR needs Tailscale on the Quest.)
+- **BEST way IN (s417) = a short all-numbers URL, finger-typed in-headset.** Serve farm-map
+  on a non-privileged port with `/` 302-redirecting to the target page, bridge with
+  `adb reverse`, and type the loopback URL on the Quest hand-tracking keyboard:
+  **`127.0.0.1:1111`** (or `127.1:1111`). `127.0.0.1` is a secure context so WebXR works; the
+  root-redirect keeps letters out of the path. Port MUST be >=1024 — Android adb reverse can't
+  bind a privileged port, so `:80` fails ("cannot bind listener: Permission denied"). Recipe:
+  a tiny python redirect server on `127.0.0.1:1111` (chdir farm-map/, `/`->302 `/vr/<page>.html`)
+  + `adb reverse tcp:1111 tcp:1111`. The founder found finger-typing a 9-char numeric URL a
+  game-changer; this beats both the QR dance and panel auto-launch.
+- **No-typing push (agent-driven) = `am start -a android.intent.action.VIEW -d <url> com.oculus.browser`**
+  over the USB bridge. This loaded terrain on 2026-06-25 (verified via CDP), so the plain VIEW
+  form to `com.oculus.browser` WORKS — it's the `-n .../.OculusLauncherActivity` panel form
+  (quest.sh step 5) that's flaky (browser runs, no visible panel, 0 pages in CDP).
+- **QR fallback** (`quest.sh` writes `qr.html`; open `http://localhost:8099/vr/qr.html` on the
+  monitor and scan into the Quest): USB-bridge QR works while tethered; tailnet QR needs
+  Tailscale on the Quest. Superseded by the short-URL method above for everyday use.
 - Bridge: `adb reverse tcp:8099 tcp:8099` (Quest localhost:8099 -> baobab); serve `farm-map/`
   on baobab `127.0.0.1:8099`.
 - **Inspection: `adb screencap` is DRM-blocked** on the Quest (VR compositor) — returns an
@@ -94,3 +106,44 @@ the VPN consent). Until then, use the USB / adb-reverse route (`quest.sh`), whic
 - **Inspection:** the Quest blocks `adb screencap` of the VR compositor (DRM) — can't
   screenshot the headset view. Read page state via the browser's Chrome DevTools endpoint
   over adb instead (`adb forward` to the devtools socket), not screencap.
+
+## Session 417 (2026-06-25) — cordless delivery findings + the public-URL unlock
+
+Spent the night trying to finish cable-free Tailscale login on the Quest. It did NOT complete.
+Findings, so the next attempt skips the dead ends:
+
+- **THE UNLOCK (reframes everything): a PoC does not need to be PRIVATE.** The only reason we
+  need Tailscale at all is that the farm-map is tailnet-only (it carries property boundary/deed
+  data). A throwaway AR/VR PoC has no sensitive data — so serve it on the PUBLIC internet over
+  HTTPS and the entire Tailscale/login problem disappears: the Quest browser opens any public
+  `https://` URL with NO login, NO tailnet, NO cable, and real TLS is the secure context WebXR
+  needs. We privatized a throwaway and then fought the privacy all night. For the REAL farm-map
+  (genuinely private), Tailscale still applies — fix that login with a passkey, not by hand.
+- **`adb shell input text` is the wrong tool** for driving an in-headset login: it can't send
+  unicode/special chars, so the `@` in the email mangled, and stray keyevents bumped the headset
+  into Remote Desktop (`com.oculus.remotedesktop`). Use **ADBKeyboard** (senzhk/ADBKeyBoard,
+  a sideloaded IME) instead — it injects any text via `am broadcast -a ADB_INPUT_TEXT --es msg
+  '...'` reliably. Raw `input` is blind + fragile.
+- **Tailscale Android CANNOT take an auth key** — open feature request since 2023
+  (tailscale/tailscale #675, #8497). Do not retry the auth-key path on the Quest; it only works
+  for Linux nodes (how cedar/yucca joined).
+- **"Log in does nothing / copy the link out" is a KNOWN Quest bug** (tailscale/tailscale
+  #16003). Critical mechanic: completing the login on the PHONE authorizes the ACCOUNT but does
+  NOT hand the Quest APP a session (the redirect never returns to the app) — so the app stays on
+  "Log in" and the VPN toggle won't flip. The login must finish in the QUEST's OWN browser to
+  deep-link back into the app. (Confirmed live: app sat on Log in; CDP showed the
+  `login.tailscale.com/login?next_url=%2Fa%2F<code>` tab in `com.oculus.browser`.)
+- **A phone canNOT scan a QR shown INSIDE the headset** (it's behind the lenses). QR scanning
+  works the other direction only. The Quest HAS a native QR reader (`com.oculus.os.qrcodereader`)
+  and the Quest Browser scans physical QRs off a monitor/phone — that's the cordless delivery
+  path once a URL is reachable.
+
+**THE KEEPER IDEA — hidden VR launcher in our own app (filed: buttonsimple-app #173).**
+Pure adb can't reliably set the Android clipboard (foreground-app restricted), so "copy the URL
+to the clipboard" needs software on the headset — which is the opening for an app feature. Build
+a hidden route in buttonsimple-app using `expo-clipboard` (`Clipboard.setStringAsync(url)`): tap
+it on the Quest → URL lands on the clipboard → long-press the browser address bar → Paste → go.
+No typing. The URL it copies can be driven from the DASHBOARD via a Convex field (reuse the Cast
+/ Push Content plumbing, app#127), so baobab decides what the headset gets and the headset just
+pastes. Durable, ours, doubles as the delivery channel for any future VR/AR content. Tonight's
+stopgap if needed: sideload ADBKeyboard and set the clipboard from baobab over the cable.
