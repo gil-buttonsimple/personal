@@ -35,6 +35,15 @@ deer stands; habitat) of the same 1995 base, same neighbor refs (Blair White
 NOT differ in date, so currency cannot be inferred from sheet dates -- every annotation
 is ~31 years old (1995) and must be validated against modern imagery / on the ground.
 
+## Overhead photos & layers catalog -> [farm-map/overhead-sources.md](farm-map/overhead-sources.md)
+
+Deep-dive inventory (session 26) of imagery and GIS layers available BEYOND the 7
+plats and the demo's current sources: Esri World Imagery Wayback (dated sub-meter
+historical), SCDNR pre-derived LiDAR contours/hydro, NRCS soils, NWI wetlands, FEMA
+flood, USGS topoView historical topos, NLCD/CDL, building footprints, and the Chester
+County GIS Hub. Includes a decision framework + Tier-1/2/3 investment ranking. Esri is
+now an allowed acquisition source (runtime stays open-source MapLibre/PMTiles).
+
 ## County GIS Data (ingested 2026-06-04)
 
 Chester County's digitized parcel boundary for the farm, pulled as KML and filed
