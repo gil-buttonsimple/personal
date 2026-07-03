@@ -37,6 +37,10 @@ mailbox is preserved and shut down there is no send-from to maintain.
 
 - [x] 2. Copy Google Drive contents
 - [x] 3. Copy Google Photos — *verify with grsync comparison before any deletion*
+  - **2026-07-03: phone backup account flipped `web@` → `tgk@`. New-photo bleed into
+    `web@` stopped.** This is why step 3 looked "done" but wasn't — the checkmark was
+    the export, but new photos kept landing on `web@`. Remaining: one-time catch-up
+    export of `web@` photos taken since the last pull (see Phase C).
 - [x] 4. Expand Drive docs
 - [x] 5. Clean up files (remove largest, pull out photos/videos)
 - [x] 5.5. JSON fix
@@ -56,6 +60,9 @@ mailbox is preserved and shut down there is no send-from to maintain.
 
 - [ ] 8. Change default domain on Google Workspace (and remove web@ domain?)
 - [ ] 9. Delete email attachments (various accounts) — storage reclaim
+- [ ] 12a. **Final catch-up export of `web@` Photos** (full Takeout, `.zip`, 50 GB parts)
+  — sweeps up photos taken between the last pull and the 2026-07-03 account flip. Land
+  in `/home/gil/drive-archive`, dedup + verify + rclone to B2, THEN proceed to 12.
 - [ ] 12. Delete Drive and Photos from `web@` (only after Phase B verified)
 - [ ] 11. Phone: remove `web@` and `gil@b` accounts (bug-test first)
 - [ ] 13. Remove `web@` from all devices (phone, Chromebook)
