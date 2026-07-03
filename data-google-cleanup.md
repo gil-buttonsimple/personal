@@ -71,6 +71,39 @@ mailbox is preserved and shut down there is no send-from to maintain.
 
 ---
 
+## SSO / linked-apps review (2026-07-03)
+
+Concern: many services log in via `web@` Google SSO, which would break at teardown.
+**Reviewed all three accounts' linked-apps lists — no hard blockers found.** `web@`
+can be torn down without losing anything critical.
+
+**Resolutions (web@ Tier-1 candidates, all cleared):**
+- **Tailscale** — already moved to `gil@b`; web@ entry is a stale leftover. No action.
+- **Stripe** — logged in via web@ SSO: shows "Finish setting up" = abandoned/incomplete
+  signup, no bank/charges. Not a real account. Let it lapse.
+- **Google TV Streamer** — device gone. No action.
+- **rclone** — just an OAuth token, not data. Re-auth (`rclone config reconnect`) to
+  `tgk@`/`gil@b` if any remote complains after teardown. Not a blocker.
+- **YouTube on TV** — device pairing; re-sign-in with `tgk@` if/when needed.
+
+**Soft residual (not a blocker):** Tier-2 SaaS whose *only* login may be web@ SSO —
+ChatGPT, **LinkedIn**, Figma, Webflow, Airbnb, Hipcamp, Nord, Zoom, Spotify, Reddit.
+Convert the ones worth keeping (LinkedIn especially) to a `tgk@`/password login before
+teardown; let the rest go. Tier-3 junk (JustWatch, NYT Games, FrictionlessParking,
+AmpereTime, nvidia mdarcy, WhatsApp) — ignore.
+
+**Linked-apps inventory (snapshot 2026-07-03):**
+- `web@gkasparek.com` (22): Airbnb, AmpereTime, ChatGPT, Figma, FrictionlessParkingLogin,
+  Google TV Streamer, Hipcamp (x2), JustWatch, LinkedIn, Nord Account, nvidia mdarcy,
+  NYT Games, rclone, Reddit, Spotify, Stripe, Tailscale, Webflow, WhatsApp, YouTube on TV, Zoom.
+- `tgkasparek@gmail.com` (4): rclone, rclone-for-gphotos, Spotify, The New York Times.
+- `gil@buttonsimple.com` (40): AngelList, Calendly, Chatbot, ChatGPT, Claude by Anthropic,
+  Claude for Gmail (x2), Claude for Google Drive, Cloudflare Dashboard, Convex,
+  DigitalOcean, draw.io, Export Sheet Data, Figma, Fiverr, Formaloo, GitHub, GNOME,
+  Google Cloud SDK, GPT for Sheets and Docs, IconScout, LambdaTest, Make, Medium,
+  Midjourney, monday.com (x2), OpenAI, OpenArt, Penpot, rclone, Recraft AI, Resend,
+  Sanity, Slack (x2), Tailscale, Vecteezy, Webflow, Webstudio.
+
 ## Notes / gotchas
 
 - Order matters: nothing gets deleted from `web@` (steps 9, 12) or the account closed
