@@ -1,13 +1,15 @@
 # Farm Map -- Source Art Catalog
 
-Last Updated: 2026-06-04
+Last Updated: 2026-07-07
 Status: Archival (ingested source material)
 
 Photographs of the physical paper survey plats for the Kasparek family farm
-("K-Farm" = KaFam; cf. `finance-2025-kafam-k1-gil.pdf`). All seven sheets depict
+("K-Farm" = KaFam; cf. `finance-2025-kafam-k1-gil.pdf`). All eight sheets depict
 the **same ~409-acre property** near Chester, S.C., in different working/annotated
-copies. Shot 2026-01-26 on a phone; the sheets were weighted flat with wood-slice
-coasters, so several photos are rotated or partial.
+copies. Sheets 01-07 shot 2026-01-26; sheet 08 shot 2026-07-06. Taken on a phone;
+the sheets were weighted flat with wood-slice coasters, so several photos are
+rotated or partial (sheet 08 is rotated 180 degrees, title block reads
+upside-down).
 
 These are the authoritative source for the project's Mapping Foundation: sheet 07
 is the georeference anchor, sheet 06 is the legend rosetta stone, and sheets 02-05
@@ -43,6 +45,7 @@ checksum-verified identical to the originals.
 | `05-habitat-full-color.jpg` | PXL_20260126_175515246 | **Full-color habitat copy (richest layer).** Green woods/forest stands, brown trail+road network, blue named creeks (Flake's Branch, Crane's Branch). Most data-dense sheet. |
 | `06-master-legend-1995.jpg` | PXL_20260126_175525696 | **Master legend / management copy** (Ashmark, Aug 29 1995, rev. Oct 1996). The rosetta stone for the color annotations: Main roads = orange, Permanent stands = blue dots, Water = blue, Food plots = green, Property boundary = pink. Numbering: woods stands #40-50, food plots #1-30. **Shows the lake/pond** that the project notes flag as missing from topo maps. |
 | `07-deed-survey-kasparek.jpg` | PXL_20260126_175547606 | **Deed survey: "Plat of Survey for Gene A. Kasparek," 409.258 acres.** S.C. Grid North, NAD 1983 -- the georeference anchor. Topo contours, WOODS / ROAD / DAM labels, creeks. Authoritative legal base for scaling and aligning all other sheets. |
+| `08-compartments-green.jpg` | PXL_20260706_152709896 | **Green-boundary management-compartment copy** (Ashmark, "Part C," 409.258 acres, rev. Oct 18 1996). Green-highlighter property boundary, blue highlighter lake fill, and green-filled hunt-club compartments lettered by zone (C1-C20, R1, E1-E3, G1, P1-P6). Carries the full course/bearing/distance table, the surveyor legend, Duke Power Co. transmission line, and the Chester S.C. vicinity map. Magnetic North. Rotated 180 degrees as shot. New copy vs. the 01-26 batch -- distinct compartment-lettering scheme not on the other sheets. |
 
 ## Annotation key (consolidated from sheet 06; founder-confirmed against the printed legend)
 
