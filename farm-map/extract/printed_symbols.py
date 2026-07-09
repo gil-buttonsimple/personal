@@ -198,6 +198,64 @@ def join_chains(chains, max_gap, max_turn_deg=40.0):
     return [c for c in chains if c is not None]
 
 
+def pair_rows(chains, sep_lo, sep_hi, max_turn_deg=25.0, min_overlap=0.45):
+    """A DIRT ROAD is drawn as TWO parallel rows of ticks. Find the pairs.
+
+    A single tick row is ambiguous -- it could be one edge of a road, or a stray run
+    of hatching. The pairing is the signature: two chains that run parallel, at a
+    separation in [sep_lo, sep_hi] px, overlapping along their length. Where a partner
+    exists, the road CENTRELINE is the mean of the two rows, which is also more
+    accurate than either row alone.
+
+    Returns (centrelines, unpaired_chains).
+    """
+    from scipy.spatial import cKDTree as KD
+    cos_max = np.cos(np.radians(max_turn_deg))
+    chains = [np.asarray(c, float) for c in chains]
+
+    def tang(c):
+        v = c[-1] - c[0]
+        n = np.linalg.norm(v)
+        return v / n if n else np.zeros(2)
+
+    used = set()
+    centre, unpaired = [], []
+    for i in range(len(chains)):
+        if i in used:
+            continue
+        ci = chains[i]
+        ti = tang(ci)
+        tree_i = KD(ci)
+        best, best_score = None, 0.0
+        for j in range(len(chains)):
+            if j == i or j in used:
+                continue
+            cj = chains[j]
+            if abs(float(np.dot(ti, tang(cj)))) < cos_max:
+                continue
+            d, _ = tree_i.query(cj)
+            near = (d >= sep_lo) & (d <= sep_hi)
+            frac = near.mean()
+            if frac > min_overlap and frac > best_score:
+                best, best_score = j, frac
+        if best is None:
+            unpaired.append(ci)
+            continue
+        used.add(i); used.add(best)
+        cj = chains[best]
+        # centreline: for each point of the longer row, midpoint to the nearest point
+        # on the partner row
+        long_, short_ = (ci, cj) if len(ci) >= len(cj) else (cj, ci)
+        tk = KD(short_)
+        d, idx = tk.query(long_)
+        keep = (d >= sep_lo) & (d <= sep_hi)
+        if keep.sum() < 4:
+            unpaired.extend([ci, cj])
+            continue
+        centre.append((long_[keep] + short_[idx[keep]]) / 2.0)
+    return centre, unpaired
+
+
 def main():
     slug = "07-deed-survey-kasparek"
     a = np.asarray(Image.open(os.path.join(G.ART, slug + ".jpg")).convert("RGB"))
@@ -241,10 +299,72 @@ def main():
         legend="sheet 07 legend: FLOOD EASEMENT = single row of round dots; DIRT ROAD = double "
                "row of fine ticks. Confirmed by Gil against the line he marked as missing."))
 
+    # ---------------- DIRT ROADS: paired rows of short ticks ----------------
+    ticks = blobs(mask, 10, 90, elong_min=1.9, elong_max=4.0)
+    print("\nshort-tick marks found: %d" % len(ticks))
+    tt = cKDTree(ticks)
+    dt, _ = tt.query(ticks, k=2)
+    tsp = float(np.median(dt[:, 1]))
+    trows = chain_dots(ticks, max_step=2.6 * tsp, max_turn_deg=45.0, min_dots=5)
+    trows = join_chains(trows, max_gap=8.0 * tsp)
+    print("tick rows chained: %d" % len(trows))
+
+    # the two rows of a dirt road sit a fixed distance apart -- measure it, do not guess
+    seps = []
+    for i, c in enumerate(trows):
+        others = [d for k, d in enumerate(trows) if k != i]
+        if not others:
+            break
+        allpts = np.vstack(others)
+        d, _ = cKDTree(allpts).query(c)
+        seps.append(np.median(d))
+    if seps:
+        print("row-to-nearest-other-row separation: median %.1f px, p25 %.1f, p75 %.1f"
+              % (np.median(seps), np.percentile(seps, 25), np.percentile(seps, 75)))
+
+    centres, unpaired = pair_rows(trows, sep_lo=0.6 * tsp, sep_hi=3.2 * tsp)
+    print("paired into dirt-road centrelines: %d   (unpaired rows: %d)" % (len(centres), len(unpaired)))
+
+    road_feats = []
+    for c in centres:
+        g = LineString(proj(c)).simplify(3.0 / G.MLAT)
+        L = G.line_len_m(g)
+        if L < 50:
+            continue
+        road_feats.append(F.feat(mapping(g), layer="dirt road", symbol="two parallel rows of ticks",
+                                 source="sheet 07 printed", length_m=round(L), confidence="paired"))
+    road_feats.sort(key=lambda f: -f["properties"]["length_m"])
+    print("dirt roads >=50 m: %d   total %.1f km"
+          % (len(road_feats), sum(f["properties"]["length_m"] for f in road_feats) / 1000.0))
+    F.write("dirt-roads.geojson", F.fc(
+        road_feats, sheet="07", layer="dirt roads (printed: paired rows of ticks)",
+        method="printed blobs with elongation 1.9-4.0 chained into tick rows, then rows PAIRED "
+               "by parallelism + separation; the centreline is the mean of the two rows, which is "
+               "more accurate than either row alone",
+        caveat="unpaired tick rows are dropped: a lone row may be hatching, not a road"))
+
+    # ---------------- TREE LINES: long dashes ----------------
+    dsh = blobs(mask, 40, 400, elong_min=4.0, elong_max=12.0)
+    print("\nlong-dash marks found: %d" % len(dsh))
+    tl = []
+    if len(dsh) >= 6:
+        dsp = float(np.median(cKDTree(dsh).query(dsh, k=2)[0][:, 1]))
+        tch = join_chains(chain_dots(dsh, max_step=2.6 * dsp, min_dots=4), max_gap=6.0 * dsp)
+        for c in tch:
+            g = LineString(proj(c)).simplify(3.0 / G.MLAT)
+            if G.line_len_m(g) >= 60:
+                tl.append(F.feat(mapping(g), layer="tree line", symbol="long dashes",
+                                 source="sheet 07 printed", length_m=round(G.line_len_m(g))))
+    print("tree lines >=60 m: %d   total %.1f km" % (len(tl), sum(f["properties"]["length_m"] for f in tl) / 1000.0))
+    F.write("tree-lines.geojson", F.fc(tl, sheet="07", layer="tree lines (printed: long dashes)",
+                                       method="elongated printed blobs chained into polylines"))
+
     vis = (a.astype(float) * 0.30).astype(np.uint8)
     vis[ndimage.binary_dilation(mask, iterations=1)] = [70, 70, 70]
     for (x, y) in np.round(dots).astype(int):
         vis[max(0, y-3):y+4, max(0, x-3):x+4] = [255, 0, 255]
+    for (x, y) in np.round(ticks).astype(int):
+        vis[max(0, int(y)-3):int(y)+4, max(0, int(x)-3):int(x)+4] = [0, 255, 255]
     Image.fromarray(vis).resize((820, 1090)).save(os.path.join(DEMO, "_flood-07.png"))
 
 
