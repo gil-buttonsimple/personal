@@ -1,8 +1,8 @@
 <!DOCTYPE html><html><head><meta charset="utf-8">
 <title>K-Farm map demo</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="../vendor/leaflet.css"/>
+<script src="../vendor/leaflet.js"></script>
 <style>
  html,body,#map{height:100%;margin:0}
  .panel{position:absolute;z-index:1000;top:10px;right:10px;background:#fff;
@@ -118,10 +118,10 @@ var REG=[
  {key:'bnd', role:'survey',  kind:'line',  label:'1995 survey tract — 409.26 ac', on:false, weight:3, op:1},
  {key:'bnd0',role:'survey0', kind:'line',  label:'survey as-anchored (pre-fit, dashed)', on:false, weight:2, op:.5, dash:'5,6'},
  {key:'rd',  role:'roads',   kind:'line',  label:'Roads (OpenStreetMap)', on:false, weight:1.5, op:.9},
- {key:'st',  role:'stands',  kind:'points',label:'Deer stands (sheet 04 · all shown)', on:false, weight:1, op:.95},
- {key:'wt',  role:'water',   kind:'poly',  label:'Water / lake (sheet 06 · interim)', on:false, weight:1.5, op:.95},
- {key:'fp',  role:'food',    kind:'poly',  label:'Food plots / woods (35)', on:false, weight:1.5, op:.9},
- {key:'tr',  role:'trails',  kind:'line',  label:'Roads & trails (auto · draft)', on:false, weight:2, op:.85}
+ {key:'st',  role:'stands',  kind:'points',label:'Deer stands (sheet 04 · 25, all shown)', on:false, weight:1, op:.95},
+ {key:'wt',  role:'water',   kind:'poly',  label:'Lake — sheet 06 (29.98 ac)', on:true, weight:1.5, op:.95},
+ {key:'fp',  role:'food',    kind:'poly',  label:'Food plots (24 of legend’s 30)', on:false, weight:1.5, op:.9},
+ {key:'tr',  role:'trails',  kind:'line',  label:'Roads & trails (410 lines · 41.0 km)', on:true, weight:2, op:.85}
 ];
 // Survey sheets, rectified into ONE shared geographic frame (warp_sheets.py) so they
 // onion-skin in exact registration. Placed as plain image overlays on the shared bounds.
@@ -349,4 +349,81 @@ function frame(){
 }
 frame();
 window.addEventListener('load',frame);
+
+// ---- "Mark missing path" -------------------------------------------------
+// Point at a trail the extractor missed. Turn the tool on, click along where the
+// path runs, and copy the result. You do not need to know which sheet drew it --
+// the coordinates are enough to go back to the source photos and find out why the
+// ink there was not picked up.
+(function(){
+  var on=false, pts=[], line=null, dots=[], paths=[];
+
+  var box=document.createElement('div');
+  box.style.cssText='position:absolute;z-index:1200;left:12px;bottom:12px;width:300px;'+
+    'background:#1b1b1eee;border:1px solid #444;border-radius:10px;padding:12px 14px;'+
+    'font:13px/1.45 system-ui,sans-serif;color:#eee';
+  box.innerHTML=
+    '<b>Mark a missing path</b><div class="sub" style="color:#999;font-size:12px;margin:4px 0 8px">'+
+    'Turn on, then click along the trail. Double-click or press Finish to end that path. '+
+    'Mark as many as you like, then Copy and paste to Claude.</div>'+
+    '<button id="mmToggle">Start marking</button> '+
+    '<button id="mmFinish" disabled>Finish path</button><br>'+
+    '<button id="mmCopy" style="margin-top:7px" disabled>Copy all</button> '+
+    '<button id="mmClear" style="margin-top:7px">Clear</button>'+
+    '<div id="mmOut" style="color:#8c8;font-size:12px;margin-top:7px"></div>';
+  document.body.appendChild(box);
+  ['mmToggle','mmFinish','mmCopy','mmClear'].forEach(function(id){
+    box.querySelector('#'+id).style.cssText+=
+      'background:#333;color:#eee;border:1px solid #555;border-radius:6px;padding:4px 9px;cursor:pointer';
+  });
+  var out=box.querySelector('#mmOut');
+
+  function status(){
+    out.textContent = paths.length+' path(s) marked'+(pts.length?', '+pts.length+' point(s) in progress':'');
+    box.querySelector('#mmCopy').disabled = !paths.length;
+    box.querySelector('#mmFinish').disabled = pts.length<2;
+  }
+  function finish(){
+    if(pts.length>=2){ paths.push(pts.slice()); }
+    pts=[]; dots.forEach(function(d){map.removeLayer(d);}); dots=[];
+    if(line){map.removeLayer(line); line=null;}
+    paths.forEach(function(p){});   // committed paths stay drawn below
+    status();
+  }
+  box.querySelector('#mmToggle').onclick=function(){
+    on=!on; this.textContent = on?'Stop marking':'Start marking';
+    map.getContainer().style.cursor = on?'crosshair':'';
+    // double-click ends a path; it must not also zoom the map
+    if(on) map.doubleClickZoom.disable(); else map.doubleClickZoom.enable();
+    if(!on) finish();
+  };
+  box.querySelector('#mmFinish').onclick=function(){
+    var committed = pts.slice();
+    finish();
+    if(committed.length>=2)
+      L.polyline(committed,{color:'#ff00ff',weight:3,dashArray:'4,4'}).addTo(map)
+       .bindPopup('missing path #'+paths.length);
+  };
+  box.querySelector('#mmClear').onclick=function(){
+    finish(); paths=[]; location.reload();
+  };
+  box.querySelector('#mmCopy').onclick=function(){
+    var txt='Missing paths (lat,lon):\n'+paths.map(function(p,i){
+      return '#'+(i+1)+': '+p.map(function(c){return c[0].toFixed(6)+','+c[1].toFixed(6);}).join('  ');
+    }).join('\n');
+    navigator.clipboard.writeText(txt).then(function(){ out.textContent='Copied. Paste it to Claude.'; },
+      function(){ prompt('Copy this:', txt); });
+  };
+
+  map.on('click', function(e){
+    if(!on) return;
+    pts.push([e.latlng.lat, e.latlng.lng]);
+    dots.push(L.circleMarker(e.latlng,{radius:4,color:'#ff00ff',fillOpacity:1}).addTo(map));
+    if(line) map.removeLayer(line);
+    if(pts.length>1) line=L.polyline(pts,{color:'#ff00ff',weight:3,dashArray:'4,4'}).addTo(map);
+    status();
+  });
+  map.on('dblclick', function(){ if(on){ box.querySelector('#mmFinish').click(); } });
+  status();
+})();
 </script></body></html>
