@@ -1,0 +1,82 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>K-Farm — trails + lake review</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  html,body{margin:0;height:100%;background:#111;color:#eee;font:14px/1.45 system-ui,sans-serif}
+  #map{position:absolute;inset:0}
+  #panel{position:absolute;z-index:1000;top:12px;right:12px;width:280px;background:#1b1b1ee6;
+         border:1px solid #333;border-radius:10px;padding:14px 16px;backdrop-filter:blur(6px)}
+  h1{font-size:15px;margin:0 0 10px}
+  .row{display:flex;align-items:center;gap:8px;margin:5px 0}
+  .sw{width:26px;height:4px;border-radius:2px;flex:none}
+  label{cursor:pointer;user-select:none}
+  .n{color:#888;font-size:12px}
+  hr{border:0;border-top:1px solid #333;margin:11px 0}
+</style>
+<div id="map"></div>
+<div id="panel">
+  <h1>K-Farm — trails &amp; lake</h1>
+  <div class="row"><input type="checkbox" id="t3" checked><span class="sw" style="background:#39ff14"></span><label for="t3">All 3 sheets agree</label></div>
+  <div class="row"><input type="checkbox" id="t2" checked><span class="sw" style="background:#ffd21a"></span><label for="t2">2 sheets</label></div>
+  <div class="row"><input type="checkbox" id="t1" checked><span class="sw" style="background:#ff4d4d"></span><label for="t1">1 sheet only</label></div>
+  <hr>
+  <div class="row"><input type="checkbox" id="lk" checked><span class="sw" style="background:#00c2ff;height:12px"></span><label for="lk">Lake — sheet 06</label></div>
+  <div class="row"><input type="checkbox" id="nh"><span class="sw" style="background:#fff;height:2px"></span><label for="nh">Lake — USGS NHD (old)</label></div>
+  <div class="row"><input type="checkbox" id="bd" checked><span class="sw" style="background:#ff2ddd"></span><label for="bd">Deed boundary</label></div>
+  <hr>
+  <div class="n" id="stats">loading…</div>
+</div>
+<script>
+const map = L.map('map', {zoomControl:true}).setView([34.663,-81.155], 15);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  {maxZoom:19, attribution:'Esri'}).addTo(map);
+
+const COL = {3:'#39ff14', 2:'#ffd21a', 1:'#ff4d4d'};
+const groups = {1:L.layerGroup().addTo(map), 2:L.layerGroup().addTo(map), 3:L.layerGroup().addTo(map)};
+
+function len(props){ return props.length_m; }
+
+fetch('source-data/derived/trails.geojson').then(r=>r.json()).then(gj=>{
+  const tally = {1:0,2:0,3:0}, meters = {1:0,2:0,3:0};
+  L.geoJSON(gj, {
+    style: f => ({color: COL[f.properties.sheet_support]||'#888',
+                  weight: f.properties.sheet_support===3?3.4:2.2,
+                  opacity: 0.95}),
+    onEachFeature: (f,l) => {
+      const p = f.properties;
+      tally[p.sheet_support]++; meters[p.sheet_support]+=p.length_m;
+      l.bindPopup(`<b>${p.length_m} m</b><br>drawn on sheet ${p.source}` +
+        (p.confirmed_by.length ? `<br>confirmed by ${p.confirmed_by.join(', ')}` : '<br><i>no other sheet shows this</i>'));
+      groups[p.sheet_support].addLayer(l);
+    }
+  });
+  const km = n => (meters[n]/1000).toFixed(1);
+  document.getElementById('stats').innerHTML =
+    `${tally[3]} lines · ${km(3)} km — all 3 sheets<br>` +
+    `${tally[2]} lines · ${km(2)} km — 2 sheets<br>` +
+    `${tally[1]} lines · ${km(1)} km — 1 sheet<br>` +
+    `<br>Every annotation is from the 1995 survey.<br>Tiers (road vs foot trail) not yet classified.`;
+});
+
+const lake = L.layerGroup().addTo(map), nhd = L.layerGroup(), bnd = L.layerGroup().addTo(map);
+fetch('source-data/derived/water.geojson').then(r=>r.json()).then(gj=>{
+  L.geoJSON(gj,{style:{color:'#00c2ff',weight:2,fillColor:'#00c2ff',fillOpacity:.42}})
+   .bindPopup('Flood Control Lake — traced from sheet 06 blue highlighter')
+   .addTo(lake);
+});
+fetch('source-data/derived/water-nhd.geojson').then(r=>r.json()).then(gj=>{
+  L.geoJSON(gj,{style:{color:'#fff',weight:2,dashArray:'5,4',fill:false}})
+   .bindPopup('USGS NHD impoundment (24.5 ac) — the file this replaces').addTo(nhd);
+});
+fetch('source-data/sheet07-boundary.geojson').then(r=>r.json()).then(gj=>{
+  L.geoJSON(gj,{style:{color:'#ff2ddd',weight:2,fill:false}}).addTo(bnd);
+  try { map.fitBounds(L.geoJSON(gj).getBounds(), {padding:[30,30]}); } catch(e){}
+});
+
+const bind = (id, layer) => document.getElementById(id).addEventListener('change', e =>
+  e.target.checked ? map.addLayer(layer) : map.removeLayer(layer));
+bind('t3',groups[3]); bind('t2',groups[2]); bind('t1',groups[1]);
+bind('lk',lake); bind('nh',nhd); bind('bd',bnd);
+</script>

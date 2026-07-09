@@ -1,0 +1,35 @@
+{
+  "sheet": "06-master-legend-1995",
+  "transform_type": "projective, least-squares over the full drawn perimeter",
+  "lat0": 34.66,
+  "control_points": 724,
+  "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+  "homography_px_to_localm": [
+    [
+      117.1231766225041,
+      -20.872613701745223,
+      -4437228.212653964
+    ],
+    [
+      -60.558293026966446,
+      10.354769536945843,
+      2304555.548151919
+    ],
+    [
+      -1.5695474381646725e-05,
+      2.809733755144192e-06,
+      0.5970224519344557
+    ]
+  ],
+  "residual_m_new": {
+    "median": 0.72,
+    "p90": 2.78,
+    "max": 5.92
+  },
+  "residual_m_old_4pt": {
+    "median": 5.58,
+    "p90": 9.11,
+    "max": 13.5
+  },
+  "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+}

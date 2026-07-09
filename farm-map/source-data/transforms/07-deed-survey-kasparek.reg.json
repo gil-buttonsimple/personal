@@ -1,0 +1,35 @@
+{
+  "sheet": "07-deed-survey-kasparek",
+  "transform_type": "projective, least-squares over the full drawn perimeter",
+  "lat0": 34.66,
+  "control_points": 864,
+  "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+  "homography_px_to_localm": [
+    [
+      -151.56561292756595,
+      -7.06626178716972,
+      4517767.205655112
+    ],
+    [
+      78.94471052756842,
+      3.173322344734098,
+      -2345231.1725869817
+    ],
+    [
+      2.046226052419226e-05,
+      9.496258310188159e-07,
+      -0.608066819890863
+    ]
+  ],
+  "residual_m_new": {
+    "median": 0.54,
+    "p90": 2.07,
+    "max": 6.27
+  },
+  "residual_m_old_4pt": {
+    "median": 1.72,
+    "p90": 3.44,
+    "max": 9.22
+  },
+  "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+}

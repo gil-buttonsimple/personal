@@ -1,0 +1,35 @@
+{
+  "sheet": "01-base-plat-clean",
+  "transform_type": "projective, least-squares over the full drawn perimeter",
+  "lat0": 34.66,
+  "control_points": 740,
+  "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+  "homography_px_to_localm": [
+    [
+      -45.147376075191744,
+      44.60652643585759,
+      4276185.247741062
+    ],
+    [
+      23.773814208867506,
+      -23.820473740837933,
+      -2219670.761550026
+    ],
+    [
+      6.163047504546322e-06,
+      -6.004239570458082e-06,
+      -0.5755833190537903
+    ]
+  ],
+  "residual_m_new": {
+    "median": 1.6,
+    "p90": 4.53,
+    "max": 8.4
+  },
+  "residual_m_old_4pt": {
+    "median": 4.03,
+    "p90": 7.03,
+    "max": 16.77
+  },
+  "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+}

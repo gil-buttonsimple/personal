@@ -1,0 +1,249 @@
+{
+  "sheets": [
+    {
+      "sheet": "01-base-plat-clean",
+      "transform_type": "projective, least-squares over the full drawn perimeter",
+      "lat0": 34.66,
+      "control_points": 740,
+      "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+      "homography_px_to_localm": [
+        [
+          -45.147376075191744,
+          44.60652643585759,
+          4276185.247741062
+        ],
+        [
+          23.773814208867506,
+          -23.820473740837933,
+          -2219670.761550026
+        ],
+        [
+          6.163047504546322e-06,
+          -6.004239570458082e-06,
+          -0.5755833190537903
+        ]
+      ],
+      "residual_m_new": {
+        "median": 1.6,
+        "p90": 4.53,
+        "max": 8.4
+      },
+      "residual_m_old_4pt": {
+        "median": 4.03,
+        "p90": 7.03,
+        "max": 16.77
+      },
+      "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+    },
+    {
+      "sheet": "02-trails-green",
+      "transform_type": "projective, least-squares over the full drawn perimeter",
+      "lat0": 34.66,
+      "control_points": 467,
+      "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+      "homography_px_to_localm": [
+        [
+          -298.06154353806653,
+          62.46659581964243,
+          4641044.456204973
+        ],
+        [
+          154.40790417309267,
+          -31.809224615735484,
+          -2410603.598788361
+        ],
+        [
+          4.002278221424989e-05,
+          -8.407732837836646e-06,
+          -0.6244115275382146
+        ]
+      ],
+      "residual_m_new": {
+        "median": 3.28,
+        "p90": 6.4,
+        "max": 8.49
+      },
+      "residual_m_old_4pt": {
+        "median": 6.74,
+        "p90": 11.59,
+        "max": 15.39
+      },
+      "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+    },
+    {
+      "sheet": "03-trails-orange-water-blue",
+      "transform_type": "projective, least-squares over the full drawn perimeter",
+      "lat0": 34.66,
+      "control_points": 876,
+      "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+      "homography_px_to_localm": [
+        [
+          40.95094339231441,
+          165.68149914118658,
+          3884326.9707416445
+        ],
+        [
+          -21.848764232560352,
+          -86.33266095284641,
+          -2015234.1244891696
+        ],
+        [
+          -5.510611602550043e-06,
+          -2.2373776291128392e-05,
+          -0.5225725223057796
+        ]
+      ],
+      "residual_m_new": {
+        "median": 0.58,
+        "p90": 2.09,
+        "max": 5.3
+      },
+      "residual_m_old_4pt": {
+        "median": 1.78,
+        "p90": 3.61,
+        "max": 6.9
+      },
+      "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+    },
+    {
+      "sheet": "04-deer-stands",
+      "transform_type": "projective, least-squares over the full drawn perimeter",
+      "lat0": 34.66,
+      "control_points": 876,
+      "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+      "homography_px_to_localm": [
+        [
+          88.694438703521,
+          -27.908933051231372,
+          -4365036.440373268
+        ],
+        [
+          -46.38816250681124,
+          15.15447653478249,
+          2265694.871867778
+        ],
+        [
+          -1.2024343675391897e-05,
+          3.75624742598966e-06,
+          0.5875463744672107
+        ]
+      ],
+      "residual_m_new": {
+        "median": 0.83,
+        "p90": 2.82,
+        "max": 6.88
+      },
+      "residual_m_old_4pt": {
+        "median": 3.13,
+        "p90": 6.28,
+        "max": 10.24
+      },
+      "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+    },
+    {
+      "sheet": "05-habitat-full-color",
+      "transform_type": "projective, least-squares over the full drawn perimeter",
+      "lat0": 34.66,
+      "control_points": 778,
+      "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+      "homography_px_to_localm": [
+        [
+          -108.34444153476196,
+          52.65001662351231,
+          4354412.189819389
+        ],
+        [
+          56.52490828113556,
+          -27.859498435992624,
+          -2260442.3214301947
+        ],
+        [
+          1.46482731079146e-05,
+          -7.085067698425205e-06,
+          -0.5860803238905865
+        ]
+      ],
+      "residual_m_new": {
+        "median": 0.68,
+        "p90": 2.87,
+        "max": 6.49
+      },
+      "residual_m_old_4pt": {
+        "median": 2.59,
+        "p90": 7.44,
+        "max": 11.49
+      },
+      "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+    },
+    {
+      "sheet": "06-master-legend-1995",
+      "transform_type": "projective, least-squares over the full drawn perimeter",
+      "lat0": 34.66,
+      "control_points": 724,
+      "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+      "homography_px_to_localm": [
+        [
+          117.1231766225041,
+          -20.872613701745223,
+          -4437228.212653964
+        ],
+        [
+          -60.558293026966446,
+          10.354769536945843,
+          2304555.548151919
+        ],
+        [
+          -1.5695474381646725e-05,
+          2.809733755144192e-06,
+          0.5970224519344557
+        ]
+      ],
+      "residual_m_new": {
+        "median": 0.72,
+        "p90": 2.78,
+        "max": 5.92
+      },
+      "residual_m_old_4pt": {
+        "median": 5.58,
+        "p90": 9.11,
+        "max": 13.5
+      },
+      "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+    },
+    {
+      "sheet": "07-deed-survey-kasparek",
+      "transform_type": "projective, least-squares over the full drawn perimeter",
+      "lat0": 34.66,
+      "control_points": 864,
+      "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+      "homography_px_to_localm": [
+        [
+          -151.56561292756595,
+          -7.06626178716972,
+          4517767.205655112
+        ],
+        [
+          78.94471052756842,
+          3.173322344734098,
+          -2345231.1725869817
+        ],
+        [
+          2.046226052419226e-05,
+          9.496258310188159e-07,
+          -0.608066819890863
+        ]
+      ],
+      "residual_m_new": {
+        "median": 0.54,
+        "p90": 2.07,
+        "max": 6.27
+      },
+      "residual_m_old_4pt": {
+        "median": 1.72,
+        "p90": 3.44,
+        "max": 9.22
+      },
+      "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+    }
+  ]
+}

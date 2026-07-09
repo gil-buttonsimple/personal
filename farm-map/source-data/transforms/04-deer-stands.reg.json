@@ -1,0 +1,35 @@
+{
+  "sheet": "04-deer-stands",
+  "transform_type": "projective, least-squares over the full drawn perimeter",
+  "lat0": 34.66,
+  "control_points": 876,
+  "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+  "homography_px_to_localm": [
+    [
+      88.694438703521,
+      -27.908933051231372,
+      -4365036.440373268
+    ],
+    [
+      -46.38816250681124,
+      15.15447653478249,
+      2265694.871867778
+    ],
+    [
+      -1.2024343675391897e-05,
+      3.75624742598966e-06,
+      0.5875463744672107
+    ]
+  ],
+  "residual_m_new": {
+    "median": 0.83,
+    "p90": 2.82,
+    "max": 6.88
+  },
+  "residual_m_old_4pt": {
+    "median": 3.13,
+    "p90": 6.28,
+    "max": 10.24
+  },
+  "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+}

@@ -1,0 +1,35 @@
+{
+  "sheet": "03-trails-orange-water-blue",
+  "transform_type": "projective, least-squares over the full drawn perimeter",
+  "lat0": 34.66,
+  "control_points": 876,
+  "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+  "homography_px_to_localm": [
+    [
+      40.95094339231441,
+      165.68149914118658,
+      3884326.9707416445
+    ],
+    [
+      -21.848764232560352,
+      -86.33266095284641,
+      -2015234.1244891696
+    ],
+    [
+      -5.510611602550043e-06,
+      -2.2373776291128392e-05,
+      -0.5225725223057796
+    ]
+  ],
+  "residual_m_new": {
+    "median": 0.58,
+    "p90": 2.09,
+    "max": 5.3
+  },
+  "residual_m_old_4pt": {
+    "median": 1.78,
+    "p90": 3.61,
+    "max": 6.9
+  },
+  "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+}

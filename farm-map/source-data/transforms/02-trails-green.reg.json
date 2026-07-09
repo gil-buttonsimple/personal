@@ -1,0 +1,35 @@
+{
+  "sheet": "02-trails-green",
+  "transform_type": "projective, least-squares over the full drawn perimeter",
+  "lat0": 34.66,
+  "control_points": 467,
+  "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+  "homography_px_to_localm": [
+    [
+      -298.06154353806653,
+      62.46659581964243,
+      4641044.456204973
+    ],
+    [
+      154.40790417309267,
+      -31.809224615735484,
+      -2410603.598788361
+    ],
+    [
+      4.002278221424989e-05,
+      -8.407732837836646e-06,
+      -0.6244115275382146
+    ]
+  ],
+  "residual_m_new": {
+    "median": 3.28,
+    "p90": 6.4,
+    "max": 8.49
+  },
+  "residual_m_old_4pt": {
+    "median": 6.74,
+    "p90": 11.59,
+    "max": 15.39
+  },
+  "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+}

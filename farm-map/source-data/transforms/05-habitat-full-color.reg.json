@@ -1,0 +1,35 @@
+{
+  "sheet": "05-habitat-full-color",
+  "transform_type": "projective, least-squares over the full drawn perimeter",
+  "lat0": 34.66,
+  "control_points": 778,
+  "control_source": "43-course deed traverse, ICP-snapped to the boundary ink",
+  "homography_px_to_localm": [
+    [
+      -108.34444153476196,
+      52.65001662351231,
+      4354412.189819389
+    ],
+    [
+      56.52490828113556,
+      -27.859498435992624,
+      -2260442.3214301947
+    ],
+    [
+      1.46482731079146e-05,
+      -7.085067698425205e-06,
+      -0.5860803238905865
+    ]
+  ],
+  "residual_m_new": {
+    "median": 0.68,
+    "p90": 2.87,
+    "max": 6.49
+  },
+  "residual_m_old_4pt": {
+    "median": 2.59,
+    "p90": 7.44,
+    "max": 11.49
+  },
+  "note": "Residual is fit-to-perimeter only. The interior has no independent reference (0 OSM ways enter the property) and is not measured by this number."
+}
