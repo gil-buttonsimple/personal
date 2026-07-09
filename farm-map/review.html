@@ -31,6 +31,8 @@
   <div class="row"><input type="checkbox" id="nh"><span class="sw" style="background:#fff;height:2px"></span><label for="nh">Lake — USGS NHD (old)</label></div>
   <div class="row"><input type="checkbox" id="bd" checked><span class="sw" style="background:#ff2ddd"></span><label for="bd">Deed boundary</label></div>
   <hr>
+  <div class="row"><input type="checkbox" id="off" checked><label for="off">Show off-property lines</label></div>
+  <hr>
   <div class="n" id="stats">loading…</div>
 </div>
 <script>
@@ -64,26 +66,39 @@ const getJSON = (url) => fetch(url).then(r => {
   return r.json();
 }).catch(e => { fail('Could not load <code>' + url + '</code> — ' + e.message); throw e; });
 
+// Off-property lines are real (the hunt club's network runs onto the adjoining
+// tracts) but they are dashed, so the deed parcel stays legible.
+const offLayers = [];
+
 getJSON('source-data/derived/trails.geojson').then(gj=>{
   const tally = {1:0,2:0,3:0}, meters = {1:0,2:0,3:0};
+  let offN = 0, offM = 0;
   L.geoJSON(gj, {
     style: f => ({color: COL[f.properties.sheet_support]||'#888',
                   weight: f.properties.sheet_support===3?3.4:2.2,
-                  opacity: 0.95}),
+                  opacity: f.properties.where==='off-property'?0.55:0.95,
+                  dashArray: f.properties.where==='off-property'?'6,5':null}),
     onEachFeature: (f,l) => {
       const p = f.properties;
       tally[p.sheet_support]++; meters[p.sheet_support]+=p.length_m;
-      l.bindPopup(`<b>${p.length_m} m</b><br>drawn on sheet ${p.source}` +
+      if (p.where==='off-property'){ offN++; offM+=p.length_m; offLayers.push(l); }
+      l.bindPopup(`<b>${p.length_m} m</b> · ${p.where}<br>drawn on sheet ${p.source}` +
         (p.confirmed_by.length ? `<br>confirmed by ${p.confirmed_by.join(', ')}` : '<br><i>no other sheet shows this</i>'));
       groups[p.sheet_support].addLayer(l);
     }
   });
   const km = n => (meters[n]/1000).toFixed(1);
+  const tot = ((meters[1]+meters[2]+meters[3])/1000).toFixed(1);
   document.getElementById('stats').innerHTML =
     `${tally[3]} lines · ${km(3)} km — all 3 sheets<br>` +
     `${tally[2]} lines · ${km(2)} km — 2 sheets<br>` +
     `${tally[1]} lines · ${km(1)} km — 1 sheet<br>` +
+    `<b>${tot} km total</b> · ${offN} lines (${(offM/1000).toFixed(1)} km) off-property, dashed<br>` +
     `<br>Every annotation is from the 1995 survey.<br>Tiers (road vs foot trail) not yet classified.`;
+
+  document.getElementById('off').addEventListener('change', e => {
+    offLayers.forEach(l => l.setStyle({opacity: e.target.checked ? 0.55 : 0}));
+  });
 });
 
 const lake = L.layerGroup().addTo(map), nhd = L.layerGroup(), bnd = L.layerGroup().addTo(map);

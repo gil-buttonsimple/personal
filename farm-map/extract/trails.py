@@ -29,6 +29,7 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage
 from shapely.geometry import mapping, MultiLineString
+from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
 import geolib as G
@@ -37,6 +38,7 @@ import register as R
 
 DEMO = os.path.join(G.REPO, "farm-map", "demo")
 LAT0 = 34.66
+SURVEY = Polygon(F.SURVEY_LONLAT)
 
 
 def sheet(slug):
@@ -44,11 +46,28 @@ def sheet(slug):
 
 
 def roi_for(slug, a, pad_px=220):
-    """Generous property ROI. The network runs off the survey polygon into the north
-    tract, so this is a margin/legend rejecter, not a property clip."""
-    h = np.array(json.load(open(os.path.join(G.TX, slug + ".json")))["homography_px_to_world"])
-    roi, _ = F.boundary_roi(a, h, pad_px=pad_px)
-    return roi
+    """The region of interest is the PAPER, not the property.
+
+    The first version clipped to the deed polygon plus a 220 px pad. That threw away
+    92.6% of sheet 03's orange ink: the hunt club's road and trail network runs well
+    off the deed parcel into the north and east tracts, and the clip cut every one of
+    those lines at the boundary. The thing actually worth excluding is the wooden
+    table the sheets were photographed on -- which is orange-brown, and which the
+    trail masks love.
+
+    So: find the paper. It is the one huge bright, unsaturated component in the frame.
+    Erode a little to step off the curled paper edge, and keep everything drawn on it.
+    """
+    H, S, V = F.to_hsv(a)
+    bright = (V > 0.50) & (S < 0.40)
+    bright = ndimage.binary_closing(bright, np.ones((9, 9)))
+    lbl, n = ndimage.label(bright)
+    if n == 0:
+        return np.ones(a.shape[:2], bool)
+    sizes = ndimage.sum(bright, lbl, range(1, n + 1))
+    paper = lbl == (1 + int(np.argmax(sizes)))
+    paper = ndimage.binary_fill_holes(paper)
+    return ndimage.binary_erosion(paper, iterations=12)
 
 
 def net_from(slug, mask, bridge, min_branch, min_len_m, dbg_name, dbg_col):
@@ -129,18 +148,35 @@ def main():
                 inter = g.intersection(buf)
                 if not inter.is_empty and inter.length > 0.5 * g.length:
                     support.append(k2)
+            # Where does it sit relative to the deed parcel? The network legitimately
+            # runs off-property, so this is a label, not a filter.
+            inside_len = g.intersection(SURVEY).length
+            if inside_len <= 0.02 * g.length:
+                where = "off-property"
+            elif inside_len >= 0.98 * g.length:
+                where = "on-property"
+            else:
+                where = "crosses-boundary"
             feats.append(F.feat(
                 mapping(g),
                 layer="road/trail", klass="unclassified", source=k,
                 length_m=round(G.line_len_m(g)),
                 confirmed_by=sorted(support),
-                sheet_support=1 + len(support)))
+                sheet_support=1 + len(support),
+                where=where))
 
     by = {}
     for f in feats:
         by[f["properties"]["sheet_support"]] = by.get(f["properties"]["sheet_support"], 0) + 1
     print("\nfused features: %d" % len(feats))
     print("sheet support histogram (1 = only one sheet draws it): %s" % dict(sorted(by.items())))
+    wh = {}
+    for f in feats:
+        w = f["properties"]["where"]
+        wh[w] = wh.get(w, 0) + 1
+    print("relative to the deed parcel: %s" % wh)
+    km = sum(f["properties"]["length_m"] for f in feats) / 1000.0
+    print("total network: %.1f km" % km)
 
     F.write("trails.geojson", F.fc(
         feats,
