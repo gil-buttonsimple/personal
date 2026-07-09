@@ -1,8 +1,11 @@
 <!doctype html>
 <meta charset="utf-8">
 <title>K-Farm — trails + lake review</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet is vendored, not pulled from a CDN: if unpkg is unreachable or blocked,
+     `L` is undefined, the whole script dies on its first line, and the page just sits
+     at "loading..." with no trails and no clue why. -->
+<link rel="stylesheet" href="vendor/leaflet.css">
+<script src="vendor/leaflet.js"></script>
 <style>
   html,body{margin:0;height:100%;background:#111;color:#eee;font:14px/1.45 system-ui,sans-serif}
   #map{position:absolute;inset:0}
@@ -16,6 +19,8 @@
   hr{border:0;border-top:1px solid #333;margin:11px 0}
 </style>
 <div id="map"></div>
+<div id="err" style="display:none;position:absolute;z-index:1200;top:12px;left:12px;max-width:520px;
+     background:#5a1111;border:1px solid #a33;border-radius:8px;padding:10px 14px"></div>
 <div id="panel">
   <h1>K-Farm — trails &amp; lake</h1>
   <div class="row"><input type="checkbox" id="t3" checked><span class="sw" style="background:#39ff14"></span><label for="t3">All 3 sheets agree</label></div>
@@ -29,16 +34,37 @@
   <div class="n" id="stats">loading…</div>
 </div>
 <script>
+// Say what broke, on the page. A silent failure reads as "the trails aren't there".
+const errBox = document.getElementById('err');
+function fail(msg){ errBox.style.display='block'; errBox.innerHTML += msg + '<br>'; }
+window.addEventListener('error', e => fail('Script error: ' + e.message));
+
+if (typeof L === 'undefined') {
+  fail('<b>Leaflet failed to load</b> from vendor/leaflet.js — the map cannot draw.');
+  throw new Error('leaflet missing');
+}
+
 const map = L.map('map', {zoomControl:true}).setView([34.663,-81.155], 15);
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+// Satellite needs the internet. The trails do not -- they are local GeoJSON. If the
+// tiles never arrive you still get the network on a plain dark background.
+const tiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   {maxZoom:19, attribution:'Esri'}).addTo(map);
+let tileOk = false;
+tiles.on('tileload', () => { tileOk = true; });
+setTimeout(() => { if (!tileOk) fail('Satellite tiles unreachable (no internet?). '
+  + 'Trails and lake are drawn from local files and should still be visible.'); }, 6000);
 
 const COL = {3:'#39ff14', 2:'#ffd21a', 1:'#ff4d4d'};
 const groups = {1:L.layerGroup().addTo(map), 2:L.layerGroup().addTo(map), 3:L.layerGroup().addTo(map)};
 
 function len(props){ return props.length_m; }
 
-fetch('source-data/derived/trails.geojson').then(r=>r.json()).then(gj=>{
+const getJSON = (url) => fetch(url).then(r => {
+  if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+  return r.json();
+}).catch(e => { fail('Could not load <code>' + url + '</code> — ' + e.message); throw e; });
+
+getJSON('source-data/derived/trails.geojson').then(gj=>{
   const tally = {1:0,2:0,3:0}, meters = {1:0,2:0,3:0};
   L.geoJSON(gj, {
     style: f => ({color: COL[f.properties.sheet_support]||'#888',
@@ -61,16 +87,16 @@ fetch('source-data/derived/trails.geojson').then(r=>r.json()).then(gj=>{
 });
 
 const lake = L.layerGroup().addTo(map), nhd = L.layerGroup(), bnd = L.layerGroup().addTo(map);
-fetch('source-data/derived/water.geojson').then(r=>r.json()).then(gj=>{
+getJSON('source-data/derived/water.geojson').then(gj=>{
   L.geoJSON(gj,{style:{color:'#00c2ff',weight:2,fillColor:'#00c2ff',fillOpacity:.42}})
    .bindPopup('Flood Control Lake — traced from sheet 06 blue highlighter')
    .addTo(lake);
 });
-fetch('source-data/derived/water-nhd.geojson').then(r=>r.json()).then(gj=>{
+getJSON('source-data/derived/water-nhd.geojson').then(gj=>{
   L.geoJSON(gj,{style:{color:'#fff',weight:2,dashArray:'5,4',fill:false}})
    .bindPopup('USGS NHD impoundment (24.5 ac) — the file this replaces').addTo(nhd);
 });
-fetch('source-data/sheet07-boundary.geojson').then(r=>r.json()).then(gj=>{
+getJSON('source-data/sheet07-boundary.geojson').then(gj=>{
   L.geoJSON(gj,{style:{color:'#ff2ddd',weight:2,fill:false}}).addTo(bnd);
   try { map.fitBounds(L.geoJSON(gj).getBounds(), {padding:[30,30]}); } catch(e){}
 });
