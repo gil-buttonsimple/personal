@@ -105,9 +105,9 @@ document.getElementById('baseOp').oninput=function(){if(bases[curBase])bases[cur
 // ---- Colour schemes -----------------------------------------------------
 // role -> colour, per scheme. Strokes recolour live for contrast on any basemap.
 var SCHEME={
- bright:{parcel:'#2dc0fb',survey:'#39ff14',survey0:'#39ff14',roads:'#ffd21a',stands:'#ff7a00',water:'#00c2ff',food:'#5cf000',trails:'#ff2ddd',flood:'#ff9a3c'},
- dark:  {parcel:'#0066a3',survey:'#0a7a00',survey0:'#0a7a00',roads:'#7a4b00',stands:'#b33b00',water:'#005c99',food:'#1f6b00',trails:'#7a5c00',flood:'#8a4a00'},
- white: {parcel:'#ffffff',survey:'#ffffff',survey0:'#ffffff',roads:'#ffffff',stands:'#ffffff',water:'#ffffff',food:'#ffffff',trails:'#ffffff',flood:'#ffffff'}
+ bright:{parcel:'#2dc0fb',survey:'#39ff14',survey0:'#39ff14',roads:'#ffd21a',stands:'#ff7a00',water:'#00c2ff',food:'#5cf000',trails:'#ff2ddd',flood:'#ff9a3c',tree:'#7ee081',nhd:'#ffffff',mark:'#ff00ff'},
+ dark:  {parcel:'#0066a3',survey:'#0a7a00',survey0:'#0a7a00',roads:'#7a4b00',stands:'#b33b00',water:'#005c99',food:'#1f6b00',trails:'#7a5c00',flood:'#8a4a00',tree:'#2f6b33',nhd:'#666666',mark:'#a000a0'},
+ white: {parcel:'#ffffff',survey:'#ffffff',survey0:'#ffffff',roads:'#ffffff',stands:'#ffffff',water:'#ffffff',food:'#ffffff',trails:'#ffffff',flood:'#ffffff',tree:'#ffffff',nhd:'#ffffff',mark:'#ffffff'}
 };
 var scheme='bright', fillOp=0;
 
@@ -122,7 +122,10 @@ var REG=[
  {key:'wt',  role:'water',   kind:'poly',  label:'Lake — sheet 06 (29.98 ac)', on:true, weight:1.5, op:.95},
  {key:'fp',  role:'food',    kind:'poly',  label:'Food plots (24 of legend’s 30)', on:false, weight:1.5, op:.9},
  {key:'tr',  role:'trails',  kind:'line',  label:'Roads & trails (410 lines · 41.0 km)', on:true, weight:2, op:.85},
- {key:'fe',  role:'flood',   kind:'line',  label:'Flood easement (sheet 07 · 8.2 km)', on:false, weight:2, op:.9, dash:'2,5'}
+ {key:'fe',  role:'flood',   kind:'line',  label:'Flood easement (sheet 07 · 8.2 km)', on:false, weight:2, op:.9, dash:'2,5'},
+ {key:'tl',  role:'tree',    kind:'line',  label:'Tree lines (sheet 07 · 1.4 km)', on:false, weight:2, op:.9, dash:'8,5'},
+ {key:'nhd', role:'nhd',     kind:'poly',  label:'Lake — USGS NHD (old, 24.5 ac)', on:false, weight:2, op:.8, dash:'5,4'},
+ {key:'mk',  role:'mark',    kind:'line',  label:'Paths you marked as missing', on:false, weight:4, op:.95, dash:'4,4'}
 ];
 // Survey sheets, rectified into ONE shared geographic frame (warp_sheets.py) so they
 // onion-skin in exact registration. Placed as plain image overlays on the shared bounds.
@@ -216,6 +219,12 @@ loadGeo(byKey.wt,'../source-data/derived/water.geojson');
 loadGeo(byKey.fp,'../source-data/derived/food-plots.geojson');
 loadGeo(byKey.tr,'../source-data/derived/trails.geojson');
 loadGeo(byKey.fe,'../source-data/derived/flood-easement.geojson');
+loadGeo(byKey.tl,'../source-data/derived/tree-lines.geojson');
+loadGeo(byKey.nhd,'../source-data/derived/water-nhd.geojson');
+// Gil's hand-marked paths. Absent until he marks one -- loadGeo ignores a 404.
+loadGeo(byKey.mk,'../source-data/marks.geojson');
+// NOT wired in, deliberately: dirt-roads.geojson and printed-roads.geojson are both
+// marked DRAFT -- NOT USABLE. They are contour fragments, not roads.
 
 // ---- Build the panel rows ----------------------------------------------
 var host=document.getElementById('layers');
