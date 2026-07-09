@@ -368,11 +368,11 @@ window.addEventListener('load',frame);
     'Mark as many as you like, then Copy and paste to Claude.</div>'+
     '<button id="mmToggle">Start marking</button> '+
     '<button id="mmFinish" disabled>Finish path</button><br>'+
-    '<button id="mmCopy" style="margin-top:7px" disabled>Copy all</button> '+
-    '<button id="mmClear" style="margin-top:7px">Clear</button>'+
+    '<button id="mmSave" style="margin-top:7px" disabled>Save to disk</button> '+
+    '<button id="mmClear" style="margin-top:7px">Clear saved</button>'+
     '<div id="mmOut" style="color:#8c8;font-size:12px;margin-top:7px"></div>';
   document.body.appendChild(box);
-  ['mmToggle','mmFinish','mmCopy','mmClear'].forEach(function(id){
+  ['mmToggle','mmFinish','mmSave','mmClear'].forEach(function(id){
     box.querySelector('#'+id).style.cssText+=
       'background:#333;color:#eee;border:1px solid #555;border-radius:6px;padding:4px 9px;cursor:pointer';
   });
@@ -380,7 +380,7 @@ window.addEventListener('load',frame);
 
   function status(){
     out.textContent = paths.length+' path(s) marked'+(pts.length?', '+pts.length+' point(s) in progress':'');
-    box.querySelector('#mmCopy').disabled = !paths.length;
+    box.querySelector('#mmSave').disabled = !paths.length;
     box.querySelector('#mmFinish').disabled = pts.length<2;
   }
   function finish(){
@@ -405,15 +405,41 @@ window.addEventListener('load',frame);
        .bindPopup('missing path #'+paths.length);
   };
   box.querySelector('#mmClear').onclick=function(){
-    finish(); paths=[]; location.reload();
+    if(!confirm('Delete every saved mark? This cannot be undone.')) return;
+    fetch('/marks',{method:'DELETE'}).then(function(){ location.reload(); })
+      .catch(function(e){ out.style.color='#e88'; out.textContent='Clear failed: '+e.message; });
   };
-  box.querySelector('#mmCopy').onclick=function(){
-    var txt='Missing paths (lat,lon):\n'+paths.map(function(p,i){
-      return '#'+(i+1)+': '+p.map(function(c){return c[0].toFixed(6)+','+c[1].toFixed(6);}).join('  ');
-    }).join('\n');
-    navigator.clipboard.writeText(txt).then(function(){ out.textContent='Copied. Paste it to Claude.'; },
-      function(){ prompt('Copy this:', txt); });
+  // Save straight to disk. The plain static server cannot receive a POST -- if the
+  // page is being served by `python3 -m http.server`, say so instead of failing mute.
+  box.querySelector('#mmSave').onclick=function(){
+    finish();
+    if(!paths.length) return;
+    out.style.color='#8c8'; out.textContent='saving…';
+    fetch('/marks',{method:'POST',headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({paths:paths})})
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(j){
+        out.style.color='#8c8';
+        out.textContent='Saved. '+j.total+' path(s) on disk — tell Claude to read them.';
+        paths=[];
+      })
+      .catch(function(e){
+        out.style.color='#e88';
+        out.textContent='Save failed ('+e.message+'). Is serve_marks.py running? '+
+          'A plain http.server cannot accept saves.';
+      });
   };
+
+  // Draw whatever was saved before, so marks persist across reloads.
+  fetch('../source-data/marks.geojson').then(function(r){ return r.ok?r.json():null; }).then(function(g){
+    if(!g||!g.features) return;
+    g.features.forEach(function(f,i){
+      var ll=f.geometry.coordinates.map(function(c){return [c[1],c[0]];});
+      L.polyline(ll,{color:'#ff00ff',weight:3,dashArray:'4,4',opacity:.75}).addTo(map)
+       .bindPopup('saved missing path #'+(i+1)+'<br>'+(f.properties.marked_at||''));
+    });
+    if(g.features.length) out.textContent = g.features.length+' saved path(s) loaded from disk';
+  }).catch(function(){});
 
   map.on('click', function(e){
     if(!on) return;
