@@ -1,13 +1,15 @@
 {
  "type": "FeatureCollection",
- "note": "paths Gil marked as MISSING from the extraction",
+ "note": "paths Gil marked as MISSING from the extraction; see properties.status",
  "features": [
   {
    "type": "Feature",
    "properties": {
     "marked_at": "2026-07-09T15:06:24",
-    "status": "missing-from-extraction",
-    "note": ""
+    "status": "resolved",
+    "note": "",
+    "identified_as": "flood easement (sheet 07 printed: single row of round dots)",
+    "resolution": "Not a trail. Confirmed by Gil against the sheet 07 legend. Extracted into derived/flood-easement.geojson; 75.2% of this hand-marked path is reproduced within 15 m."
    },
    "geometry": {
     "type": "LineString",
