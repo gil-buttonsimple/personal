@@ -9,23 +9,33 @@ once their content is safely landed and verified.
 Sibling project: [data-google-cleanup.md](data-google-cleanup.md) — both land data in
 the same place. This file owns the shared **Target storage** decision below.
 
-Status: **uploading to B2** — sources pulled, deduped, trimmed, and HEVC-re-encoded;
-`_TRASH` emptied (archive now ~281 GB). Off-site push to Backblaze B2 **in progress**
-(launched 2026-06-25, 278.5 GiB / 203,563 objects). Bucket `gk-drive-archive`
+Status: **B2 upload COMPLETE** (2026-07-12) — sources pulled, deduped, trimmed, and
+HEVC-re-encoded; `_TRASH` emptied (archive ~281 GB local staging). Full bulk archive is
+on Backblaze B2: **278.4 GiB / 207,969 objects**, all six folders present
+(`72097`, `tgk`, `copper`, `gk-usb`, `_analysis`, `_proof`). Bucket `gk-drive-archive`
 (region `us-east-005`, private, encryption on); rclone remote `b2archive:`; secret in
 `~/.config/rclone/rclone.conf` only. Filter excludes scratch dirs (`_proof`, `_analysis`,
 `_*_hevc`, root logs) at `_proof/b2_upload.filter`; sync log `_proof/b2_sync.log`.
-On completion run `rclone check` for parity, then this is the "1 off-site" of 3-2-1.
+This is the "1 off-site" of 3-2-1 (personal #14).
 
 ---
 
 ## Target storage (shared end-state)
 
-The canonical destination both this project and the Google cleanup consolidate into:
+The canonical destination both this project and the Google cleanup consolidate into.
+**Corrected 2026-07-06/07-12:** the *bulk archive* has ONE home — **Backblaze B2** — not
+Google Drive. (An in-session error briefly uploaded 85.6 GB of the bulk to Google Drive;
+that folder was deleted and repointed to B2.) Google Drive on `tgk@` is used only for small
+**share slices** that need a human-friendly link (e.g. Stacey's ~15 GB delivery), never the
+bulk. The founder's standing preference (2026-07-12) is **nothing resting on the LAN**: data
+lives in the cloud (B2), and the baobab `/home/gil/drive-archive` copy is staging to be reclaimed.
 
-- **Cloud (canonical home):** Google Drive on `tgk@`.
-- **Off-site backup:** **Backblaze B2** (see personal #14) — the "1 off-site" of 3-2-1,
-  on a different provider than Google. ~$6/TB/mo, restore-friendly.
+- **Canonical home (bulk archive):** **Backblaze B2** — `b2archive:gk-drive-archive`
+  (see personal #14). ~$6/TB/mo, restore-friendly.
+- **Google Drive (`tgk@`):** share slices only, not the bulk.
+- **3-2-1 note / OPEN decision:** B2 is currently the *only* copy of the bulk (the planned
+  "write keeper set to a wiped local drive" master was never written). One cloud copy is not
+  a full backup — founder to decide: accept B2-only and reclaim baobab, or add one local master.
 - **Folder taxonomy:** how the staged archive is organized before/at the destination —
   **OPEN** (raised s27). Current staging keeps each source under its own top-level
   folder (`72097`, `tgk`, `copper`, `gk-usb`); a cleaner cross-source taxonomy is TBD.

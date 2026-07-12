@@ -1,6 +1,6 @@
 # Data — Google Account Cleanup
 
-**Last Updated:** 2026-06-04
+**Last Updated:** 2026-07-12
 
 **Goal:** Retire `web@gkasparek.com` off Google Workspace — preserve all its data,
 then shut the mailbox and account down. Keep `gil@buttonsimple.com` (Workspace).
@@ -45,16 +45,21 @@ mailbox is preserved and shut down there is no send-from to maintain.
 - [x] 5. Clean up files (remove largest, pull out photos/videos)
 - [x] 5.5. JSON fix
 - [x] 6. Merge + deduplicate photos
-- [ ] **7. Preserve web@ email — NEXT.** Mailbox is live; capture history before teardown:
-  1. **Archive (canonical):** Google Takeout on `web@` → export Mail as **MBOX**.
-     Store the MBOX with the offline backup (see drives doc Target storage).
-  2. **Fold into tgk@ (optional but recommended):** in `web@` enable POP, then in
-     `tgk@` → Settings → Accounts → *Import mail and contacts* to pull old mail +
-     contacts over. (Workspace may restrict POP — enable it on `web@` first.)
-  3. **Verify forwarding** is catching *new* mail at `tgk@` before deleting anything.
-  - *Decision point:* archive-only, import-into-tgk@, or both. Recommend both.
-- [ ] 10. Contacts — export from `web@`, confirm landed in `tgk@` (covered by 7.2 import, or Contacts export/import). Test.
-- [ ] 10.5. Calendar — export `web@` calendars (ICS), import to `tgk@`. Test.
+- [x] **7 / 10 / 10.5. Preserve web@ account-locked data (Mail + Contacts + Calendar) — DONE 2026-07-12.**
+  A single Takeout of `web@` **excluding Drive and Photos** (those already preserved —
+  Drive copied in step 2; Photos are the drive-02 `tgk` master, 98 GB, already on B2)
+  captured everything account-locked: **Mail 9 GB, Contacts, Calendar + all small service
+  exports** (Chat, Fi, Wallet, Keep, Tasks, YouTube, Pixel, etc.). Total 4.95 GB, 4 zip
+  parts. Archived to Backblaze B2 at `b2archive:gk-drive-archive/_google-account-web@/takeout-2026-07-12/`,
+  rclone-check parity verified (0 differences, 4/4).
+  - **Method (new standard — never touches the LAN):** Takeout → delivery **"Add to Drive"**
+    (lands in `web@` Drive) → `rclone` on **Mesquite** (cloud node) copies Drive→B2
+    cloud-to-cloud. Baobab/LAN never hold the data. `webdrive:` remote (web@ OAuth) added to
+    Mesquite's rclone.conf.
+  - **Superseded:** the earlier 6×50 GB full Takeout (with Drive+Photos) was ~99.9% redundant
+    (photos already in the tgk master) — abandoned in favor of this Drive/Photos-excluded export.
+  - **Optional follow-up (not a teardown blocker):** fold old mail into `tgk@` via Gmail POP
+    import (`web@` enable POP → `tgk@` Settings → Accounts → Import mail and contacts).
 
 ### Phase C — Tear down web@ (open)
 
@@ -63,7 +68,11 @@ mailbox is preserved and shut down there is no send-from to maintain.
 - [ ] 12a. **Final catch-up export of `web@` Photos** (full Takeout, `.zip`, 50 GB parts)
   — sweeps up photos taken between the last pull and the 2026-07-03 account flip. Land
   in `/home/gil/drive-archive`, dedup + verify + rclone to B2, THEN proceed to 12.
-- [ ] 12. Delete Drive and Photos from `web@` (only after Phase B verified)
+- [ ] 12. Delete Drive and Photos from `web@` (only after Phase B verified).
+  **TEARDOWN GATE (2026-07-12):** `web@` Drive still holds an **`OBSOLETE/` folder = 86.8 GB**
+  (old Accounting, Business/Baldwin scans, "g-drive tgk@ 2020" personal zips, Stacey backups).
+  The name implies it was already moved out, but 86.8 GB is not deleted on faith — confirm it
+  is present in the B2 archive (or explicitly discard it) BEFORE deleting Drive or closing the account.
 - [ ] 11. Phone: remove `web@` and `gil@b` accounts (bug-test first)
 - [ ] 13. Remove `web@` from all devices (phone, Chromebook)
 - [ ] **Final: shut down the mailbox / cancel the `web@` Workspace seat.** Confirm
