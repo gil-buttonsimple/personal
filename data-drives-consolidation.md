@@ -33,9 +33,13 @@ lives in the cloud (B2), and the baobab `/home/gil/drive-archive` copy is stagin
 - **Canonical home (bulk archive):** **Backblaze B2** — `b2archive:gk-drive-archive`
   (see personal #14). ~$6/TB/mo, restore-friendly.
 - **Google Drive (`tgk@`):** share slices only, not the bulk.
-- **3-2-1 note / OPEN decision:** B2 is currently the *only* copy of the bulk (the planned
-  "write keeper set to a wiped local drive" master was never written). One cloud copy is not
-  a full backup — founder to decide: accept B2-only and reclaim baobab, or add one local master.
+- **3-2-1 — DECIDED 2026-07-12: B2 primary + one OFFLINE cold-drive master.** B2 alone is
+  one copy in one account (lockout / billing lapse / accidental delete = total loss), unacceptable
+  for irreplaceable family history. Plan: write the keeper set once to a single external drive
+  (06's 1 TB Toshiba after a clean reformat is the natural candidate) that lives **unplugged**
+  in a drawer / at the farm — off, not on the LAN, so it honors "nothing resting on the LAN"
+  while giving a true 2nd copy. THEN reclaim baobab's ~281 GB staging. (Local master step,
+  dropped as B2-only earlier, is back ON.)
 - **Folder taxonomy:** how the staged archive is organized before/at the destination —
   **OPEN** (raised s27). Current staging keeps each source under its own top-level
   folder (`72097`, `tgk`, `copper`, `gk-usb`); a cleaner cross-source taxonomy is TBD.
