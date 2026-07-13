@@ -58,8 +58,12 @@ mailbox is preserved and shut down there is no send-from to maintain.
     Mesquite's rclone.conf.
   - **Superseded:** the earlier 6×50 GB full Takeout (with Drive+Photos) was ~99.9% redundant
     (photos already in the tgk master) — abandoned in favor of this Drive/Photos-excluded export.
-  - **Optional follow-up (not a teardown blocker):** fold old mail into `tgk@` via Gmail POP
-    import (`web@` enable POP → `tgk@` Settings → Accounts → Import mail and contacts).
+  - **QUEUED follow-up (not a teardown blocker) — searchable old mail in tgk@, the right way:**
+    Gmail's "Import mail and contacts" is broken for Workspace-source accounts (POP "could not
+    validate" even with an app password — tried 2026-07-12, abandoned). Do it instead by pushing
+    the **archived MBOX (on B2) into tgk@ over IMAP**, agent-driven from the cloud side (no LAN,
+    no founder UI-fighting). Needs one thing from Gil: a **tgk@ app password** for IMAP write.
+    Deferred at founder's request 2026-07-12 (decide/schedule later).
 
 ### Phase C — Tear down web@ (open)
 
