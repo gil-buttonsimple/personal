@@ -69,15 +69,22 @@ mailbox is preserved and shut down there is no send-from to maintain.
 
 - [ ] 8. Change default domain on Google Workspace (and remove web@ domain?)
 - [ ] 9. Delete email attachments (various accounts) — storage reclaim
-- [ ] 12a. **Final catch-up export of `web@` Photos** (full Takeout, `.zip`, 50 GB parts)
-  — sweeps up photos taken between the last pull and the 2026-07-03 account flip. Land
-  in `/home/gil/drive-archive`, dedup + verify + rclone to B2, THEN proceed to 12.
-- [ ] 12. Delete Drive and Photos from `web@` (only after Phase B verified).
-  **TEARDOWN GATE (2026-07-12):** `web@` Drive still holds an **`OBSOLETE/` folder = 86.8 GB**
-  (old Accounting, Business/Baldwin scans, "g-drive tgk@ 2020" personal zips, Stacey backups).
-  The name implies it was already moved out, but 86.8 GB is not deleted on faith — confirm it
-  is present in the B2 archive (or explicitly discard it) BEFORE deleting Drive or closing the account.
-- [ ] 11. Phone: remove `web@` and `gil@b` accounts (bug-test first)
+- [ ] 12a. **Final catch-up of `web@` Photos — DELTA ONLY, not a full re-Takeout.**
+  A full Takeout re-pulls all ~98 GB we already hold in the `tgk` master; wasteful. Only the
+  *delta* is needed: photos that landed in `web@` between the last pull and the 2026-07-03
+  backup flip. Plan: size the delta first via rclone's Google Photos backend (date-scoped,
+  read-only, from Mesquite); if trivial → skip. If worth keeping and metadata matters, do a
+  **date-scoped Takeout** of just that window (rclone gphotos download strips GPS metadata).
+- [~] 12. Delete Drive and Photos from `web@` (only after Phase B verified).
+  **OBSOLETE sub-step DONE/IN-PROGRESS (2026-07-15):** `web@` Drive `OBSOLETE/` folder
+  (~86.8 GB, old Accounting / Business-Baldwin scans / "g-drive tgk@ 2020" personal zips /
+  Stacey backups) verified present in B2 at
+  `_google-account-web@/web-drive-OBSOLETE` — **13,897 files matching, 0 real differences**
+  (only 7 dangling shortcuts missing; 8 dirs unverified due to Google rate-limit, folder is
+  founder-designated obsolete so accepted). Deletion from `web@` running on Mesquite
+  (`rclone purge webdrive:OBSOLETE`, throttled). Remaining under step 12: the rest of Drive + Photos.
+- [ ] 11. Phone: remove `web@` and `gil@b` accounts (**gated on the SSO conversion checklist
+  below — bug-test first**)
 - [ ] 13. Remove `web@` from all devices (phone, Chromebook)
 - [ ] **Final: shut down the mailbox / cancel the `web@` Workspace seat.** Confirm
   forwarding still routes anything stray, then close it out and stop the billing.
@@ -116,6 +123,36 @@ AmpereTime, nvidia mdarcy, WhatsApp) — ignore.
   Google Cloud SDK, GPT for Sheets and Docs, IconScout, LambdaTest, Make, Medium,
   Midjourney, monday.com (x2), OpenAI, OpenArt, Penpot, rclone, Recraft AI, Resend,
   Sanity, Slack (x2), Tailscale, Vecteezy, Webflow, Webstudio.
+
+## SSO conversion checklist (prioritized) — GATE on phone teardown (steps 11 & 13)
+
+Retiring `web@` breaks any service whose only login is "Sign in with Google (`web@`)".
+Dashlane does NOT fix this: it stores/fills a password, it can't detach an account from
+Google SSO or move its email off `web@`. **Per-service action = set a password + change the
+account email from `web@gkasparek.com` to `tgk@`, then save the new password in Dashlane.**
+Links are best-guess to each service's login/security page.
+
+### Tier 1 — convert BEFORE teardown (real value, hard to recover)
+- [ ] **LinkedIn** — https://www.linkedin.com/psettings/sign-in-and-security
+- [ ] **Airbnb** (trip history / bookings) — https://www.airbnb.com/account-settings/login-and-security
+- [ ] **Spotify** (already also linked on `tgk@` — may just consolidate) — https://www.spotify.com/account/
+- [ ] **Nord** (paid subscription) — https://my.nordaccount.com/
+
+### Tier 2 — convert only if still used, else let lapse
+- [ ] **Figma** — https://www.figma.com/settings
+- [ ] **Webflow** (old site retired to Pages — probably lapse) — https://webflow.com/dashboard/account/general
+- [ ] **Zoom** — https://zoom.us/profile
+- [ ] **Reddit** — https://www.reddit.com/settings/account
+- [ ] **Hipcamp** — https://www.hipcamp.com/en-US/account
+- [ ] **ChatGPT** (already on `gil@b` — likely just use that) — https://chatgpt.com/
+
+### Tier 3 — no action, let die / already handled
+Stripe (abandoned signup), Tailscale (already on `gil@b`), rclone (token re-auth),
+Google TV / YouTube-on-TV (re-sign the device), and junk: JustWatch, NYT Games,
+FrictionlessParking, AmpereTime, nvidia-mdarcy, WhatsApp.
+
+Once Tier 1 (and any kept Tier 2) are converted and Dashlane holds the new passwords,
+steps 11 & 13 (remove `web@` from phone + all devices) unblock.
 
 ## Notes / gotchas
 
