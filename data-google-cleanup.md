@@ -138,20 +138,22 @@ logs in via `web@` Google SSO.** Some are mere permission grants (e.g. Spotify �
 NOT a Google login). Check each app's *actual* login method before converting; the real
 conversion list is smaller than 22.
 
+**GATE STATUS (2026-07-15): cleared by founder decision — Nord + ChatGPT converted, all
+others deemed not worth converting. Steps 11 & 13 (remove `web@` from phone/devices) are
+UNBLOCKED.** LinkedIn + Airbnb below were left unconverted by choice; if `web@` SSO to
+either is ever needed again, convert then.
+
 ### Tier 1 — convert BEFORE teardown (real value, hard to recover)
-- [ ] **LinkedIn** — https://www.linkedin.com/psettings/sign-in-and-security
-- [ ] **Airbnb** (trip history / bookings) — https://www.airbnb.com/account-settings/login-and-security
+- [~] **LinkedIn** — left unconverted (founder call 2026-07-15) — https://www.linkedin.com/psettings/sign-in-and-security
+- [~] **Airbnb** (trip history / bookings) — left unconverted (founder call 2026-07-15) — https://www.airbnb.com/account-settings/login-and-security
 - [x] ~~**Spotify**~~ — NOT a Google-SSO login (inventory was an OAuth grant, not the login method). No conversion needed; just confirm its account email isn't `web@`.
 - [x] **Nord** (2026-07-15) — login switched to `tgk@` SSO. **Residual:** account email left as
   `web@` → password-resets/notices go to a dying mailbox; optionally change email to `tgk@`.
 
 ### Tier 2 — convert only if still used, else let lapse
-- [ ] **Figma** — https://www.figma.com/settings
-- [ ] **Webflow** (old site retired to Pages — probably lapse) — https://webflow.com/dashboard/account/general
-- [ ] **Zoom** — https://zoom.us/profile
-- [ ] **Reddit** — https://www.reddit.com/settings/account
-- [ ] **Hipcamp** — https://www.hipcamp.com/en-US/account
-- [ ] **ChatGPT** (already on `gil@b` — likely just use that) — https://chatgpt.com/
+- [x] **ChatGPT** (2026-07-15) — changed off `web@`.
+- [~] **Figma / Webflow / Zoom / Reddit / Hipcamp** — **founder decided 2026-07-15: none of
+  these matter, let lapse.** No conversion.
 
 ### Tier 3 — no action, let die / already handled
 Stripe (abandoned signup), Tailscale (already on `gil@b`), rclone (token re-auth),
