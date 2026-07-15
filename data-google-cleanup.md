@@ -132,11 +132,18 @@ Google SSO or move its email off `web@`. **Per-service action = set a password +
 account email from `web@gkasparek.com` to `tgk@`, then save the new password in Dashlane.**
 Links are best-guess to each service's login/security page.
 
+**CAVEAT (2026-07-15):** the 22-app inventory below came from the `web@` Google
+linked-apps list, which is **apps holding `web@` Google OAuth access — NOT proof the app
+logs in via `web@` Google SSO.** Some are mere permission grants (e.g. Spotify — verified
+NOT a Google login). Check each app's *actual* login method before converting; the real
+conversion list is smaller than 22.
+
 ### Tier 1 — convert BEFORE teardown (real value, hard to recover)
 - [ ] **LinkedIn** — https://www.linkedin.com/psettings/sign-in-and-security
 - [ ] **Airbnb** (trip history / bookings) — https://www.airbnb.com/account-settings/login-and-security
-- [ ] **Spotify** (already also linked on `tgk@` — may just consolidate) — https://www.spotify.com/account/
-- [ ] **Nord** (paid subscription) — https://my.nordaccount.com/
+- [x] ~~**Spotify**~~ — NOT a Google-SSO login (inventory was an OAuth grant, not the login method). No conversion needed; just confirm its account email isn't `web@`.
+- [x] **Nord** (2026-07-15) — login switched to `tgk@` SSO. **Residual:** account email left as
+  `web@` → password-resets/notices go to a dying mailbox; optionally change email to `tgk@`.
 
 ### Tier 2 — convert only if still used, else let lapse
 - [ ] **Figma** — https://www.figma.com/settings
