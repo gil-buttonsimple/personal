@@ -61,6 +61,29 @@ as complete (#14).
 
 ---
 
+## Transfer method — copying to a slow disk (learned 2026-07-15)
+
+Writing the cold master to the USB Toshiba, `rsync -a` crawled at ~0.4 MB/s and
+projected many hours. **Diagnosis: it was never the "protocol" — it's per-file overhead
+on a spinning USB disk.** The source (`/home/gil/drive-archive`) sits on the internal
+NVMe, so *reads* are free; the only slow medium is the USB write side, and rsync writes
+each of tens of thousands of tiny files individually (open + write + fsync per file),
+thrashing the head. That drops a disk capable of ~120 MB/s sequential down to sub-1 MB/s.
+
+**Rule for next time — pick the copy method up front by file-size profile:**
+- **Many small files → a slow/USB disk:** do NOT use per-file `rsync`. Stream it:
+  `tar -C src -cf - . | tar -C dst -xpf -`. Streaming turns the random small-file writes
+  into one sequential write and hits near disk speed (~40 min here vs. hours). Keeps a
+  browsable tree.
+- **Large files only (already-deduped video/photos):** `rsync` or `tar` are both fine;
+  large sequential writes already run near disk speed.
+- **Compression (`zstd`) is usually NOT worth it for this archive.** ~103 GB of it
+  (`tgk` family video, HEVC sets) is already compressed and won't shrink; only `72097`
+  compresses. Space isn't scarce (916 GB drive, ~30% full), a compressed tarball is opaque
+  to browse/restore, and heavy multicore compression drops baobab's Bluetooth trackball
+  (see infrastructure.md — same reason the video re-encode was core-capped). Streaming
+  (uncompressed `tar`) gets the whole speed win without any of that.
+
 ## Workflow (per drive)
 
 1. **Mount / image.** Connect; if a drive is failing or sketchy, image it first
@@ -117,7 +140,12 @@ Projected: archive ~356 GB → **~135 GB** before B2.
 - [x] Resume + finish non-GoPro H.264 → HEVC (CRF 20) pass — **done 2026-06-24** (544/544);
       3 DUR-MISMATCH screencasts reviewed → kept H.264 originals, deleted bloated HEVC copies.
 - [ ] Decide folder taxonomy (organize before upload — open).
-- [ ] Mine `72097` (Egypt-PC, CD-archive, Magento) for portfolio content before trimming.
+- [ ] Mine `72097` (Egypt-PC, CD-archive, Magento) for portfolio content.
+      **Source moved (2026-07-15):** the original raw `72097` Toshiba was reformatted into the
+      offline cold master (below), so mine from the deduped copy instead —
+      `/home/gil/drive-archive/72097` (staging) or the `72097/` folder in B2
+      (`b2archive:gk-drive-archive/72097`). Nothing unique was lost in the wipe (drive held
+      pre-dedup dupes only; deduped set verified in B2).
 - [~] Backblaze B2 off-site backup (#14): rclone installed, bucket `gk-drive-archive` +
       key created, sync **launched 2026-06-25** (278.5 GiB in flight). Remaining: let it
       finish, then `rclone check` parity, mark #14 done. Decide one-time vs scheduled cadence.
