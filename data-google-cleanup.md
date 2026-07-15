@@ -1,6 +1,15 @@
 # Data — Google Account Cleanup
 
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-07-15
+
+**Stacey external-share fix (2026-07-15).** Sharing 'Stacey's Content' with an outside
+address failed: *"cannot be shared outside of Gil Kasparek."* Root cause: the slice was
+uploaded to `bsdrive:` = the **gil@buttonsimple.com** business Workspace Drive (should have
+been tgk@ per the consolidation plan), and that org had **external Drive sharing off**. Fixed
+in Admin console: external sharing turned **on**, and the org's display name renamed
+'Gil Kasparek' -> 'Button Simple' (it defaulted to the account holder's name). Tracked in
+gov#83. Bulk source for the slice is already in B2 (under original source folders), so a
+served B2 link remains an option if we later want Stacey off the org Drive entirely.
 
 **Goal:** Retire `web@gkasparek.com` off Google Workspace — preserve all its data,
 then shut the mailbox and account down. Keep `gil@buttonsimple.com` (Workspace).

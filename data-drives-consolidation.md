@@ -1,6 +1,6 @@
 # Data — Hard Drive Consolidation
 
-**Last Updated:** 2026-06-23
+**Last Updated:** 2026-07-15
 
 **Goal:** 3–5 hard drives of mixed/random content → review, catalog, dedup, and
 consolidate into one canonical home (cloud + offline backup). Retire the loose drives
@@ -17,6 +17,13 @@ on Backblaze B2: **278.4 GiB / 207,969 objects**, all six folders present
 `~/.config/rclone/rclone.conf` only. Filter excludes scratch dirs (`_proof`, `_analysis`,
 `_*_hevc`, root logs) at `_proof/b2_upload.filter`; sync log `_proof/b2_sync.log`.
 This is the "1 off-site" of 3-2-1 (personal #14).
+
+**Cold-drive master (offline 2nd copy) — WRITTEN 2026-07-15.** The keeper set is now on
+the 1 TB Toshiba (ext4, label `gk-cold-master`, ~281 GB, all folders present), written via
+`tar` streaming (per-file rsync was sub-1 MB/s on the USB disk; see Transfer method below).
+Checksum verification (`rclone check --one-way`) run 2026-07-15; only non-data diffs (a
+copy-time log file + venv symlinks). Once verified clean: eject and stow **unplugged** at
+the farm/drawer, then reclaim the baobab `/home/gil/drive-archive` staging. Completes 3-2-1.
 
 ---
 
