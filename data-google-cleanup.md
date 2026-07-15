@@ -73,6 +73,14 @@ mailbox is preserved and shut down there is no send-from to maintain.
     the **archived MBOX (on B2) into tgk@ over IMAP**, agent-driven from the cloud side (no LAN,
     no founder UI-fighting). Needs one thing from Gil: a **tgk@ app password** for IMAP write.
     Deferred at founder's request 2026-07-12 (decide/schedule later).
+    **STARTED 2026-07-15:** app password provided; running detached on **Mesquite**
+    (`~/mail-import/import.py`, log `import.log`, resumable via `import.state`). Source =
+    the web@ Mail mbox pulled from B2 (`takeout-2026-07-12/...-7-001.zip` ->
+    `web-all.mbox`, 9.67 GB, **117,566 msgs**, "All mail incl. Spam and Trash"). Uploads
+    via IMAP into tgk@ under label **`web-archive`**. Hours-long (Gmail throttles); state
+    file lets it resume. TODO after finish: confirm imported count vs 117,566, decide
+    whether to prune Spam/Trash from the label, then delete Mesquite staging + the app
+    password.
 
 ### Phase C — Tear down web@ (open)
 
