@@ -68,7 +68,7 @@ lives in the cloud (B2), and the baobab `/home/gil/drive-archive` copy is stagin
 | Source | Origin | Size (post-dedup) | State |
 |---|---|---|---|
 | `72097` | hard drive | 251 GB | pulled, deduped; mining for portfolio content pending |
-| `tgk` | Google Drive/Photos export (`tgk@`) | 100 GB | pulled, deduped; **source drive VERIFIED SAFE TO WIPE 2026-07-16** (see below) |
+| `tgk` | Google Drive/Photos export (`tgk@`) | 100 GB | pulled, deduped; **source drive verified + WIPED 2026-07-16** → reformatted exFAT as `SABRENT500G`, now an empty spare |
 | `copper` | hard drive | 5.4 GB | pulled, deduped |
 | `gk-usb` | USB | ~1 MB | pulled |
 
@@ -109,7 +109,7 @@ thrashing the head. That drops a disk capable of ~120 MB/s sequential down to su
 
 The 500 GB Sabrent-enclosed `tgk` drive (drive 02 in the storage catalog: master personal
 photo library, Google Photos export 2000–2026 + iCloud) was re-plugged and checked against
-the archive before wiping. **Result: nothing on it is missing from B2. Clear to wipe.**
+the archive before wiping. **Result: nothing on it is missing from B2. Cleared, and WIPED 2026-07-16** — reformatted GPT + exFAT, labelled `SABRENT500G` (enclosure make + nominal size; exFAT caps labels at 11 chars). exFAT chosen so the drive is usable on Linux (native since kernel 5.4) and also on Windows/Mac. It is now an empty ~466 GB general-purpose spare.
 
 What was checked, and what it settles:
 - **Re-encode quality.** Of 321 archived files with an original still on the drive, only
