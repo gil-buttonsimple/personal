@@ -93,15 +93,25 @@ mailbox is preserved and shut down there is no send-from to maintain.
   read-only, from Mesquite); if trivial → skip. If worth keeping and metadata matters, do a
   **date-scoped Takeout** of just that window (rclone gphotos download strips GPS metadata).
 - [~] 12. Delete Drive and Photos from `web@` (only after Phase B verified).
-  **OBSOLETE sub-step DONE/IN-PROGRESS (2026-07-15):** `web@` Drive `OBSOLETE/` folder
+  **OBSOLETE sub-step COMPLETE (2026-07-16):** `rclone purge webdrive:OBSOLETE` finished;
+  `rclone size webdrive:OBSOLETE` now returns "directory not found" — the 86.8 GB folder is
+  gone from `web@` and verified present in B2. **The teardown gate on OBSOLETE is closed.**
+  Original verification record (2026-07-15): `web@` Drive `OBSOLETE/` folder
   (~86.8 GB, old Accounting / Business-Baldwin scans / "g-drive tgk@ 2020" personal zips /
   Stacey backups) verified present in B2 at
   `_google-account-web@/web-drive-OBSOLETE` — **13,897 files matching, 0 real differences**
   (only 7 dangling shortcuts missing; 8 dirs unverified due to Google rate-limit, folder is
   founder-designated obsolete so accepted). Deletion from `web@` running on Mesquite
   (`rclone purge webdrive:OBSOLETE`, throttled). Remaining under step 12: the rest of Drive + Photos.
-- [ ] 11. Phone: remove `web@` and `gil@b` accounts (**gated on the SSO conversion checklist
-  below — bug-test first**)
+- [ ] 11. Phone: **demote `web@`, do not remove it** — make `tgk@` the phone primary (backup,
+  Photos, Play, Wallet, identity) and leave `web@` signed in as a Gmail-only secondary. Android
+  runs several accounts at once; this is deliberately not a cutover. Full plan: personal **p#19**.
+  **UNBLOCKED 2026-07-16** — both gates now cleared:
+  - SSO conversion checklist (below) — cleared by founder decision 2026-07-15.
+  - Play purchase audit (the one real trap: paid apps/subs do NOT transfer between Google
+    accounts) — **done 2026-07-16, and it came back empty.** No paid apps have ever been bought
+    on `web@`; MLB+ was the only active subscription and the founder canceled it 2026-07-16.
+    Nothing on `web@` is tied to a card any more.
 - [ ] 13. Remove `web@` from all devices (phone, Chromebook)
 - [ ] **Final: shut down the mailbox / cancel the `web@` Workspace seat.** Confirm
   forwarding still routes anything stray, then close it out and stop the billing.
@@ -179,6 +189,23 @@ FrictionlessParking, AmpereTime, nvidia-mdarcy, WhatsApp.
 
 Once Tier 1 (and any kept Tier 2) are converted and Dashlane holds the new passwords,
 steps 11 & 13 (remove `web@` from phone + all devices) unblock.
+
+## The archived Takeout is a queryable answer surface (2026-07-16)
+
+Reach for the B2 archive before poking the live `web@` account or a device. The Jul 12 Takeout
+(`_google-account-web@/takeout-2026-07-12/`) is not just a preservation blob — it answers
+questions. Part `...Z-6-001.zip` (39 MB) carries **43 service exports**, including a full
+`Takeout/Google Play Store/` (Purchase History, Subscriptions, Library, Installs, Order
+History), plus Google Pay, Wallet, Fi, Pixel, Chrome, Contacts, Calendar, Keep, Tasks, Maps,
+Timeline. Inspect it from **Mesquite** (`rclone copy` the small part down, read with Python's
+`zipfile` — note: `unzip` is not installed there). This is how the Play purchase audit got
+answered with the live account untouched.
+
+Corollary — **Play purchase ownership is NOT readable off an Android phone.** Verified on the
+Pixel 10 Pro (2026-07-16): no root, locked bootloader (`verifiedbootstate=green`),
+`com.android.vending` not debuggable, `/data/data/com.android.vending/` permission denied.
+USB vs network adb makes no difference — same `uid=2000(shell)` either way. The Takeout export
+or the Play Store UI are the only routes.
 
 ## Notes / gotchas
 
