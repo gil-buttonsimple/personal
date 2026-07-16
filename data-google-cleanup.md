@@ -112,6 +112,18 @@ mailbox is preserved and shut down there is no send-from to maintain.
     accounts) — **done 2026-07-16, and it came back empty.** No paid apps have ever been bought
     on `web@`; MLB+ was the only active subscription and the founder canceled it 2026-07-16.
     Nothing on `web@` is tied to a card any more.
+
+  **System backup moved to `tgk@` (2026-07-16) — DONE, and it was a real gap.** The phone's
+  Google **system backup destination** (app data, settings, SMS, call log) was still
+  `web@gkasparek.com`; the 2026-07-03 flip moved **Photos only**. Had `web@` closed with system
+  backup pointed at it, the phone's backup would have broken and the existing backup stranded in
+  a dead account. Founder switched it in Settings > System > Backup; verified by reading the
+  device (`adb shell dumpsys backup | grep destination` -> `tgkasparek@gmail.com`).
+  Accepted cost: switching starts a **fresh** backup under `tgk@` — Google provides no way to
+  migrate the old `web@` backup. Fine here (live phone re-uploads its state), but one-way.
+
+  Remaining under step 11: nothing blocking. `tgk@` + `web@` both signed in, Photos on `tgk@`,
+  system backup on `tgk@`, no paid apps. `web@` stays as the Gmail-only secondary per p#19.
 - [ ] 13. Remove `web@` from all devices (phone, Chromebook)
 - [ ] **Final: shut down the mailbox / cancel the `web@` Workspace seat.** Confirm
   forwarding still routes anything stray, then close it out and stop the billing.
