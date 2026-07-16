@@ -124,6 +124,14 @@ mailbox is preserved and shut down there is no send-from to maintain.
 
   Remaining under step 11: nothing blocking. `tgk@` + `web@` both signed in, Photos on `tgk@`,
   system backup on `tgk@`, no paid apps. `web@` stays as the Gmail-only secondary per p#19.
+- [ ] **11b. WhatsApp chat backup — OPEN, and a genuine teardown blocker candidate (2026-07-16).**
+  WhatsApp backs its chat history to a Google Drive account chosen **inside WhatsApp**, separate
+  from system backup, and it is the one thing in this migration that genuinely does **not**
+  transfer between Google accounts. If it points at `web@`, closing the account takes the chat
+  backup with it. **Unresolved:** which account it uses is unreadable externally (WhatsApp keeps
+  it in private app storage; not exposed via adb/dumpsys). Founder must read it on the phone:
+  WhatsApp > Settings > Chats > Chat backup. If it says `web@`, switch to `tgk@` and run a
+  backup BEFORE the final shut-down step.
 - [ ] 13. Remove `web@` from all devices (phone, Chromebook)
 - [ ] **Final: shut down the mailbox / cancel the `web@` Workspace seat.** Confirm
   forwarding still routes anything stray, then close it out and stop the billing.
