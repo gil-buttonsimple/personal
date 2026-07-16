@@ -9,7 +9,7 @@ once their content is safely landed and verified.
 Sibling project: [data-google-cleanup.md](data-google-cleanup.md) — both land data in
 the same place. This file owns the shared **Target storage** decision below.
 
-Status: **B2 upload COMPLETE** (2026-07-12) — sources pulled, deduped, trimmed, and
+Status: **B2 upload COMPLETE + INDEPENDENTLY VERIFIED 2026-07-16** (upload 2026-07-12) — sources pulled, deduped, trimmed, and
 HEVC-re-encoded; `_TRASH` emptied (archive ~281 GB local staging). Full bulk archive is
 on Backblaze B2: **278.4 GiB / 207,969 objects**, all six folders present
 (`72097`, `tgk`, `copper`, `gk-usb`, `_analysis`, `_proof`). Bucket `gk-drive-archive`
@@ -34,6 +34,59 @@ did not close cleanly and is marked dirty. **Next time it is plugged in, run `fs
 reading from it or calling it verified**, and ideally re-run `rclone check` against B2. This
 matters more than it would for an ordinary disk: it is one of only two copies of the
 archive, the other being B2.
+
+**Staging RECLAIMED 2026-07-16.** The four data folders (`72097` 177 GB, `tgk` 98 GB,
+`copper` 5.4 GB, `gk-usb` 1.1 MB) were deleted from baobab after a full hash-parity check
+against B2 (below). `/home` went 40% -> 9% used (~279 GB freed, 816 GB free). What remains
+at `/home/gil/drive-archive` is ~1.1 GB of `_proof` / `_analysis` / root logs — the manifests,
+filter, encode scripts and sync logs — deliberately kept as the audit trail; they are also
+in B2. This completes 3-2-1 and honors "nothing resting on the LAN".
+
+**Consequence: the cold master's `fsck` now matters more.** Staging was quietly acting as a
+third copy. With it gone, B2 (verified) and the cold master (stowed, journal unverified after
+the 2026-07-16 dirty unplug) are the only two copies. Run the `fsck` next time the drive is
+in hand.
+
+## Verification — first real end-to-end check (2026-07-16)
+
+Run before reclaiming staging: `rclone check <staging>/<folder> b2archive:gk-drive-archive/<folder> --one-way`.
+
+| Folder | Result |
+|---|---|
+| `tgk` | **0 differences**, 19,397 files |
+| `copper` | **0 differences**, 11,049 files |
+| `gk-usb` | **0 differences**, 1 file |
+| `72097` | 172,387 matching, **729 missing — ALL `.log`, zero non-log** |
+
+The 729 are excluded junk logs (build logs, Photoshop prefs logs, Tomcat catalina logs from
+2012, etc.), not data loss: B2 holds essentially no `.log` under `72097` while staging had 926.
+**Expect this on any future re-check — it is the filter working, not a gap.**
+
+**Gotchas that cost time on 2026-07-16, recorded so the next check is faster:**
+- `72097` contains a NESTED `72097/72097/` directory. `rclone check` reports paths relative to
+  the check root, so a reported path `72097/gil/...` resolves to `<staging>/72097/72097/gil/...`.
+  Probing the un-nested path returns nothing and looks like a phantom.
+- `rclone lsf --include "*.log"` counts DIRECTORIES too. Use `--files-only` or the count is
+  wildly inflated (26,754 vs the real 1).
+- Extension-change false positives: wherever the HEVC pass swapped `.MOV`/`.AVI` -> `.mp4`,
+  `rclone check` flags the source name as missing. Confirm by probing codec + duration.
+
+## Record gap: the successful sync left no log
+
+The only sync log on disk (`_proof/b2_sync.log`) is a run that **FAILED**:
+
+    2026/06/25 15:09:37 ERROR : Cancelling sync due to fatal error: failed to get upload URL:
+    Cannot upload files, storage cap exceeded (403 storage_cap_exceeded)
+    INFO : 12.656 GiB / 61.965 GiB, 20%, (xfr#3555/13571)
+
+It died at 20% on a Backblaze storage cap. Whatever run actually completed the upload between
+2026-06-25 and 2026-07-12 left **no log at all**, and the object count grew from 203,563 at
+launch to 207,969 at "complete" (which is also why `_analysis` and `_proof` are in B2 despite
+the filter excluding them). So "COMPLETE" was recorded off a size comparison, not a verified
+run. The 2026-07-16 check above is the first genuine end-to-end verification — and it passed,
+so the archive is sound. But the lesson generalizes (cf. canon "bring our own logging"): the
+run we have no record of is the one that mattered. **Log the sync, and verify with
+`rclone check`, before calling an upload complete.**
 
 ---
 
