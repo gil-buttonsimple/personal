@@ -25,6 +25,16 @@ Checksum verification (`rclone check --one-way`) run 2026-07-15; only non-data d
 copy-time log file + venv symlinks). Once verified clean: eject and stow **unplugged** at
 the farm/drawer, then reclaim the baobab `/home/gil/drive-archive` staging. Completes 3-2-1.
 
+**⚠ NEEDS `fsck` BEFORE IT IS TRUSTED AS FINAL (2026-07-16).** The drive was physically
+unplugged while still mounted, so the ext4 journal aborted mid-update:
+`Aborting journal on device sda1-8` / `JBD2: I/O error when updating journal superblock`.
+Nothing was writing to it at the time (the archive was written 2026-07-15 and idle since),
+so data loss is unlikely and the 2026-07-15 verification still stands — but the filesystem
+did not close cleanly and is marked dirty. **Next time it is plugged in, run `fsck` before
+reading from it or calling it verified**, and ideally re-run `rclone check` against B2. This
+matters more than it would for an ordinary disk: it is one of only two copies of the
+archive, the other being B2.
+
 ---
 
 ## Target storage (shared end-state)
@@ -58,7 +68,7 @@ lives in the cloud (B2), and the baobab `/home/gil/drive-archive` copy is stagin
 | Source | Origin | Size (post-dedup) | State |
 |---|---|---|---|
 | `72097` | hard drive | 251 GB | pulled, deduped; mining for portfolio content pending |
-| `tgk` | Google Drive/Photos export (`tgk@`) | 100 GB | pulled, deduped |
+| `tgk` | Google Drive/Photos export (`tgk@`) | 100 GB | pulled, deduped; **source drive VERIFIED SAFE TO WIPE 2026-07-16** (see below) |
 | `copper` | hard drive | 5.4 GB | pulled, deduped |
 | `gk-usb` | USB | ~1 MB | pulled |
 
@@ -86,10 +96,53 @@ thrashing the head. That drops a disk capable of ~120 MB/s sequential down to su
   large sequential writes already run near disk speed.
 - **Compression (`zstd`) is usually NOT worth it for this archive.** ~103 GB of it
   (`tgk` family video, HEVC sets) is already compressed and won't shrink; only `72097`
-  compresses. Space isn't scarce (916 GB drive, ~30% full), a compressed tarball is opaque
-  to browse/restore, and heavy multicore compression drops baobab's Bluetooth trackball
-  (see infrastructure.md — same reason the video re-encode was core-capped). Streaming
-  (uncompressed `tar`) gets the whole speed win without any of that.
+  compresses. Space isn't scarce (916 GB drive, ~30% full) and a compressed tarball is
+  opaque to browse/restore. Streaming (uncompressed `tar`) gets the whole speed win
+  without any of that.
+  **Trackball caveat retired 2026-07-16:** this used to also cite heavy multicore
+  compression dropping baobab's Bluetooth trackball, which is why the video re-encode was
+  core-capped. That fault was on the onboard MediaTek radio; the peripherals moved to the
+  UB500 dongle on 2026-06-23 and the founder reports it fixed. Do not core-cap on the
+  trackball's account. See infrastructure.md.
+
+## `tgk` source drive — verified safe to wipe (2026-07-16)
+
+The 500 GB Sabrent-enclosed `tgk` drive (drive 02 in the storage catalog: master personal
+photo library, Google Photos export 2000–2026 + iCloud) was re-plugged and checked against
+the archive before wiping. **Result: nothing on it is missing from B2. Clear to wipe.**
+
+What was checked, and what it settles:
+- **Re-encode quality.** Of 321 archived files with an original still on the drive, only
+  **135 were actually converted** by us (H.264 → HEVC); the other 186 were already HEVC off
+  the phone and are byte-identical copies. Frame comparisons on 8 samples plus full-clip
+  side-by-side playback on 2 (including the single most aggressive compression in the whole
+  set — 6% of source, 75 MB → 5 MB) all held resolution, matched duration, and kept audio
+  (AAC stereo both sides). Founder reviewed: "look perfect." **The CRF 20 re-encode is sound.**
+- **iCloud material (`iCloud_photos/`, 1.6 GB, 493 files).** This was the real risk: unlike
+  the Google Photos export it has NO upstream copy to fall back on. `rclone check` against
+  `b2archive:gk-drive-archive/tgk/iCloud_photos`: **491 hash-identical**. The 2 flagged as
+  "missing" are false alarms — both are re-encode swaps (`.MOV` H.264 → `.mp4` HEVC), present
+  in B2 under the new extension, durations matching to ~0.01s with audio intact. rclone only
+  flagged them because it matches on filename and the extension changed.
+
+Method note for re-verifying any source drive: `rclone check <drive-path> b2archive:<bucket-path>
+--one-way`. Expect extension-change false positives wherever the re-encode swapped `.MOV`/`.AVI`
+→ `.mp4`; confirm each by probing codec + duration rather than treating it as a gap.
+
+## Known defect: some re-encodes came out LARGER than the source
+
+Found 2026-07-16 while sampling. HEVC at CRF 20 does not always shrink a file — on
+low-detail or low-framerate sources it can inflate. **2 of 8 sampled conversions grew**
+(81 MB → 138 MB; 26 MB → 29 MB), and one of the two iCloud conversions grew as well
+(98 MB → 146 MB). This is the same pathology already caught and reverted for 3 screencasts
+(see the DUR-MISMATCH note below) — but those were caught only because their durations were
+off. Files that inflated *without* a duration mismatch were kept silently.
+
+**No data is at risk** — these are valid, full-quality conversions, just bigger than what
+they replaced. The cost is storage (local, cold master, and B2 bytes) plus the irony of
+having discarded a smaller H.264 original. Cleanup is optional: sweep the 135 conversions
+for any where the HEVC exceeds its source, and where the original still exists (Google, or
+a source drive not yet wiped) prefer the original. Tracked in personal #14.
 
 ## Workflow (per drive)
 
