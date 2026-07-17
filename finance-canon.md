@@ -60,10 +60,14 @@ Chase Freedom 7878
 
 **Student Loan (Liabilities):**
 
-Edfinancial
-  Loan 1-01 Direct Parent PLUS — balance $10,719.98 @ 6.830% (recorded 2026-06-25)
-  Date on statement: 07/24/2026 (next payment due / balance-good-through — confirm which)
-  Total current balance across loans: $10,719.98 (this is the only loan)
+Edfinancial — **PAID OFF as of 2026-07-17. Balance $0.**
+  Loan 1-01 Direct Parent PLUS was the only loan: $10,719.98 @ 6.830%
+  (recorded 2026-06-25), $10,889.08 at the 2026-05-06 snapshot.
+  Retired between 2026-05-06 and 2026-07-17. This was the household's only
+  non-revolving debt and its highest-rate balance.
+  Open question: is the account closed, or open at $0? Per conventions below,
+  a zero balance stays in the data; a truly closed account drops off the
+  active list. Confirm, then decide.
 
 **Dropped/closed:**
 
