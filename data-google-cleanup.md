@@ -92,6 +92,11 @@ mailbox is preserved and shut down there is no send-from to maintain.
       `~/mail-import/.imappw` (mode 600) so the watcher could outlive it — **delete that file
       along with the rest of the staging + the app password at cleanup.** If this import is
       ever re-run, append `'\\Seen'` instead of `None` and skip the whole second pass.
+    - **DONE 2026-07-17.** Import finished `DONE 117566/117566`; markread finished
+      `MARKREAD DONE` (all 117,566 marked `\Seen`). Mesquite staging wiped (`.imappw`,
+      `import.state`, `web-all.mbox`, zip parts removed; only scripts+logs left, no secrets).
+      **Founder action still open:** revoke the tgk@ IMAP app password in the tgk@ Google
+      account (Security > App passwords) — it can only be removed from the account UI.
 
 ### Phase C — Tear down web@ (open)
 
@@ -143,6 +148,8 @@ mailbox is preserved and shut down there is no send-from to maintain.
   it in private app storage; not exposed via adb/dumpsys). Founder must read it on the phone:
   WhatsApp > Settings > Chats > Chat backup. If it says `web@`, switch to `tgk@` and run a
   backup BEFORE the final shut-down step.
+  **RESOLVED 2026-07-17 (founder read the phone):** WhatsApp chat backup is on
+  **`tgkasparek@gmail.com`**, not `web@`. Not a blocker. Do NOT re-ask this.
 - [ ] 13. Remove `web@` from all devices (phone, Chromebook)
 - [ ] **Final: shut down the mailbox / cancel the `web@` Workspace seat.** Confirm
   forwarding still routes anything stray, then close it out and stop the billing.
