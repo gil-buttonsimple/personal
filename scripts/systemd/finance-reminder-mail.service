@@ -1,0 +1,5 @@
+[Unit]
+Description=Monthly finance ritual reminder (email via Resend, baobab-independent)
+[Service]
+Type=oneshot
+ExecStart=%h/bin/finance-reminder-mail.sh

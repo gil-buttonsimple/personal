@@ -66,6 +66,27 @@ depends on it. If the snapshot slips, the cards go dark again.
 
 ---
 
+## Delivery: two independent reminders
+
+The register is inert; something has to fire off it. Two nudges run, on purpose
+redundant, so a missed payment is hard:
+
+1. **baobab desktop ding** (`scripts/finance-reminder.sh` + user timer). Daily
+   check, self-clearing: fires only if this month has no snapshot yet, escalates
+   by persisting. Only works when baobab is awake and in front of you.
+2. **mesquite email** (`scripts/finance-reminder-mail.sh` + user timer on the
+   always-on cloud node). Fires once on the 10th, emails via Resend (from
+   support@buttonsimple.com) to gil@buttonsimple.com. **Baobab-independent** --
+   this is the one that survives baobab being shut down. Per-month stamp guards
+   against double-send. Keeps zero git credentials on the droplet, so it does not
+   read the CSV: it nudges unconditionally on the 10th rather than self-clearing.
+
+Set up 2026-07-17 when baobab was going down for an extended period. The email
+reuses the app's existing Resend key (stored on mesquite at
+~/.config/finance-reminder/resend_key, out of git). Follow-ups: a dedicated
+Resend key rather than the app's auth key, and richer delivery (this is the
+seed of gov#75, the unified messaging hub).
+
 ## Known trap: USAA Bill Pay does not post same-day
 
 Bill Pay **initiates** a payment; it takes days to settle. A payment started on

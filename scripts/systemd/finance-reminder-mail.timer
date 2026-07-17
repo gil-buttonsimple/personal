@@ -1,0 +1,7 @@
+[Unit]
+Description=Fire the monthly finance reminder on the 10th (13:30 UTC = ~09:30 ET)
+[Timer]
+OnCalendar=*-*-10 13:30:00 UTC
+Persistent=true
+[Install]
+WantedBy=timers.target
