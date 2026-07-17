@@ -16,6 +16,7 @@ Last Updated: 2026-06-01
 | [property-mapping.md](property-mapping.md) | Side | Farm / property mapping project |
 | [admin-address-change.md](admin-address-change.md) | Admin | Change-of-address sweep, consolidating accounts to the new PO box |
 | [admin-identity.md](admin-identity.md) | Admin | Legal identity: full legal name and which surfaces show Travis vs Gil |
+| [finance-obligations.md](finance-obligations.md) | Finance | Recurring money obligations: the monthly ritual, the two card funnels, due dates |
 | [personal_state.md](personal_state.md) | System | Current state, open items, migration status |
 | [_inbox.md](_inbox.md) | System | Cross-context captures (business items surfacing in personal chats) |
 
@@ -47,5 +48,6 @@ moved to gov on 2026-06-01.
 ## Relationship Map
 
 - `finance-balances` <-> `finance-canon` (always paired)
+- `finance-obligations` -> `finance-balances` (the monthly ritual produces the snapshot)
 - `health-cholesterol-plan` -- stands alone
 - `data-google-cleanup` <-> `data-drives-consolidation` (share the cloud + offline backup end-state; target storage decision lives in the drives doc)
