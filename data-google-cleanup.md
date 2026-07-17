@@ -81,6 +81,17 @@ mailbox is preserved and shut down there is no send-from to maintain.
     file lets it resume. TODO after finish: confirm imported count vs 117,566, decide
     whether to prune Spam/Trash from the label, then delete Mesquite staging + the app
     password.
+    - **Imported mail arrives UNREAD, and is marked read automatically at the end
+      (2026-07-17).** `import.py` appends with no flags (`M.append(FOLDER,None,dt,raw)`), so
+      all 117,566 land unseen — a 117k unread pile in tgk@. Not worth restarting the run to
+      fix mid-flight (it was at 108,602/117,566). Instead a watcher is running detached on
+      Mesquite: `chain.sh` waits for `import.py` to exit, then runs `markread.py`, which
+      SELECTs `web-archive` and issues `STORE +FLAGS (\Seen)` in 2,000-message chunks with
+      retries. Log: `~/mail-import/markread.log`; finishes on `MARKREAD DONE`. The app
+      password was captured from the running process's environment into
+      `~/mail-import/.imappw` (mode 600) so the watcher could outlive it — **delete that file
+      along with the rest of the staging + the app password at cleanup.** If this import is
+      ever re-run, append `'\\Seen'` instead of `None` and skip the whole second pass.
 
 ### Phase C — Tear down web@ (open)
 
