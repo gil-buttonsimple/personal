@@ -131,6 +131,22 @@ Restructured to the above: DROPPED comprehensive, collision, rental; KEPT
 liability 25/50/25 (SC min), UM 25/50, UIM 25/50, towing. ~$280/6mo (was ~$447).
 Garaging addr = farm (1221 Great Falls Hwy); mailing = PO Box 152.
 
+## Card payment philosophy
+*Added 2026-07-17.*
+
+**No autopay on credit cards. Deliberate, not an oversight.** Cards are paid by
+hand, via USAA Bill Pay, on the monthly ritual (see `finance-obligations.md`).
+
+Do not propose enabling autopay. It has been considered and rejected.
+
+The consequence is that **the monthly ritual is load-bearing**: with no autopay
+underneath it, nothing else catches a missed payment. This is the tradeoff that
+was accepted, and it is why the snapshot cadence matters more here than it would
+in an autopay setup.
+
+Cards are paid **in full**, not to the minimum. Observed 2026-07-17: BofA's
+minimum was $35.00 against a $483.31 balance; the full $483.31 was paid.
+
 ## Storage
 File location: Google Drive (personal account), root of My Drive
 Backup: whatever Google Drive provides

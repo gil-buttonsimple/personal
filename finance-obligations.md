@@ -55,8 +55,8 @@ depends on it. If the snapshot slips, the cards go dark again.
 
 | Obligation | Cadence | Next due | Last done | How / where | Notes |
 |---|---|---|---|---|---|
-| BofA Visa ...6657 "Unlimited Cash Rewards" | Monthly statement | 2026-08-11 (this cycle) | 2026-07-17 (paid $483.31 in full) | USAA Bill Pay | Min was $35.00; paid in full instead. Statement balance was $453.20, current $483.31. Autopay status **unknown -- confirm**. |
-| Wells Fargo ...3834 | Monthly statement | **unknown -- confirm** | 2026-07-17 (paid $2,544.44) | USAA Bill Pay | Balance never verified -- the session logged out before it could be read, and it is unconfirmed whether the $2,544.44 cleared the full balance. Doubled unobserved since May. Due date and autopay status **unknown -- confirm**. |
+| BofA Visa ...6657 "Unlimited Cash Rewards" | Monthly statement | 2026-08-11 (this cycle) | 2026-07-17 (paid $483.31 in full) | USAA Bill Pay | Min was $35.00; paid in full instead. Statement balance was $453.20, current $483.31. **No autopay -- deliberate** (confirmed 2026-07-17). Paid by hand, in full. |
+| Wells Fargo ...3834 | Monthly statement | **unknown -- confirm** | 2026-07-17 (paid $2,544.44 in full) | USAA Bill Pay | Balance was -$2,544.44, paid in full 2026-07-17. Doubled unobserved since May (-$1,216.33 on 2026-05-06). **No autopay -- deliberate** (confirmed 2026-07-17). Due date **unknown -- confirm**. |
 
 ### Direct debits
 
@@ -80,11 +80,10 @@ ever within ~5 business days, pay by card or at the biller directly, not Bill Pa
 
 ## To confirm (turns "unknown" into real dates)
 
-1. **Wells Fargo ...3834**: actual balance, due date, autopay on/off, and whether
-   the $2,544.44 paid it in full.
-2. **BofA ...6657**: is autopay on? If yes, the reminder is a check, not a task.
-3. **Chase Freedom ...7878** and **USAA Signature Visa ...2053**: both $0.00 since
+1. **Wells Fargo ...3834**: due date. (Balance -$2,544.44 and paid-in-full both
+   confirmed 2026-07-17. Autopay: none, by choice.)
+2. **Chase Freedom ...7878** and **USAA Signature Visa ...2053**: both $0.00 since
    at least May. Still open? Unused? If closed, drop from `finance-canon.md`.
-4. **Edfinancial**: paid off 2026-07-17. Account closed, or open at $0?
-5. **Direct debits**: which ones, against which account, what cadence?
-6. **Nest529 / TSP / Venmo / PayPal**: all $0.00 since May, never re-verified.
+3. **Edfinancial**: paid off 2026-07-17. Account closed, or open at $0?
+4. **Direct debits**: which ones, against which account, what cadence?
+5. **Nest529 / TSP / Venmo / PayPal**: all $0.00 since May, never re-verified.

@@ -1,0 +1,8 @@
+[Unit]
+Description=Monthly finance ritual reminder (self-clearing)
+Documentation=file:///home/gil/dev/personal/finance-obligations.md
+
+[Service]
+Type=oneshot
+ExecStart=/home/gil/dev/personal/scripts/finance-reminder.sh
+Environment=DISPLAY=:0

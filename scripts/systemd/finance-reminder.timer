@@ -1,0 +1,10 @@
+[Unit]
+Description=Check daily whether the monthly finance ritual is outstanding
+
+[Timer]
+OnCalendar=*-*-* 09:30:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target
