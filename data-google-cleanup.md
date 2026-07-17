@@ -119,6 +119,14 @@ mailbox is preserved and shut down there is no send-from to maintain.
   (only 7 dangling shortcuts missing; 8 dirs unverified due to Google rate-limit, folder is
   founder-designated obsolete so accepted). Deletion from `web@` running on Mesquite
   (`rclone purge webdrive:OBSOLETE`, throttled). Remaining under step 12: the rest of Drive + Photos.
+  **DRIVE DONE 2026-07-17.** The rest of web@ Drive cleared: last 9 objects (a `Takeout/`
+  already in B2 + 5 loose files: Seedhouse PNG, retaining-wall docx/svg, an m4a, a txt)
+  copied to B2 `_google-account-web@/web-drive-final-2026-07-17/`, then deleted. `rclone size
+  webdrive:` now returns 0 objects. web@ Drive is empty and fully preserved. **Photos** is the
+  only remaining data on web@ — the master is in B2, but the delta (photos taken between the
+  last pull and the 2026-07-03 backup flip) is NOT capturable from Mesquite (no gphotos remote
+  for web@) and would be lost on account deletion. Capture via a date-scoped Photos Takeout, or
+  consciously accept the loss, BEFORE the seat is canceled.
 - [ ] 11. Phone: **demote `web@`, do not remove it** — make `tgk@` the phone primary (backup,
   Photos, Play, Wallet, identity) and leave `web@` signed in as a Gmail-only secondary. Android
   runs several accounts at once; this is deliberately not a cutover. Full plan: personal **p#19**.
