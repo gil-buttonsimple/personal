@@ -98,7 +98,15 @@ mailbox is preserved and shut down there is no send-from to maintain.
       **Founder action still open:** revoke the tgk@ IMAP app password in the tgk@ Google
       account (Security > App passwords) — it can only be removed from the account UI.
 
-### Phase C — Tear down web@ (open)
+### Phase C — Tear down web@ (DONE 2026-07-17)
+
+**web@ Workspace license/seat REMOVED by founder 2026-07-17 — account retired, billing stopped.**
+Founder decisions at teardown: (1) Photos **delta consciously dropped** — the last-pull→2026-07-03
+window is NOT preserved and is gone with the account (master is safe in B2). (2) web@ **removed from
+all devices** (done). (3) tgk@ mail-import **app password revocation deferred** ("later") — the only
+open residual; tracked on personal#10 (security audit). Data preserved before teardown: Mail (in B2 +
+imported to tgk@ `web-archive`), Contacts/Calendar/all services (B2 Takeout), Drive (B2, emptied).
+
 
 - [ ] 8. Change default domain on Google Workspace (and remove web@ domain?)
 - [ ] 9. Delete email attachments (various accounts) — storage reclaim
