@@ -11,9 +11,26 @@ in Admin console: external sharing turned **on**, and the org's display name ren
 gov#83. Bulk source for the slice is already in B2 (under original source folders), so a
 served B2 link remains an option if we later want Stacey off the org Drive entirely.
 
-**Goal:** Retire `web@gkasparek.com` off Google Workspace — preserve all its data,
-then shut the mailbox and account down. Keep `gil@buttonsimple.com` (Workspace).
-Land everything personal on `tgkasparek@gmail.com` (free Gmail). Reduce Workspace cost.
+**Goal:** Get `web@gkasparek.com` off the PAID Workspace seat (cost goal) while
+**KEEPING it as a live Google login identity** — do NOT delete the user. Preserve all
+its data (done), drop the mailbox, keep the account. Land everything personal on
+`tgkasparek@gmail.com` (free Gmail). Keep `gil@buttonsimple.com` (Workspace).
+
+**DECISION REVERSAL (2026-07-17, session on web@ email):** web@ is NOT being shut
+down. It is **retained as a Google login** (LinkedIn/Airbnb and other SSO still point
+at it). Mechanism:
+- **Login:** downgrade the web@ user from the paid Workspace license to **Cloud
+  Identity Free** (free Google identity, no Gmail, no seat). **DO NOT DELETE the
+  web@ user** — deletion kills the login and cannot be undone by an alias.
+- **Domain:** `gkasparek.com` is a **secondary domain on the gil@b Workspace**
+  (verified). It only needs to stay verified (one TXT); DNS/mail can live anywhere.
+- **Receiving:** DNS forward `web@` → `tgk@` (working).
+- **Sending:** via the **gil@b Workspace SMTP relay** (`smtp-relay.gmail.com:587`,
+  auth as gil@b + app password, From = web@gkasparek.com), plugged into Gmail
+  "Send mail as." Relay set to require SMTP auth + TLS, senders = addresses in my
+  domains. **STATUS: configured, still bouncing (550 mail relay denied) as of
+  2026-07-17 — suspected propagation delay (Google says up to 24h); unverified.**
+  Sending is optional / deferred; receiving is enough for now.
 
 Sibling project: [data-drives-consolidation.md](data-drives-consolidation.md) — both
 feed the same end-state (cloud + offline backup). Canonical target storage decision
@@ -26,7 +43,7 @@ lives in that file's **Target storage** section; this project's exports follow i
 | Account | Type | Fate |
 |---|---|---|
 | `gil@buttonsimple.com` | Google Workspace | Keep (org / business) |
-| `web@gkasparek.com` | Google Workspace | **Retire** — real mailbox, forwards to tgk@ already; preserve data then shut down |
+| `web@gkasparek.com` | Google Workspace → **Cloud Identity Free** | **KEEP as login (do NOT delete).** Drop paid seat + mailbox; retain identity for SSO. Receive via forward, send via gil@b relay. |
 | `tgkasparek@gmail.com` | Free Gmail | **Destination** — new personal primary |
 
 Resolved open question (was step 1): `web@` is a live Gmail mailbox being retired,
@@ -167,8 +184,11 @@ imported to tgk@ `web-archive`), Contacts/Calendar/all services (B2 Takeout), Dr
   **RESOLVED 2026-07-17 (founder read the phone):** WhatsApp chat backup is on
   **`tgkasparek@gmail.com`**, not `web@`. Not a blocker. Do NOT re-ask this.
 - [ ] 13. Remove `web@` from all devices (phone, Chromebook)
-- [ ] **Final: shut down the mailbox / cancel the `web@` Workspace seat.** Confirm
-  forwarding still routes anything stray, then close it out and stop the billing.
+- [ ] **Final (REVISED 2026-07-17): drop the PAID seat, KEEP the login.** Downgrade
+  web@ to **Cloud Identity Free** (stops billing) — do NOT delete the user, do NOT
+  cancel the identity. See the DECISION REVERSAL at the top. The old "shut down the
+  mailbox / close the account" plan is superseded: closing the account would destroy
+  the web@ Google login (LinkedIn/Airbnb SSO), which is now explicitly retained.
 
 ---
 
